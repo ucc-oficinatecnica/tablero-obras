@@ -286,7 +286,7 @@ function bloqueSobres() {
     <div class="sobres">${sobres}</div>
     <${tag} class="premio-dia ${premioEst}" style="width:100%;text-align:left">
       <span style="color:${tres ? '#8579A8' : 'var(--ink3)'}">${ico('regalo', 24)}</span>
-      <span style="flex:1"><b style="font-weight:400">Premio especial del día</b><br><span class="peq suave">${S.hoy.premio ? 'Ya lo abriste hoy' : tres ? 'Listo para abrir' : 'Abrí las tres entradas para desbloquearlo'}</span></span>
+      <span style="flex:1"><b style="font-weight:600">Premio especial del día</b><br><span class="peq suave">${S.hoy.premio ? 'Ya lo abriste hoy' : tres ? 'Listo para abrir' : 'Abrí las tres entradas para desbloquearlo'}</span></span>
       <span class="puntos">${[c.m, c.t, c.n].map(x => `<i class="${x ? 'h' : ''}"></i>`).join('')}</span></${cierre}>
     <div class="prox">${ico('hoja', 16)}<span>${proxima()}</span></div>`;
 }

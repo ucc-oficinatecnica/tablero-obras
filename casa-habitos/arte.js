@@ -245,12 +245,17 @@ function glifoSobre(k, c) {
   return `<path d="M3 -7A7 7 0 1 0 7 4 6 6 0 0 1 3 -7Z" fill="none" stroke="${c}" stroke-width="1.4" stroke-linejoin="round"/>`;
 }
 function sobreSVG(k, estado) {
-  const col = { listo: ['#F6E7DD', '#C47A5A'], ok: ['#E6EDDF', '#7F9A78'], bloq: ['#F5F0E6', '#C9BFAC'] }[estado];
+  const pal = { listo: ['#FDF1E7', '#EFCDB8', '#C47A5A', '#B8603F'], ok: ['#F1F5EA', '#D5E2CA', '#7F9A78', '#6F8A6D'], bloq: ['#FAF5EC', '#EEE6D6', '#C9BFAC', '#BDB29C'] }[estado];
+  const g = 'sg' + k + estado, glifo = estado === 'bloq' ? '#F4EEE2' : '#FFF6EA';
   return `<svg class="sobre-svg" viewBox="0 0 84 62" aria-hidden="true">
-    <rect x="3" y="8" width="78" height="50" rx="7" fill="${col[0]}" stroke="${col[1]}" stroke-width="1.3"/>
-    <path d="M4 12l38 27 38-27" fill="none" stroke="${col[1]}" stroke-width="1.3" stroke-linejoin="round"/>
-    <circle cx="42" cy="36" r="12.5" fill="#FDFAF4" stroke="${col[1]}" stroke-width="1.3"/>
-    <g transform="translate(42 36) scale(.78)">${estado === 'ok' ? `<path d="M-6 0.5l4.5 4.5 8.5-9" fill="none" stroke="${col[1]}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>` : glifoSobre(k, col[1])}</g>
+    <defs><linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${pal[0]}"/><stop offset="1" stop-color="${pal[1]}"/></linearGradient>
+    <radialGradient id="${g}w" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+    <ellipse cx="42" cy="58" rx="34" ry="3" fill="rgba(80,60,40,.14)"/>
+    <rect x="3" y="8" width="78" height="49" rx="7" fill="url(#${g})" stroke="${pal[2]}" stroke-width="1"/>
+    <path d="M4 56L32 33M80 56L52 33" stroke="${pal[2]}" stroke-width="1" opacity=".45" fill="none"/>
+    <path d="M4.5 10.5L42 40L79.5 10.5" fill="rgba(255,255,255,.38)" stroke="${pal[2]}" stroke-width="1" stroke-linejoin="round"/>
+    <circle cx="42" cy="38" r="12" fill="${pal[3]}"/><circle cx="42" cy="38" r="12" fill="url(#${g}w)"/><circle cx="42" cy="38" r="9.2" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1"/>
+    <g transform="translate(42 38) scale(.74)">${estado === 'ok' ? `<path d="M-6 .5l4.5 4.5 8.5-9" fill="none" stroke="${glifo}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` : glifoSobre(k, glifo)}</g>
   </svg>`;
 }
 function sobreGrande(abierto) {
@@ -292,7 +297,7 @@ const ventana = (x, y, w, h, P, u) =>
   E(x + w * .3, y + h - 11, w * .26, 11, P.leaf, 'opacity=".28"') + E(x + w * .72, y + h - 9, w * .34, 9, P.leaf, 'opacity=".2"') +
   Ln(x + w / 2, y, x + w / 2, y + h, P.trim, 3) + Ln(x, y + h * .5, x + w, y + h * .5, P.trim, 3) +
   R(x - 10, y + h + 5, w + 20, 5, P.trim, 2.5) + R(x - 10, y + h + 10, w + 20, 2, 'rgba(60,45,30,.08)') +
-  Pa(`M${x} ${SUELO} L${x + w} ${SUELO} L${x + w + 54} ${ALTO} L${x - 36} ${ALTO}Z`, LUZ);
+  R(x - 22, y - 22, w + 44, h + 44, 'rgba(255,248,222,.2)', 18) + Pa(`M${x} ${SUELO} L${x + w} ${SUELO} L${x + w + 60} ${ALTO} L${x - 40} ${ALTO}Z`, `url(#haz${u})`);
 
 function pisoMadera(col, col2) {
   let s = R(0, SUELO, ANCHO, ALTO - SUELO, col);
@@ -311,7 +316,18 @@ const zocalo = P => R(0, SUELO - 9, ANCHO, 10, P.trim) + Ln(0, SUELO + 1, ANCHO,
 const paneles = (P, xs) => xs.map(x => R(x, 52, 96, 124, 'none', 2, `stroke="${P.wall2}" stroke-width="1.2" opacity=".7"`)).join('');
 
 function fondoSala(sala, P, u) {
-  const defs = `<defs><linearGradient id="cielo${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.sky1}"/><stop offset="1" stop-color="${P.sky2}"/></linearGradient><linearGradient id="vel${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>`;
+  const defs = `<defs><linearGradient id="cielo${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${P.sky1}"/><stop offset="1" stop-color="${P.sky2}"/></linearGradient><linearGradient id="vel${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <linearGradient id="haz${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6DA" stop-opacity=".5"/><stop offset="1" stop-color="#FFF6DA" stop-opacity=".06"/></linearGradient>
+    <linearGradient id="suelo${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#3A2A18" stop-opacity=".14"/></linearGradient>
+    <linearGradient id="techo${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A2A18" stop-opacity=".12"/><stop offset="1" stop-color="#3A2A18" stop-opacity="0"/></linearGradient>
+    <radialGradient id="vig${u}" cx=".5" cy=".5" r=".72"><stop offset=".62" stop-color="#3A2A18" stop-opacity="0"/><stop offset="1" stop-color="#3A2A18" stop-opacity=".08"/></radialGradient>
+    <filter id="vol${u}" x="-10%" y="-10%" width="120%" height="125%" color-interpolation-filters="sRGB">
+      <feOffset in="SourceAlpha" dy="-3" result="a1"/><feComposite in="SourceAlpha" in2="a1" operator="out" result="b1"/>
+      <feFlood flood-color="#3A2A18" flood-opacity=".2"/><feComposite in2="b1" operator="in" result="sombra"/>
+      <feOffset in="SourceAlpha" dy="2" result="a2"/><feComposite in="SourceAlpha" in2="a2" operator="out" result="b2"/>
+      <feFlood flood-color="#FFFFFF" flood-opacity=".34"/><feComposite in2="b2" operator="in" result="luz"/>
+      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="sombra"/><feMergeNode in="luz"/></feMerge>
+    </filter></defs>`;
   const pared = R(0, 0, ANCHO, SUELO, P.wall) + R(0, 0, ANCHO, SUELO, `url(#vel${u})`);
   let s = defs;
   switch (sala) {
@@ -361,30 +377,15 @@ function fondoSala(sala, P, u) {
         R(0, SUELO, ANCHO, ALTO - SUELO, P.leaf, 0, 'opacity=".34"') + R(0, SUELO, ANCHO, 6, 'rgba(60,45,30,.08)') + piedras; break;
     }
   }
-  return s;
+  return s + R(0, SUELO, ANCHO, ALTO - SUELO, `url(#suelo${u})`) + R(0, 0, ANCHO, 64, `url(#techo${u})`) + R(0, 0, ANCHO, ALTO, `url(#vig${u})`);
 }
 
 /* ---------------- Personaje (figura estilizada, sin cara) ---------------- */
 function personajeSVG(P, caminando) {
-  const piel = '#E8C9AE', pelo = '#5B4636';
-  const cuerpo = `
-    <ellipse cx="0" cy="1" rx="11" ry="2.4" fill="rgba(70,55,40,.16)"/>
-    <g class="pers-cuerpo">
-      <line x1="-3.5" y1="-20" x2="-3.5" y2="-1" stroke="${piel}" stroke-width="3" stroke-linecap="round"/>
-      <line x1="3.5" y1="-20" x2="3.5" y2="-1" stroke="${piel}" stroke-width="3" stroke-linecap="round"/>
-      <path d="M-5.5 -1h4v1.4h-5Zm7 0h4l1 1.4h-5Z" fill="${P.dark}"/>
-      <path d="M-8 -54h16l5 36h-26Z" fill="${P.acc}"/>
-      <path d="M-8 -54h16l1 8h-18Z" fill="rgba(255,255,255,.22)"/>
-      <line x1="-8" y1="-52" x2="-11" y2="-30" stroke="${piel}" stroke-width="2.6" stroke-linecap="round"/>
-      <line x1="8" y1="-52" x2="11" y2="-30" stroke="${piel}" stroke-width="2.6" stroke-linecap="round"/>
-      <rect x="-1.6" y="-60" width="3.2" height="7" fill="${piel}"/>
-      <circle cx="0" cy="-65" r="6.2" fill="${piel}"/>
-      <path d="M-6.6 -66a6.6 6.6 0 0 1 13.2 0c0 2-1 3.4-2 4-1-3.5-3.6-5.4-6-5.4-2.4 0-4.6 1.8-5.2 5.4-1-.6-0-.2 0 0Z" fill="${pelo}"/>
-      <circle cx="0" cy="-73.5" r="3.6" fill="${pelo}"/>
-    </g>`;
+  const cuerpo = `<g class="pers-cuerpo">${pjSVG(.72)}</g>`;
   return caminando
     ? `<g class="pasea"><g class="giro">${cuerpo}</g></g>`
-    : `<g transform="translate(322 306) scale(.82)">${cuerpo}</g>`;
+    : `<g transform="translate(324 306) scale(-1 1)">${cuerpo}</g>`;
 }
 
 /* ---------------- Rincón saludable: crece con los hábitos del día ---------------- */
@@ -416,7 +417,7 @@ function escena(o) {
     const it = ITEM[ob.id];
     const flip = ob.f ? `transform="translate(${it.w} 0) scale(-1 1)"` : '';
     s += `<g class="obj${o.sel === ob.u ? ' sel' : ''}" data-u="${ob.u}" transform="translate(${(ob.x - it.w / 2).toFixed(1)} ${(ob.y - it.h).toFixed(1)})">` +
-      `<g ${flip}>${DIBUJO[ob.id](P)}</g>` +
+      `<g ${flip}><g filter="url(#vol${u})">${DIBUJO[ob.id](P)}</g></g>` +
       `<rect class="selbox" x="-5" y="-5" width="${it.w + 10}" height="${it.h + 10}" rx="7" fill="none"/>` +
       `<rect class="hit" x="-3" y="-3" width="${it.w + 6}" height="${it.h + 6}" fill="transparent"/></g>`;
     if (ef.agua && it.gr === 'planta') {
