@@ -7,7 +7,7 @@
 
 /* ---------------- utilidades ---------------- */
 let S;                                   // todo lo que se guarda
-const UI = { tab: 'inicio', modo: 'sala', sala: null, sel: null, cat: 'todo', cola: [], activo: null, u: 0, firma: '', arrastrando: false };
+const UI = { tab: 'camino', cam: { modo: 'general', nivel: null, anim: null }, modo: 'sala', sala: null, sel: null, cat: 'todo', cola: [], activo: null, u: 0, firma: '', arrastrando: false };
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const p2 = n => String(n).padStart(2, '0');
@@ -238,16 +238,15 @@ function escenaDe(salaId, o = {}) {
 /* =====================================================================
    PANTALLAS
    ===================================================================== */
-const TITULOS = { inicio: 'Hoy', casa: 'Mi casa', habitos: 'Hábitos', tienda: 'Tienda', progreso: 'Progreso', perfil: 'Perfil' };
+const TITULOS = { casa: 'Mi casa', tienda: 'Tienda', perfil: 'Perfil' };
 function pintarTop() {
-  $('#top').innerHTML = `<div class="ttl">${TITULOS[UI.tab]}</div>
-    <div class="der"><button class="chip-hojas" id="chip-hojas" data-a="ir" data-t="tienda" aria-label="Tus hojas">${hojaMoneda(17)}<span>${S.hojas}</span></button>
-    <button class="avatar" data-a="ir" data-t="perfil" aria-label="Perfil">${S.nombre ? esc(S.nombre.trim().charAt(0).toUpperCase()) : ico('perfil', 18)}</button></div>`;
+  const izq = UI.tab === 'camino' ? `<div class="marca">${ico('hoja', 25)}<span>Mi Camino</span></div>` : `<div class="ttl">${TITULOS[UI.tab]}</div>`;
+  $('#top').innerHTML = `${izq}<div class="der"><button class="chip-hojas" id="chip-hojas" data-a="ir" data-t="tienda" aria-label="Tus hojas">${hojaMoneda(17)}<span>${S.hojas}</span></button></div>`;
 }
 function pintarNav() {
-  const tabs = [['inicio', 'Inicio', 'n_inicio'], ['casa', 'Casa', 'n_casa'], ['habitos', 'Hábitos', 'n_habitos'], ['tienda', 'Tienda', 'n_tienda'], ['progreso', 'Progreso', 'n_progreso']];
+  const tabs = [['camino', 'Camino', 'n_camino'], ['casa', 'Mi casa', 'n_casa'], ['tienda', 'Tienda', 'n_tienda'], ['perfil', 'Perfil', 'perfil']];
   const nuevo = listaLibres().length > 0;
-  $('#nav').innerHTML = tabs.map(([k, n, i]) => `<button class="${UI.tab === k ? 'on' : ''}" data-a="ir" data-t="${k}">${ico(i, 23)}<span>${n}</span>${k === 'casa' && nuevo && UI.tab !== 'casa' ? '<i class="punto"></i>' : ''}</button>`).join('');
+  $('#nav').innerHTML = tabs.map(([k, n, i]) => `<button class="${UI.tab === k ? 'on' : ''}" data-a="ir" data-t="${k}"><span class="ic">${ico(i, 23)}${k === 'casa' && nuevo && UI.tab !== 'casa' ? '<i class="punto"></i>' : ''}</span><span>${n}</span></button>`).join('');
   $('#devbtn').innerHTML = S.dev.on ? `<button data-a="devAbrir">DEV</button>` : '';
 }
 
@@ -269,61 +268,80 @@ function bannerFuego(largo) {
   return `<div class="banner-fuego">${ico('fuego', 22)}<div><b>Día de fuego</b><span>${largo ? `Ayer no se completó la misión. Si hoy la completás, defendés tu escalón ${S.escalon} y seguís como si nada.` : `Hoy podés defender tu escalón ${S.escalon}.`}</span></div></div>`;
 }
 
-function vInicio() {
-  const sa = salaDeNivel(S.nivel), c = S.hoy.claims, tres = c.m && c.t && c.n;
+/* ---------------- CAMINO: pantalla principal ---------------- */
+const ICO_SALA = { dormitorio: 'r_dormitorio', living: 'n_casa', cocina: 'r_cocina', bano: 'r_bano', estudio: 'r_estudio', terraza: 'sol', jardin: 'r_jardin' };
+const nEstado = n => S.completados.includes(n) ? 'hecho' : n === S.nivel ? 'actual' : 'futuro';
+const pasoDe = n => { const e = nEstado(n); return e === 'hecho' ? ESCALONES : e === 'actual' ? S.escalon : 0; };
+
+function bloqueSobres() {
+  const c = S.hoy.claims, tres = c.m && c.t && c.n;
   const sobres = ['m', 't', 'n'].map(k => {
     const est = c[k] ? 'ok' : disponible(k) ? 'listo' : 'bloq';
     const sub = est === 'ok' ? 'Abierto' : est === 'listo' ? 'Tocá para abrir' : 'Desde las ' + hh(HORAS[k]);
     return `<button class="sobre ${est}" data-a="sobre" data-k="${k}" ${est === 'listo' ? '' : 'disabled'}>${sobreSVG(k, est)}<span class="nombre">${SOBRES[k].n}</span><span class="sub">${sub}</span></button>`;
   }).join('');
-  const nPremio = [c.m, c.t, c.n].filter(Boolean).length;
   const premioEst = S.hoy.premio ? 'ok' : tres ? 'listo' : '';
-  const premio = `<${tres && !S.hoy.premio ? 'button data-a="premio"' : 'div'} class="premio-dia ${premioEst}" style="width:100%;text-align:left">
+  const tag = tres && !S.hoy.premio ? 'button data-a="premio"' : 'div', cierre = tres && !S.hoy.premio ? 'button' : 'div';
+  return `<div class="s-lbl" style="margin-bottom:10px">Tus entradas de hoy</div>
+    <div class="sobres">${sobres}</div>
+    <${tag} class="premio-dia ${premioEst}" style="width:100%;text-align:left">
       <span style="color:${tres ? '#8579A8' : 'var(--ink3)'}">${ico('regalo', 24)}</span>
       <span style="flex:1"><b style="font-weight:400">Premio especial del día</b><br><span class="peq suave">${S.hoy.premio ? 'Ya lo abriste hoy' : tres ? 'Listo para abrir' : 'Abrí las tres entradas para desbloquearlo'}</span></span>
-      <span class="puntos">${[c.m, c.t, c.n].map(x => `<i class="${x ? 'h' : ''}"></i>`).join('')}</span></${tres && !S.hoy.premio ? 'button' : 'div'}>`;
-  const n = hechos(), tot = habReq().length;
-  const mision = S.hoy.subio
-    ? `<div class="fila"><div class="anillo" style="margin:0;width:46px;height:46px">${ico('check', 22)}</div><div><b style="font-weight:400">Misión completada</b><div class="peq suave">Hoy subiste al escalón ${S.escalon}${S.escalon >= ESCALONES ? '' : ' de ' + ESCALONES}.</div></div></div>`
-    : `<div class="fila" style="justify-content:space-between"><div class="mision"><div class="s-lbl">Misión de hoy</div><div class="num">${n}<small>de ${tot}</small></div></div><button class="btn chico" data-a="ir" data-t="habitos">Ver hábitos</button></div><div class="barra"><i style="width:${tot ? n / tot * 100 : 0}%"></i></div>`;
-  let meta = '';
-  if (S.meta && ITEM[S.meta]) {
-    const it = ITEM[S.meta], pc = Math.min(100, S.hojas / it.p * 100);
-    meta = `<div class="sep-s"></div><button class="card meta-bar" style="width:100%;text-align:left" data-a="ver" data-id="${it.id}"><div class="fila"><div class="s-lbl" style="flex:1">Ahorrando para</div><span class="peq suave">${S.hojas} / ${it.p}</span></div><div class="fila"><div style="width:44px;height:44px">${itemSVG(it.id, PAL())}</div><div style="flex:1"><div>${it.n}</div><div class="barra" style="margin-top:6px"><i style="width:${pc}%"></i></div></div></div></button>`;
-  }
-  const estadoNivel = S.casaCompleta ? 'Casa completa' : `Escalón ${S.escalon} de ${ESCALONES}`;
-  return `
-    <div class="hola"><div class="s-lbl">${fechaLarga()}</div><h1>${saludo()}${S.nombre ? ', ' + esc(S.nombre) : ''}</h1></div>
-    <button class="escena-wrap" style="width:100%;display:block" data-a="ir" data-t="casa">${escenaDe(sa.id)}
-      <div class="escena-pie"><span class="vidrio">Nivel ${Math.min(S.nivel, SALAS.length)} · ${sa.n}</span><span class="vidrio">${estadoNivel} ${barritas(S.escalon)}</span></div></button>
-    <div class="sep-s"></div>${bannerFuego(false)}${S.fuego && !S.hoy.subio ? '<div class="sep-s"></div>' : ''}
-    <div class="card">${mision}</div>
-    <div class="sep"></div>
-    <div class="s-lbl" style="margin-bottom:10px">Tus entradas de hoy</div>
-    <div class="sobres">${sobres}</div>
-    ${premio}
-    <div class="prox">${ico('hoja', 16)}<span>${proxima()}</span></div>
-    ${meta}`;
+      <span class="puntos">${[c.m, c.t, c.n].map(x => `<i class="${x ? 'h' : ''}"></i>`).join('')}</span></${cierre}>
+    <div class="prox">${ico('hoja', 16)}<span>${proxima()}</span></div>`;
 }
 
-function vHabitos() {
-  const n = hechos(), req = habReq(), tot = req.length, bloq = S.hoy.subio;
-  const fila = h => `<button class="hab ${S.hoy.checks[h.id] ? 'on' : ''} ${bloq ? 'bloqueado' : ''}" data-a="hab" data-id="${h.id}"><span class="icono">${ico(h.ic, 22)}</span><span class="nom">${esc(h.n)}</span><span class="tilde">${ico('check', 15)}</span></button>`;
-  const extras = S.hab.filter(h => !h.req);
-  return `
-    <div class="hola"><div class="s-lbl">${fechaLarga()}</div><h1>Misión de hoy</h1></div>
-    ${bannerFuego(true)}${S.fuego && !S.hoy.subio ? '<div class="sep-s"></div>' : ''}
-    <div class="card mision" style="margin-bottom:14px">
-      <div class="fila" style="justify-content:space-between;align-items:flex-end"><div class="num">${n} <small>de ${tot} completados</small></div>
-      ${bloq ? `<span class="pastilla sal">Misión cumplida</span>` : ''}</div>
-      <div class="barra"><i style="width:${tot ? n / tot * 100 : 0}%"></i></div>
-      <p class="peq suave">${bloq ? `Hoy ya subiste al escalón ${S.escalon}${S.escalon >= ESCALONES ? '' : ' de ' + ESCALONES}. Los hábitos de hoy quedan guardados.` : 'Completá todos para subir un escalón. Un escalón por día.'}</p>
+function vGeneral() {
+  const estados = SALAS.map((_, i) => nEstado(i + 1)), sa = salaDeNivel(S.nivel);
+  const pills = SALAS.map((s, i) => {
+    const n = i + 1, e = estados[i], p = MAPA_PTS[i];
+    const marca = e === 'hecho' ? `<span class="ck">${ico('check', 13)}</span>` : `<span class="rm">${ico(e === 'futuro' ? 'candado' : ICO_SALA[s.id], 17)}</span>`;
+    return `<button class="pill-n ${e} ${p.lado}" style="left:${(p.x / MAPA_W * 100).toFixed(2)}%;top:${(p.y / MAPA_H * 100).toFixed(2)}%" data-a="nivelVer" data-n="${n}">${marca}<span class="t"><b>Nivel ${n}</b><small>${s.corto}</small></span></button>`;
+  }).join('');
+  const estadoTxt = S.casaCompleta ? 'Casa completa' : `Nivel ${S.nivel} · Escalón ${S.escalon} de ${ESCALONES}`;
+  return `<div class="camino ${UI.cam.anim ? 'anim-' + UI.cam.anim : ''}">
+    <div class="mapa">${mapaSVG(estados, 'g')}
+      <div class="cam-tit"><h1>Construyendo mi vida saludable</h1><p>Hábitos · Bienestar · Mi casa</p></div>
+      <button class="pill-act" data-a="nivelVer" data-n="${S.nivel}"><span class="rm">${ico(ICO_SALA[sa.id], 22)}</span><b>Nivel ${S.nivel}</b><small>${sa.corto}</small></button>
+      ${pills}
+      <button class="zoom" data-a="nivelVer" data-n="${S.nivel}" aria-label="Acercar al nivel actual">${ico('zoom_mas', 22)}</button>
     </div>
-    <div class="habs">${req.map(fila).join('')}</div>
-    ${extras.length ? `<div class="s-lbl extras-t">Extras · no cuentan para la misión</div><div class="habs">${extras.map(fila).join('')}</div>` : ''}
-    <div class="sep"></div>
-    <button class="btn sec bloque" data-a="habEditar">${ico('editar', 18)} Editar mis hábitos</button>`;
+    <div class="cam-resto">
+      <button class="card prog-card" data-a="nivelVer" data-n="${S.nivel}"><span class="pic">${ico('n_camino', 26)}</span><span class="pt"><span class="peq suave">Tu progreso</span><b>${estadoTxt}</b></span>${ico('der', 18)}</button>
+      ${S.fuego && !S.hoy.subio ? '<div class="sep-s"></div>' + bannerFuego(false) : ''}
+      <div class="sep"></div>${bloqueSobres()}
+    </div></div>`;
 }
+
+function misionCard() {
+  const n = hechos(), req = habReq(), tot = req.length, bloq = S.hoy.subio;
+  const fila = h => `<button class="hab mini ${S.hoy.checks[h.id] ? 'on' : ''} ${bloq ? 'bloqueado' : ''}" data-a="hab" data-id="${h.id}"><span class="icono">${ico(h.ic, 20)}</span><span class="nom">${esc(h.n)}</span><span class="tilde">${ico('check', 14)}</span></button>`;
+  const extras = S.hab.filter(h => !h.req);
+  return `${S.fuego && !S.hoy.subio ? '<div class="fuego-nv">' + bannerFuego(true) + '</div>' : ''}
+    <div class="card mision-card">
+      <div class="fila" style="justify-content:space-between"><h3>Misión de hoy</h3><span class="mc-n">${n} de ${tot}</span></div>
+      ${bloq ? `<p class="peq suave" style="margin:6px 0 10px">Misión cumplida. Hoy subiste al escalón ${S.escalon}${S.escalon >= ESCALONES ? '' : ' de ' + ESCALONES}.</p>` : `<div class="barra" style="margin:10px 0 12px"><i style="width:${tot ? n / tot * 100 : 0}%"></i></div>`}
+      <div class="habs">${req.map(fila).join('')}</div>
+      ${extras.length ? `<div class="s-lbl extras-t">Extras · no cuentan</div><div class="habs">${extras.map(fila).join('')}</div>` : ''}
+      <button class="link" data-a="habEditar">${ico('editar', 15)} Editar mis hábitos</button>
+    </div>`;
+}
+
+function vNivel(n) {
+  const sa = SALAS[n - 1], e = nEstado(n), paso = pasoDe(n);
+  const dots = Array.from({ length: ESCALONES }, (_, i) => `<i class="${i < paso ? 'h' : ''}"></i>`).join('');
+  let panel;
+  if (e === 'actual') panel = misionCard();
+  else if (e === 'hecho') panel = `<div class="card nv-panel"><span class="anillo" style="margin:0 auto 10px;width:52px;height:52px">${ico('copa', 24)}</span><h3>Nivel completado</h3><p class="peq suave" style="margin:4px 0 14px">Tu ${sa.n.toLowerCase()} quedó terminado y guardado para siempre.</p><button class="btn bloque" data-a="irSala" data-id="${sa.id}">Ver mi ${sa.corto.toLowerCase()}</button></div>`;
+  else panel = `<div class="card nv-panel"><span style="color:var(--ink3)">${ico('candado', 24)}</span><h3 style="margin-top:6px">Todavía bloqueado</h3><p class="peq suave" style="margin-top:4px">Se desbloquea al completar el Nivel ${n - 1}: ${SALAS[n - 2].n}.</p></div>`;
+  return `<div class="nivel-vista ${UI.cam.anim ? 'anim-' + UI.cam.anim : ''}">
+    <div class="nv-head"><button class="redondo" data-a="verGeneral" aria-label="Volver al camino">${ico('izq', 18)}</button>
+      <div class="nv-sala"><span class="nv-ic">${ico(ICO_SALA[sa.id], 26)}</span><div><h2>Nivel ${n}</h2><div class="nv-n">${sa.n}</div></div></div></div>
+    <div class="nv-esc">${e === 'hecho' ? 'Nivel completado' : `Escalón ${paso} de ${ESCALONES}`}</div><div class="nv-dots">${dots}</div>
+    <div class="nv-ilu">${nivelSVG(paso, { u: 'v', final: e === 'hecho', sinPj: e === 'futuro' })}<button class="zoom" data-a="verGeneral" aria-label="Ver todo el camino">${ico('zoom_menos', 22)}</button></div>
+    <div class="nv-panel-w">${panel}</div></div>`;
+}
+const vCamino = () => UI.cam.modo === 'nivel' ? vNivel(UI.cam.nivel || S.nivel) : vGeneral();
 
 function htmlBarra() {
   const ob = UI.sel && objDe(UI.sel);
@@ -406,43 +424,28 @@ function vTienda() {
   return `<div class="hola"><h1>Tienda</h1><p class="peq suave" style="margin-top:4px">Tocá el corazón para ahorrar para algo que quieras.</p></div><div class="chips">${chips}</div>${cuerpo}`;
 }
 
-function vProgreso() {
-  const sa = salaDeNivel(S.nivel);
-  const cab = S.casaCompleta ? 'Casa completa' : `Escalón ${S.escalon} de ${ESCALONES}`;
-  const niveles = SALAS.map((s, i) => {
-    const idx = i + 1, hecho = S.completados.includes(idx), actual = idx === S.nivel && !hecho;
-    const est = hecho ? 'hecho' : actual ? 'actual' : 'futuro';
-    return `<div class="nivel ${est}"><span class="bola">${hecho ? ico('check', 15) : idx}</span><div class="txt"><div>${s.n}</div><div class="peq suave">${hecho ? 'Terminado' : actual ? `Escalón ${S.escalon} de ${ESCALONES}` : 'Bloqueado'}</div></div>
-      ${hecho || actual ? `<button class="redondo" data-a="irSala" data-id="${s.id}" aria-label="Ver">${ico('der', 16)}</button>` : ico('candado', 16)}</div>`;
-  }).join('');
+function statsHtml() {
+  return `<div class="stats">
+      <div class="stat"><b>${S.stats.racha}</b><span class="peq suave">días seguidos</span></div>
+      <div class="stat"><b>${S.stats.mejor}</b><span class="peq suave">mejor racha</span></div>
+      <div class="stat"><b>${S.stats.dias}</b><span class="peq suave">misiones cumplidas</span></div>
+      <div class="stat"><b>${ITEMS.filter(i => S.inv[i.id] > 0).length}<span class="peq suave"> / ${ITEMS.length}</span></b><span class="peq suave">objetos descubiertos</span></div></div>`;
+}
+function largoHtml() {
   const ini = parseFloat(String(S.peso.ini).replace(',', '.')), act = parseFloat(String(S.peso.act).replace(',', '.'));
-  let largo = 'Tu objetivo de fondo es cuidarte. Lo que pase con tu cuerpo es una consecuencia de estos hábitos. Si querés llevar un registro tranquilo, podés anotar tu peso en el Perfil.';
+  let largo = 'Tu objetivo de fondo es cuidarte. Lo que pase con tu cuerpo es una consecuencia de estos hábitos.';
   if (ini > 0 && act > 0) {
     const d = ini - act;
     largo = d > 0.05 ? `${d.toFixed(1).replace('.', ',')} kg menos desde que empezaste. Es la consecuencia de lo que venís construyendo.` : 'Cada cuerpo tiene su ritmo. Lo que se construye ahora es la constancia, y el resto llega.';
   }
-  return `
-    <div class="hola"><div class="s-lbl">Nivel ${Math.min(S.nivel, SALAS.length)} · ${sa.n}</div><h1>${cab}</h1></div>
-    ${bannerFuego(false)}${S.fuego && !S.hoy.subio ? '<div class="sep-s"></div>' : ''}
-    <div class="card" style="padding:18px 14px 8px">${escaleraSVG(S.escalon)}</div>
-    <div class="sep"></div>
-    <div class="s-lbl" style="margin-bottom:8px">Tu casa, ambiente por ambiente</div>
-    <div class="card niveles" style="padding:6px 18px">${niveles}</div>
-    <div class="sep"></div>
-    <div class="stats">
-      <div class="stat"><b>${S.stats.racha}</b><span class="peq suave">días seguidos</span></div>
-      <div class="stat"><b>${S.stats.mejor}</b><span class="peq suave">mejor racha</span></div>
-      <div class="stat"><b>${S.stats.dias}</b><span class="peq suave">misiones cumplidas</span></div>
-      <div class="stat"><b>${ITEMS.filter(i => S.inv[i.id] > 0).length}<span class="peq suave"> / ${ITEMS.length}</span></b><span class="peq suave">objetos descubiertos</span></div>
-    </div>
-    <div class="sep"></div>
-    <div class="card"><div class="s-lbl" style="margin-bottom:6px">A largo plazo</div><p class="peq">${largo}</p></div>`;
+  return `<div class="card"><div class="s-lbl" style="margin-bottom:6px">A largo plazo</div><p class="peq">${largo}</p></div>`;
 }
 
 function vPerfil() {
   const estilos = Object.entries(ESTILOS).map(([k, e]) => `<button class="estilo-op ${S.estilo === k ? 'on' : ''}" data-a="estilo" data-id="${k}"><span class="mues">${[e.P.wall, e.P.wood, e.P.acc, e.P.acc2].map(c => `<i style="background:${c}"></i>`).join('')}</span>${e.n}</button>`).join('');
   return `
     <div class="hola"><h1>Perfil</h1></div>
+    ${statsHtml()}<div class="sep-s"></div>${largoHtml()}<div class="sep"></div>
     <div class="card lista-sep">
       <div><div class="s-lbl" style="margin-bottom:6px">Tu nombre</div><input class="campo" data-i="nombre" value="${esc(S.nombre)}" placeholder="Opcional" maxlength="24"></div>
       <div><div class="s-lbl" style="margin-bottom:8px">Estilo de decoración</div><div class="estilos">${estilos}</div><p class="peq suave" style="margin-top:8px">Cambia los colores de toda tu casa. Tus objetos se quedan donde están.</p></div>
@@ -475,17 +478,16 @@ function vPerfil() {
 function vistaActual() {
   switch (UI.tab) {
     case 'casa': return vCasa();
-    case 'habitos': return vHabitos();
     case 'tienda': return vTienda();
-    case 'progreso': return vProgreso();
     case 'perfil': return vPerfil();
-    default: return vInicio();
+    default: return vCamino();
   }
 }
 function render() {
   UI.u = 0;
   pintarTop();
   $('#main').innerHTML = vistaActual();
+  UI.cam.anim = null;
   pintarNav();
   if (UI.tab === 'casa' && UI.modo === 'sala') ligarEscena();
 }
@@ -540,26 +542,24 @@ function pintarModal() {
 function cerrarModal() { const d = UI.activo; if (d && d.alCerrar) d.alCerrar(); sigModal(); render(); }
 const btnCerrar = (t = 'Seguir') => `<div class="mod-btns"><button class="btn" data-a="cerrar">${t}</button></div>`;
 
-function animarEscalera(hasta) {
+function animarNivel(hasta) {
   setTimeout(() => {
-    const m = $('#modal #marca-esc'); if (!m) return;
-    const p = posEsc(hasta);
+    const m = $('#modal #pj-nivel'); if (!m) return;
+    const p = posPj(hasta);
     m.style.transform = `translate(${p.x}px,${p.y}px)`;
-    const t = m.querySelector('.marca-txt'); if (t) { t.textContent = 'estás acá'; t.setAttribute('text-anchor', 'middle'); t.setAttribute('x', 0); }
-    document.querySelectorAll('#modal .esc-p').forEach(g => {
-      const i = +g.dataset.i;
-      g.classList.toggle('hecho', i <= hasta); g.classList.toggle('actual', i === hasta); g.classList.toggle('falta', i > hasta);
+    document.querySelectorAll('#modal .nv-st').forEach(g => {
+      g.classList.remove('hecho', 'actual', 'futuro'); g.classList.add(nvClase(+g.dataset.i, hasta, hasta >= ESCALONES));
     });
-  }, 550);
+  }, 600);
 }
 function modalSubida(desde, hasta, defendio) {
   const txt = defendio
     ? `Volviste con todo. Tu posición quedó defendida y ahora estás en el escalón ${hasta} de ${ESCALONES}.`
     : `Subiste al escalón ${hasta} de ${ESCALONES}.`;
-  return { clase: 'centro', despues: () => animarEscalera(hasta),
+  return { clase: 'centro', despues: () => animarNivel(hasta),
     html: () => `<div class="anillo ${defendio ? 'ter' : ''}">${ico(defendio ? 'fuego' : 'check', 30)}</div>
-      <h2 class="mod-t">${defendio ? 'Posición defendida' : 'Misión completada'}</h2><p class="mod-sub" style="margin-bottom:8px">${txt}</p>
-      <div class="mini-esc">${escaleraSVG(hasta, { desde })}</div>${btnCerrar('Seguir')}` };
+      <h2 class="mod-t">${defendio ? 'Posición defendida' : 'Misión completada'}</h2><p class="mod-sub" style="margin-bottom:10px">${txt}</p>
+      <div class="nv-modal">${nivelSVG(hasta, { desde, u: 'm' })}</div>${btnCerrar('Seguir')}` };
 }
 function modalNivel(n, hayMas) {
   const sa = SALAS[n - 1], sig = SALAS[n];
@@ -710,11 +710,19 @@ function devHacer(k) {
 /* =====================================================================
    ACCIONES (todo lo que se toca)
    ===================================================================== */
-function irA(t) { UI.tab = t; UI.sel = null; render(); $('#main').scrollTop = 0; }
+function irA(t) {
+  if (t === 'inicio' || t === 'progreso' || t === 'camino') { t = 'camino'; UI.cam.modo = 'general'; }
+  if (t === 'habitos') { t = 'camino'; UI.cam.modo = 'nivel'; UI.cam.nivel = S.nivel; }
+  UI.tab = t; UI.sel = null; render(); $('#main').scrollTop = 0;
+}
+function abrirNivel(n) { UI.tab = 'camino'; UI.cam.modo = 'nivel'; UI.cam.nivel = n; UI.cam.anim = 'in'; render(); $('#main').scrollTop = 0; }
+function verGeneral() { UI.tab = 'camino'; UI.cam.modo = 'general'; UI.cam.anim = 'out'; render(); $('#main').scrollTop = 0; }
 function irSala(id) { UI.tab = 'casa'; UI.modo = 'sala'; UI.sala = id; UI.sel = null; render(); $('#main').scrollTop = 0; }
 
 const ACC = {
   ir: el => irA(el.dataset.t),
+  nivelVer: el => abrirNivel(+el.dataset.n),
+  verGeneral: () => verGeneral(),
   modo: el => { UI.modo = el.dataset.m; UI.sel = null; render(); },
   salaMover: el => { const i = SALAS.findIndex(s => s.id === UI.sala) + (+el.dataset.d); if (SALAS[i] && abierta(SALAS[i].id)) { UI.sala = SALAS[i].id; UI.sel = null; render(); } },
   irSala: el => irSala(el.dataset.id),
@@ -776,7 +784,7 @@ const ACC = {
   habListo: () => { cerrarModal(); checkMision(); },
   /* perfil */
   reiniciarTodo: () => modal(modalConfirmar('¿Empezar de nuevo?', 'Se borra toda la partida de este celular: hábitos, hojas, objetos y decoración. No se puede deshacer.', 'reiniciarOk', 'Sí, borrar todo')),
-  reiniciarOk: () => { try { localStorage.removeItem(CLAVE_GUARDADO); } catch (e) { /* nada */ } memoria = null; UI.cola = []; UI.activo = null; $('#modal').classList.remove('on'); S = nuevoEstado(); S.hoy = nuevoDia(clave(ahora())); UI.tab = 'inicio'; UI.sala = null; UI.sel = null; guardar(); render(); modal(modalBienvenida()); },
+  reiniciarOk: () => { try { localStorage.removeItem(CLAVE_GUARDADO); } catch (e) { /* nada */ } memoria = null; UI.cola = []; UI.activo = null; $('#modal').classList.remove('on'); S = nuevoEstado(); S.hoy = nuevoDia(clave(ahora())); UI.tab = 'camino'; UI.cam = { modo: 'general', nivel: null, anim: null }; UI.sala = null; UI.sel = null; guardar(); render(); modal(modalBienvenida()); },
   devToggle: () => { S.dev.on = !S.dev.on; if (!S.dev.on) S.dev.off = 0; guardar(); render(); },
   devAbrir: () => { const d = devPanel(); d.devPanel = true; modal(d); },
   dev: el => devHacer(el.dataset.k)
@@ -798,6 +806,22 @@ document.addEventListener('input', e => {
   const f = e.target.dataset && INP[e.target.dataset.i];
   if (f) f(e.target);
 });
+
+/* ---------------- pellizcar con dos dedos para acercar o alejar el camino ---------------- */
+(function () {
+  let d0 = 0, dl = 0;
+  const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  const m = $('#main');
+  m.addEventListener('touchstart', e => { if (e.touches.length === 2) { d0 = dl = dist(e.touches); } }, { passive: true });
+  m.addEventListener('touchmove', e => { if (e.touches.length === 2 && d0) dl = dist(e.touches); }, { passive: true });
+  m.addEventListener('touchend', e => {
+    if (!d0 || e.touches.length > 1) return;
+    const r = dl / d0; d0 = 0;
+    if (UI.tab !== 'camino') return;
+    if (r > 1.25 && UI.cam.modo === 'general') abrirNivel(S.nivel);
+    else if (r < 0.8 && UI.cam.modo === 'nivel') verGeneral();
+  });
+})();
 
 /* ---------------- reloj: detecta cambios de día y de franja ---------------- */
 const firma = () => clave(ahora()) + '|' + ['m', 't', 'n'].map(k => (disponible(k) ? 1 : 0)).join('');

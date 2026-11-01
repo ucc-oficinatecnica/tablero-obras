@@ -225,6 +225,14 @@ const ICO = {
   arriba: 'M12 19V6M6 11l6-6 6 6',
   abajo: 'M12 5v13M6 13l6 6 6-6',
   basura: 'M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13',
+  n_camino: 'M3 19l6.2-10.5 3.6 6 2.4-3.6L21 19ZM9.2 8.5 11 11M16 4v5M16 4l3 1.2-3 1.2',
+  zoom_mas: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14ZM16.2 16.2 21 21M8 11h6M11 8v6',
+  zoom_menos: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14ZM16.2 16.2 21 21M8 11h6',
+  r_dormitorio: 'M4 19V7M4 15h16v4M20 19v-5a3 3 0 0 0-3-3h-6v4M7.5 13.2a1.7 1.7 0 1 0 0-3.4 1.7 1.7 0 0 0 0 3.4Z',
+  r_cocina: 'M5 10h14v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7ZM3 10h18M9 7c0-1.5 1-2 1-3.5M14 7c0-1.5 1-2 1-3.5',
+  r_bano: 'M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-3ZM6 12V6.5A2.5 2.5 0 0 1 8.5 4M7 19l-1 2M17 19l1 2',
+  r_estudio: 'M4 9h16M5.5 9v10M18.5 9v10M9 9V5.5h6V9M8 14h8',
+  r_jardin: 'M12 21v-6M12 15a5 5 0 1 0-1.4-9.8A4 4 0 0 0 6.8 11 4 4 0 0 0 12 15Z',
   star: 'M12 4l2.4 5 5.4.7-4 3.8 1 5.4-4.8-2.7-4.8 2.7 1-5.4-4-3.8 5.4-.7L12 4Z'
 };
 const ico = (k, s = 22, extra = '') => `<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" ${extra}><path d="${ICO[k] || ICO.hoja}"/></svg>`;
