@@ -714,7 +714,8 @@ sheetBody.addEventListener('click',e=>{
     setTimeout(()=>{ required().forEach(h=>{ if(!state.checks[h.id]) state.checks[h.id]=true; }); save(); render({ladder:false}); if(!doneToday()) complete(); },350);
   }
   else if(act==='reset'){
-    if(confirm('¿Borrar todo el progreso y empezar de cero?')){
+    if(!b.dataset.sure){ b.dataset.sure='1'; b.textContent='Tocá otra vez para borrar todo'; return; }
+    {
       localStorage.removeItem(KEY); state=fresh();
       closeSheet(); buildList(); const l=$('#ladder'); l.innerHTML=''; delete l.dataset.built; render(); toast('Todo vuelve a empezar');
     }
