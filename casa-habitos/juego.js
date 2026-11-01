@@ -300,7 +300,7 @@ function vGeneral() {
   }).join('');
   const estadoTxt = S.casaCompleta ? 'Casa completa' : `Nivel ${S.nivel} · Escalón ${S.escalon} de ${ESCALONES}`;
   return `<div class="camino ${UI.cam.anim ? 'anim-' + UI.cam.anim : ''}">
-    <div class="mapa">${mapaSVG(estados, 'g')}
+    <div class="mapa">${mapaSVG(estados, 'g', S.casaCompleta ? 7 : S.nivel - 1)}
       <div class="cam-tit"><h1>Construyendo mi vida saludable</h1><p>Hábitos · Bienestar · Mi casa</p></div>
       <button class="pill-act" data-a="nivelVer" data-n="${S.nivel}"><span class="rm">${ico(ICO_SALA[sa.id], 22)}</span><b>Nivel ${S.nivel}</b><small>${sa.corto}</small></button>
       ${pills}

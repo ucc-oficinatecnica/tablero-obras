@@ -9,9 +9,9 @@
    lado = hacia dónde se muestra la etiqueta de cada nivel */
 const MAPA_W = 360, MAPA_H = 560;
 const MAPA_PTS = [
-  { x: 150, y: 468, lado: 'd' }, { x: 234, y: 414, lado: 'i' }, { x: 150, y: 362, lado: 'd' },
-  { x: 234, y: 316, lado: 'i' }, { x: 166, y: 268, lado: 'd' }, { x: 226, y: 220, lado: 'i' },
-  { x: 190, y: 166, lado: 'd' }
+  { x: 138, y: 478, lado: 'i' }, { x: 226, y: 420, lado: 'd' }, { x: 136, y: 364, lado: 'i' },
+  { x: 224, y: 312, lado: 'd' }, { x: 142, y: 262, lado: 'i' }, { x: 222, y: 214, lado: 'd' },
+  { x: 190, y: 168, lado: 'd' }
 ];
 const CUMBRE = { x: 206, y: 104 };
 
@@ -117,74 +117,98 @@ const bz = (s, t) => { const u = 1 - t, a = u * u * u, b = 3 * u * u * t, c = 3 
 const bzD = seg => `M${seg[0][0]} ${seg[0][1]}C${f1(seg[1][0])} ${f1(seg[1][1])} ${f1(seg[2][0])} ${f1(seg[2][1])} ${seg[3][0]} ${seg[3][1]}`;
 
 /* ---------------- Mapa de la montaña (vista general) ---------------- */
-function mapaSVG(estados, u = 'm') {
+const mezcla = (a, b, t) => { const h = x => [1, 3, 5].map(k => parseInt(x.slice(k, k + 2), 16)); const A = h(a), B = h(b); return '#' + A.map((v, k) => Math.round(v + (B[k] - v) * t).toString(16).padStart(2, '0')).join(''); };
+/* bosque: grupo de árboles; los de más arriba se ven más lejanos (más claros y azulados) */
+function bosque(cx, cy, n, dx, dy, seed, hMin, hMax) {
+  const r = rng(seed), a = [];
+  for (let i = 0; i < n; i++) a.push([cx + (r() * 2 - 1) * dx, cy + (r() * 2 - 1) * dy, hMin + (hMax - hMin) * r(), r()]);
+  a.sort((p, q) => p[1] - q[1]);
+  return a.map(([x, y, h, k]) => {
+    const t = Math.max(0, Math.min(1, (y - 180) / 330));
+    if (k < .16) return arbol(x, y, h * .75, mezcla('#9DB98C', '#8DB06A', t), mezcla('#86A57C', '#6C9150', t));
+    return pino(x, y, h, mezcla('#6F8F78', '#456443', t), mezcla('#7C9A82', '#5E7E52', t));
+  }).join('');
+}
+const nodoSVG = (p, e) => {
+  if (e === 'hecho') return `<g transform="translate(${p.x} ${p.y})"><circle r="11" fill="rgba(255,255,255,.92)"/><circle r="8" fill="#6F9A3F"/><path d="M-3.4 .2l2.6 2.7 4.6-5.2" stroke="#fff" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+  if (e === 'actual') return `<g transform="translate(${p.x} ${p.y})"><circle class="pulso" r="14" fill="rgba(227,165,60,.38)"/><circle r="11" fill="#fff"/><circle r="7.6" fill="#E3A53C"/><circle r="2.6" fill="#fff"/></g>`;
+  return `<g transform="translate(${p.x} ${p.y})"><circle r="9" fill="rgba(255,255,255,.85)"/><circle r="5.6" fill="#BDB4CB"/></g>`;
+};
+
+/* pos = nivel donde está parada la protagonista (0 a 6), o 7 si llegó a la cumbre */
+function mapaSVG(estados, u = 'm', pos = 0) {
   const E = estados;
-  const pts = [[112, 590], ...MAPA_PTS.map(p => [p.x, p.y]), [CUMBRE.x, CUMBRE.y]];
+  const pts = [[150, 596], ...MAPA_PTS.map(p => [p.x, p.y]), [CUMBRE.x, CUMBRE.y]];
   const segs = curva(pts);
-  const ancho = i => Math.max(4.2, 18 - i * 1.7);
+  const ancho = i => Math.max(4.6, 25 - i * 2.8);
   let camino = '';
-  segs.forEach((s, i) => { camino += `<path d="${bzD(s)}" fill="none" stroke="rgba(40,60,30,.2)" stroke-width="${ancho(i) + 5}" stroke-linecap="round" transform="translate(1.5 3)"/>`; });
-  segs.forEach((s, i) => { camino += `<path d="${bzD(s)}" fill="none" stroke="#C9B58C" stroke-width="${ancho(i) + 3.2}" stroke-linecap="round"/>`; });
-  segs.forEach((s, i) => { camino += `<path d="${bzD(s)}" fill="none" stroke="#F1E6CF" stroke-width="${ancho(i)}" stroke-linecap="round"/>`; });
-  segs.forEach((s, i) => { camino += `<path d="${bzD(s)}" fill="none" stroke="#FAF3E3" stroke-width="${ancho(i) * .42}" stroke-linecap="round" opacity=".85"/>`; });
+  segs.forEach((s, i) => { camino += `<path d="${bzD(s)}" fill="none" stroke="rgba(40,60,30,.22)" stroke-width="${ancho(i) + 5}" stroke-linecap="round" transform="translate(1.5 3.5)"/>`; });
+  segs.forEach((s, i) => { camino += `<path d="${bzD(s)}" fill="none" stroke="#C4AE84" stroke-width="${ancho(i) + 3.4}" stroke-linecap="round"/>`; });
+  segs.forEach((s, i) => { camino += `<path d="${bzD(s)}" fill="none" stroke="#F0E4CB" stroke-width="${ancho(i)}" stroke-linecap="round"/>`; });
+  segs.forEach((s, i) => { camino += `<path d="${bzD(s)}" fill="none" stroke="#FBF4E4" stroke-width="${ancho(i) * .45}" stroke-linecap="round" opacity=".9"/>`; });
   const r = rng(7);
   segs.forEach((s, i) => {
-    for (let t = .08; t < 1; t += .1) {
-      const [x, y] = bz(s, t), [x2, y2] = bz(s, Math.min(1, t + .02)), dx = x2 - x, dy = y2 - y, L = Math.hypot(dx, dy) || 1, w = ancho(i) * .5, side = r() > .5 ? 1 : -1;
-      camino += `<ellipse cx="${f1(x - dy / L * w * side)}" cy="${f1(y + dx / L * w * side)}" rx="${f1(1.1 + r() * .9)}" ry="${f1(.7 + r() * .5)}" fill="${r() > .5 ? '#B9A57F' : '#D8C9A6'}"/>`;
+    for (let t = .06; t < 1; t += .07) {
+      const [x, y] = bz(s, t), [x2, y2] = bz(s, Math.min(1, t + .02)), dx = x2 - x, dy = y2 - y, L = Math.hypot(dx, dy) || 1, w = ancho(i) * .56, side = r() > .5 ? 1 : -1;
+      camino += `<ellipse cx="${f1(x - dy / L * w * side)}" cy="${f1(y + dx / L * w * side)}" rx="${f1(1.1 + r() * 1.1)}" ry="${f1(.7 + r() * .6)}" fill="${r() > .5 ? '#B3A079' : '#D9CBA9'}"/>`;
     }
   });
-  const colB = { hecho: '#86A957', actual: '#E3A53C', futuro: '#C9C0D8' };
-  const banderas = MAPA_PTS.map((p, i) => bandera(p.x, p.y, colB[E[i]], p.lado)).join('');
-  const izq = [[26, 336, 46], [52, 352, 54], [80, 334, 40], [22, 396, 52], [50, 414, 60], [80, 400, 44], [28, 458, 48], [60, 470, 40]];
-  const der = [[330, 340, 42], [306, 360, 50], [338, 396, 54], [294, 484, 44], [330, 480, 56]];
-  const alto = [[28, 262, 36], [58, 276, 42], [300, 258, 34], [330, 270, 40], [286, 204, 30], [318, 214, 34], [40, 200, 28], [66, 214, 30]];
-  const arbs = [...izq, ...der, ...alto].map(([x, y, h], i) => i % 3 === 1 ? pino(x, y, h, '#456443', '#587A4F') : pino(x, y, h, '#4F6E4A', '#628456')).join('') +
-    arbol(304, 456, 34, '#D69A4A', '#C07A3E') + arbol(346, 432, 30, '#8DB06A', '#6C9150') + arbol(98, 482, 30, '#9DBB72', '#789A58');
+  const nodos = MAPA_PTS.map((p, i) => nodoSVG(p, E[i])).join('');
+  /* protagonista sobre el camino, justo antes de su nivel */
+  const k = Math.min(pos, segs.length - 1), pt = bz(segs[k], pos >= 7 ? .5 : .8), destino = k < MAPA_PTS.length ? MAPA_PTS[k] : CUMBRE;
+  const mira = destino.x >= pt[0] ? 1 : -1, ps = 0.66;
+  const heroe = `<g transform="translate(${f1(pt[0])} ${f1(pt[1] + 3)})"><g transform="scale(${mira} 1)">${pjSVG(ps)}</g>
+    <g transform="translate(0 ${f1(-92 * ps - 12)})"><rect x="-27" y="-8.6" width="54" height="15" rx="7.5" fill="#fff" opacity=".95"/><path d="M-4 6.4h8l-4 4Z" fill="#fff" opacity=".95"/><text x="0" y="2.2" text-anchor="middle" font-size="8.8" font-weight="700" fill="#B2603F">estás acá</text></g></g>`;
+  const grupos = bosque(52, 318, 9, 34, 16, 3, 30, 44) + bosque(60, 425, 8, 34, 24, 5, 34, 50) + bosque(48, 215, 6, 28, 22, 8, 22, 32) +
+    bosque(306, 366, 8, 34, 24, 11, 34, 50) + bosque(304, 262, 6, 32, 22, 13, 24, 34) + bosque(312, 140, 5, 26, 16, 17, 20, 28) + bosque(60, 135, 4, 24, 14, 19, 18, 24) +
+    bosque(230, 520, 5, 70, 14, 23, 34, 46) + bosque(34, 530, 3, 18, 8, 29, 40, 50);
+  const lejos = Array.from({ length: 26 }, (_, i) => pino(8 + i * 14.2, 330 + ((i * 7) % 5) * 3, 13 + (i % 3) * 2, '#7B9985', '#8AA591')).join('');
   return `<svg class="mapa-svg" viewBox="0 0 ${MAPA_W} ${MAPA_H}" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
     <defs>
       <linearGradient id="cie${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FAF6EF"/><stop offset=".3" stop-color="#FBEBD6"/><stop offset=".55" stop-color="#F6D9BE"/><stop offset="1" stop-color="#F2E2CF"/></linearGradient>
       <radialGradient id="sol${u}" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFF4D0" stop-opacity="1"/><stop offset=".4" stop-color="#FFE9B8" stop-opacity=".55"/><stop offset="1" stop-color="#FFE9B8" stop-opacity="0"/></radialGradient>
-      <linearGradient id="niebla${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FDF3E6" stop-opacity="0"/><stop offset="1" stop-color="#FDF3E6" stop-opacity=".85"/></linearGradient>
+      <linearGradient id="niebla${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FDF3E6" stop-opacity="0"/><stop offset="1" stop-color="#FDF3E6" stop-opacity=".9"/></linearGradient>
       <linearGradient id="hA${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C9D7B0"/><stop offset="1" stop-color="#A9BF92"/></linearGradient>
       <linearGradient id="hB${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B3CA98"/><stop offset="1" stop-color="#8CAC74"/></linearGradient>
       <linearGradient id="hC${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9BBC80"/><stop offset="1" stop-color="#76A05E"/></linearGradient>
       <linearGradient id="hD${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FA763"/><stop offset="1" stop-color="#5B8545"/></linearGradient>
       <linearGradient id="rayo${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF3CF" stop-opacity=".5"/><stop offset="1" stop-color="#FFF3CF" stop-opacity="0"/></linearGradient>
+      <linearGradient id="mont${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B9C5D1"/><stop offset="1" stop-color="#A3B1C0"/></linearGradient>
     </defs>
     <rect width="${MAPA_W}" height="${MAPA_H}" fill="url(#cie${u})"/>
     <circle cx="206" cy="98" r="150" fill="url(#sol${u})"/>
-    ${[-62, -38, -16, 8, 32, 58].map(a => `<path d="M206 98L${f1(206 + Math.sin(a * Math.PI / 180) * 330)} ${f1(98 + Math.cos(a * Math.PI / 180) * 330)}L${f1(206 + Math.sin((a + 7) * Math.PI / 180) * 330)} ${f1(98 + Math.cos((a + 7) * Math.PI / 180) * 330)}Z" fill="url(#rayo${u})" opacity=".55"/>`).join('')}
-    ${ave(296, 156, 1)}${ave(318, 142, .8)}
-    <path d="M-10 304L30 232L58 254L96 196L140 258L172 238L198 304Z" fill="#D5DCE4"/><path d="M96 196L140 258L172 238L130 304L110 250Z" fill="#B5C0CC" opacity=".6"/>
-    <path d="M178 304L236 218L268 192L300 226L330 202L372 244L372 304Z" fill="#C6D0DA"/><path d="M268 192L300 226L330 202L338 304L270 304Z" fill="#A5B3C2" opacity=".65"/><path d="M268 192L252 224L262 218L270 232L278 214Z" fill="#F6F1EA"/>
-    <path d="M70 336L128 228L166 178L190 142L206 104L222 140L252 180L292 234L348 336Z" fill="#B3BFCC"/>
-    <path d="M206 104L222 140L252 180L292 234L348 336L240 336L222 218Z" fill="#8C9FB3" opacity=".78"/>
-    <path d="M166 178L190 142L206 104L204 174L180 236L128 228Z" fill="#CAD5DF" opacity=".85"/>
-    <path d="M206 104L211 176L228 250M190 142L186 206L172 262M222 140L236 196L262 262" stroke="#8498AC" stroke-width="1.1" fill="none" opacity=".55"/>
-    <path d="M206 104L187 142L196 135L203 150L210 134L218 152L224 141L230 148L222 140Z" fill="#FAF6EE"/><path d="M206 104L222 140L224 141L230 148L218 152L210 134Z" fill="#DCE4EC"/>
-    <rect y="214" width="360" height="120" fill="url(#niebla${u})" opacity=".55"/>
-    ${nube(304, 262, 1.1, .95)}${nube(66, 300, .95, .9)}${nube(324, 126, .7, .75)}${nube(38, 150, .75, .7)}
-    <path d="M0 312Q90 262 190 298T360 286V560H0Z" fill="url(#hA${u})"/><path d="M0 312Q90 262 190 298T360 286" fill="none" stroke="rgba(255,255,235,.55)" stroke-width="1.6"/>
-    ${[[24, 296, 14], [46, 290, 12], [300, 292, 14], [326, 288, 12], [346, 292, 14]].map(([x, y, h]) => pino(x, y, h, '#6F8F72', '#7E9C80')).join('')}
-    <path d="M0 370Q110 308 222 352T360 336V560H0Z" fill="url(#hB${u})"/><path d="M0 370Q110 308 222 352T360 336" fill="none" stroke="rgba(255,255,235,.5)" stroke-width="1.6"/>
-    <path d="M0 438Q120 392 242 428T360 416V560H0Z" fill="url(#hC${u})"/><path d="M0 438Q120 392 242 428T360 416" fill="none" stroke="rgba(255,255,235,.45)" stroke-width="1.6"/>
-    <path d="M0 506Q100 478 200 506T360 496V560H0Z" fill="url(#hD${u})"/><path d="M0 506Q100 478 200 506T360 496" fill="none" stroke="rgba(255,255,235,.4)" stroke-width="1.6"/>
-    <rect y="296" width="360" height="90" fill="url(#niebla${u})" opacity=".4"/>
-    ${pasto(0, 330, 360, 372, 60, 11, '#6F9558', .5)}${pasto(0, 392, 360, 436, 70, 21, '#628A4C', .55)}${pasto(0, 452, 360, 500, 70, 31, '#547C40', .6)}${pasto(0, 512, 360, 556, 70, 41, '#46703A', .6)}
-    ${cabana(318, 440, 1.05)}
-    ${arbs}
+    ${[-62, -38, -16, 8, 32, 58].map(a => `<path d="M206 98L${f1(206 + Math.sin(a * Math.PI / 180) * 330)} ${f1(98 + Math.cos(a * Math.PI / 180) * 330)}L${f1(206 + Math.sin((a + 7) * Math.PI / 180) * 330)} ${f1(98 + Math.cos((a + 7) * Math.PI / 180) * 330)}Z" fill="url(#rayo${u})" opacity=".5"/>`).join('')}
+    ${ave(300, 168, 1)}${ave(322, 154, .8)}${ave(40, 188, .9)}
+    ${nube(66, 172, .8, .92)}${nube(318, 196, .72, .9)}${nube(296, 84, .55, .65)}${nube(40, 96, .5, .55)}
+    <path d="M-10 330L24 262L52 282L92 214L134 276L160 252L190 330Z" fill="#D5DCE4"/><path d="M92 214L134 276L160 252L120 330L104 270Z" fill="#B8C3CF" opacity=".6"/><path d="M92 214L80 236L88 230L94 244L102 230Z" fill="#F6F1EA"/>
+    <path d="M190 330L240 238L272 212L306 244L336 220L372 262L372 330Z" fill="#C6D0DA"/><path d="M272 212L306 244L336 220L346 330L276 330Z" fill="#A9B7C6" opacity=".6"/><path d="M272 212L258 238L266 232L274 246L282 230Z" fill="#F6F1EA"/>
+    <path d="M10 346L70 268L110 222L148 170L184 130L206 104L228 136L260 172L298 216L342 268L372 346Z" fill="url(#mont${u})"/>
+    <path d="M206 104L228 136L260 172L298 216L342 268L372 346L236 346L222 220Z" fill="#8497AB" opacity=".72"/>
+    <path d="M148 170L184 130L206 104L204 176L178 244L110 222Z" fill="#CEDAE4" opacity=".85"/>
+    <path d="M110 222L148 170L142 250L96 280Z" fill="#9FB0C2" opacity=".5"/>
+    <path d="M206 104L211 178L226 252M184 130L180 204L160 270M228 136L242 200L268 270M148 170L146 226" stroke="#7E92A6" stroke-width="1.1" fill="none" opacity=".5"/>
+    <path d="M206 104L186 144L195 137L202 153L209 136L218 156L224 142L231 149L228 136Z" fill="#FAF6EE"/><path d="M206 104L228 136L231 149L218 156L209 136Z" fill="#D9E2EB"/>
+    <rect y="230" width="360" height="130" fill="url(#niebla${u})" opacity=".55"/>
+    ${lejos}
+    <path d="M0 322Q90 276 190 306T360 292V560H0Z" fill="url(#hA${u})"/>
+    <path d="M0 376Q110 318 222 358T360 342V560H0Z" fill="url(#hB${u})"/>
+    <path d="M0 442Q120 398 242 432T360 420V560H0Z" fill="url(#hC${u})"/>
+    <path d="M0 510Q100 484 200 510T360 502V560H0Z" fill="url(#hD${u})"/>
+    ${pasto(0, 340, 360, 376, 28, 11, '#6F9558', .45)}${pasto(0, 400, 360, 436, 34, 21, '#628A4C', .5)}${pasto(0, 456, 360, 500, 40, 31, '#547C40', .55)}
+    ${grupos}
+    ${cabana(318, 474, 1.05)}
     ${camino}
-    ${banderas}
+    ${nodos}
     <g><circle cx="${CUMBRE.x}" cy="${CUMBRE.y - 14}" r="26" fill="url(#sol${u})"/>
     <line x1="${CUMBRE.x}" y1="${CUMBRE.y}" x2="${CUMBRE.x}" y2="${CUMBRE.y - 30}" stroke="#8A8478" stroke-width="1.7"/>
     <path d="M${CUMBRE.x} ${CUMBRE.y - 30}C${CUMBRE.x + 6} ${CUMBRE.y - 34} ${CUMBRE.x + 12} ${CUMBRE.y - 26} ${CUMBRE.x + 20} ${CUMBRE.y - 30}L${CUMBRE.x + 17} ${CUMBRE.y - 24}L${CUMBRE.x + 20} ${CUMBRE.y - 18}C${CUMBRE.x + 12} ${CUMBRE.y - 14} ${CUMBRE.x + 6} ${CUMBRE.y - 22} ${CUMBRE.x} ${CUMBRE.y - 18}Z" fill="#C2503A"/></g>
-    <path d="M-6 568Q4 514 52 504Q100 498 130 568Z" fill="#8F968D"/><path d="M-2 566Q10 520 52 510Q80 506 104 520Q60 526 44 566Z" fill="#B3B8AC"/><path d="M52 510Q80 506 104 520Q84 516 62 520Z" fill="#D2D6CB" opacity=".8"/>
-    ${[[18, 548], [34, 556], [120, 546], [136, 554]].map(([x, y]) => `<path d="M${x} ${y}q-4 -9 -8 -16M${x} ${y}q1 -10 -1 -18M${x} ${y}q4 -8 8 -15" stroke="#4E7A3E" stroke-width="1.5" fill="none" stroke-linecap="round"/>`).join('')}
-    <g transform="translate(68 512)">${pjSVG(1.4)}</g>
-    ${lavanda(150, 546, 1.1)}${lavanda(172, 552, .95, '#8E7FBA')}${lavanda(212, 542, 1)}${lavanda(240, 550, 1.1, '#8E7FBA')}${lavanda(292, 546, 1.05)}${lavanda(326, 552, 1)}${lavanda(14, 556, .9)}
-    ${margarita(188, 548)}${margarita(226, 554, 1.2)}${margarita(268, 550)}${margarita(106, 552)}${margarita(344, 548, 1.1)}
-    ${pasto(0, 536, 360, 560, 40, 51, '#3E6A33', .7)}
+    ${heroe}
+    <path d="M-6 574Q8 536 46 530Q84 526 108 574Z" fill="#8F968D"/><path d="M0 572Q14 544 46 538Q70 535 90 546Q54 548 38 572Z" fill="#B3B8AC"/>
+    <path d="M250 574Q268 548 304 546Q340 546 366 574Z" fill="#969D93"/><path d="M256 572Q274 556 304 553Q326 553 340 560Q300 560 284 572Z" fill="#B9BEB1"/>
+    ${[[16, 556], [30, 564], [118, 558], [132, 566], [214, 560]].map(([x, y]) => `<path d="M${x} ${y}q-4 -9 -8 -16M${x} ${y}q1 -10 -1 -18M${x} ${y}q4 -8 8 -15" stroke="#4E7A3E" stroke-width="1.5" fill="none" stroke-linecap="round"/>`).join('')}
+    ${lavanda(150, 552, 1.05)}${lavanda(172, 558, .95, '#8E7FBA')}${lavanda(204, 548, 1)}${lavanda(232, 556, 1.1, '#8E7FBA')}${lavanda(120, 546, .95)}${lavanda(296, 552, 1.05)}${lavanda(330, 558, 1)}
+    ${margarita(188, 556)}${margarita(220, 562, 1.2)}${margarita(268, 556)}${margarita(106, 560)}${margarita(346, 554, 1.1)}
+    ${pasto(0, 540, 360, 562, 36, 51, '#3E6A33', .7)}
   </svg>`;
 }
 

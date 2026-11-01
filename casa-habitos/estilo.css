@@ -401,3 +401,14 @@ b, strong { font-weight: 600; }
 .cam-tit { right: 128px; }
 .cam-tit h1 { font-size: 26px; }
 .hab.mini.on, .hab.mini { box-shadow: none; }
+
+/* ---- mapa: etiquetas por fuera de las curvas para no tapar el camino ---- */
+.pill-n.d { transform: translate(22px, -50%); }
+.pill-n.i { transform: translate(calc(-100% - 22px), -50%); }
+.pill-n { padding: 5px 13px 5px 6px; gap: 7px; }
+.pill-n .rm, .pill-n .ck { width: 26px; height: 26px; }
+.pill-n b { font-size: 13px; }
+.pill-n small { font-size: 11.5px; }
+.cam-tit { top: 8px; }
+.mapa-svg .pulso { animation: pulso 2.2s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes pulso { 0% { transform: scale(.7); opacity: .9; } 100% { transform: scale(1.7); opacity: 0; } }
