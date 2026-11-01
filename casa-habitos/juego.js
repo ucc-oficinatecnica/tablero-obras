@@ -102,6 +102,7 @@ function checkMision() {
 function alternar(id) {
   if (S.hoy.subio) { toast('La misión de hoy ya está completa. ¡Hasta mañana!'); return; }
   S.hoy.checks[id] = !S.hoy.checks[id];
+  try { if (navigator.vibrate) navigator.vibrate(S.hoy.checks[id] ? 28 : 8); } catch (e) { /* nada */ }
   guardar(); render(); checkMision();
 }
 
@@ -291,23 +292,24 @@ function bloqueSobres() {
     <div class="prox">${ico('hoja', 16)}<span>${proxima()}</span></div>`;
 }
 
+function anilloSVG(n, tot) {
+  const r = 24, c = 2 * Math.PI * r, f = tot ? Math.min(1, n / tot) : 0;
+  return `<svg viewBox="0 0 60 60" class="cta-anillo"><circle cx="30" cy="30" r="${r}" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.35)" stroke-width="6"/><circle cx="30" cy="30" r="${r}" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-dasharray="${f * c} ${c}" transform="rotate(-90 30 30)"/><text x="30" y="35.5" text-anchor="middle" font-size="16" font-weight="800" fill="#fff">${n}/${tot}</text></svg>`;
+}
 function vGeneral() {
   const estados = SALAS.map((_, i) => nEstado(i + 1)), sa = salaDeNivel(S.nivel);
-  const pills = SALAS.map((s, i) => {
-    const n = i + 1, e = estados[i], p = MAPA_PTS[i];
-    const marca = e === 'hecho' ? `<span class="ck">${ico('check', 13)}</span>` : `<span class="rm">${ico(e === 'futuro' ? 'candado' : ICO_SALA[s.id], 17)}</span>`;
-    return `<button class="pill-n ${e} ${p.lado}" style="left:${(p.x / MAPA_W * 100).toFixed(2)}%;top:${(p.y / MAPA_H * 100).toFixed(2)}%" data-a="nivelVer" data-n="${n}">${marca}<span class="t"><b>Nivel ${n}</b><small>${s.corto}</small></span></button>`;
-  }).join('');
-  const estadoTxt = S.casaCompleta ? 'Casa completa' : `Nivel ${S.nivel} · Escalón ${S.escalon} de ${ESCALONES}`;
+  const n = hechos(), tot = habReq().length;
+  let cta;
+  if (S.casaCompleta) cta = `<button class="cta ok" data-a="nivelVer" data-n="${S.nivel}"><span class="cta-ic">${ico('copa', 32)}</span><span class="cta-t"><b>¡Llegaste a la cumbre!</b><small>Completaste los 7 niveles</small></span>${ico('der', 24)}</button>`;
+  else if (S.hoy.subio) cta = `<button class="cta ok" data-a="nivelVer" data-n="${S.nivel}"><span class="cta-ic">${ico('check', 32)}</span><span class="cta-t"><b>¡Misión de hoy cumplida!</b><small>Subiste al escalón ${S.escalon} de ${ESCALONES}</small></span>${ico('der', 24)}</button>`;
+  else cta = `<button class="cta" data-a="nivelVer" data-n="${S.nivel}">${anilloSVG(n, tot)}<span class="cta-t"><b>Hacer mi misión de hoy</b><small>${tot - n === 0 ? 'Todo listo' : 'Te faltan ' + (tot - n) + (tot - n === 1 ? ' hábito' : ' hábitos')}</small></span>${ico('der', 24)}</button>`;
   return `<div class="camino ${UI.cam.anim ? 'anim-' + UI.cam.anim : ''}">
     <div class="mapa">${mapaSVG(estados, 'g', S.casaCompleta ? 7 : S.nivel - 1)}
-      <div class="cam-tit"><h1>Construyendo mi vida saludable</h1><p>Hábitos · Bienestar · Mi casa</p></div>
-      <button class="pill-act" data-a="nivelVer" data-n="${S.nivel}"><span class="rm">${ico(ICO_SALA[sa.id], 22)}</span><b>Nivel ${S.nivel}</b><small>${sa.corto}</small></button>
-      ${pills}
-      <button class="zoom" data-a="nivelVer" data-n="${S.nivel}" aria-label="Acercar al nivel actual">${ico('zoom_mas', 22)}</button>
+      <div class="cam-tit"><h1>Construyendo mi vida saludable</h1></div>
+      <button class="pill-act" data-a="nivelVer" data-n="${S.nivel}"><span class="rm">${ico(ICO_SALA[sa.id], 22)}</span><b>Nivel ${S.nivel}</b><small>Escalón ${S.escalon} de ${ESCALONES}</small></button>
     </div>
     <div class="cam-resto">
-      <button class="card prog-card" data-a="nivelVer" data-n="${S.nivel}"><span class="pic">${ico('n_camino', 26)}</span><span class="pt"><span class="peq suave">Tu progreso</span><b>${estadoTxt}</b></span>${ico('der', 18)}</button>
+      ${cta}
       ${S.fuego && !S.hoy.subio ? '<div class="sep-s"></div>' + bannerFuego(false) : ''}
       <div class="sep"></div>${bloqueSobres()}
     </div></div>`;
@@ -332,11 +334,11 @@ function vNivel(n) {
   const dots = Array.from({ length: ESCALONES }, (_, i) => `<i class="${i < paso ? 'h' : ''}"></i>`).join('');
   let panel;
   if (e === 'actual') panel = misionCard();
-  else if (e === 'hecho') panel = `<div class="card nv-panel"><span class="anillo" style="margin:0 auto 10px;width:52px;height:52px">${ico('copa', 24)}</span><h3>Nivel completado</h3><p class="peq suave" style="margin:4px 0 14px">Tu ${sa.n.toLowerCase()} quedó terminado y guardado para siempre.</p><button class="btn bloque" data-a="irSala" data-id="${sa.id}">Ver mi ${sa.corto.toLowerCase()}</button></div>`;
-  else panel = `<div class="card nv-panel"><span style="color:var(--ink3)">${ico('candado', 24)}</span><h3 style="margin-top:6px">Todavía bloqueado</h3><p class="peq suave" style="margin-top:4px">Se desbloquea al completar el Nivel ${n - 1}: ${SALAS[n - 2].n}.</p></div>`;
+  else if (e === 'hecho') panel = `<div class="card nv-panel"><span class="anillo" style="margin:0 auto 10px;width:52px;height:52px">${ico('copa', 24)}</span><h3>¡Terminaste este nivel!</h3><p class="peq suave" style="margin:4px 0 14px">Quedó guardado para siempre.</p><button class="btn bloque" data-a="irSala" data-id="${sa.id}">Ir a decorar</button></div>`;
+  else panel = `<div class="card nv-panel"><span style="color:var(--ink3)">${ico('candado', 24)}</span><h3 style="margin-top:6px">Todavía bloqueado</h3><p class="peq suave" style="margin-top:4px">Se desbloquea al completar el Nivel ${n - 1}.</p></div>`;
   return `<div class="nivel-vista ${UI.cam.anim ? 'anim-' + UI.cam.anim : ''}">
     <div class="nv-head"><button class="redondo" data-a="verGeneral" aria-label="Volver al camino">${ico('izq', 18)}</button>
-      <div class="nv-sala"><span class="nv-ic">${ico(ICO_SALA[sa.id], 26)}</span><div><h2>Nivel ${n}</h2><div class="nv-n">${sa.n}</div></div></div></div>
+      <div class="nv-sala"><span class="nv-ic">${ico(ICO_SALA[sa.id], 28)}</span><div><h2>Nivel ${n}</h2></div></div></div>
     <div class="nv-esc">${e === 'hecho' ? 'Nivel completado' : `Escalón ${paso} de ${ESCALONES}`}</div><div class="nv-dots">${dots}</div>
     <div class="nv-ilu">${nivelSVG(paso, { u: 'v', final: e === 'hecho', sinPj: e === 'futuro' })}<button class="zoom" data-a="verGeneral" aria-label="Ver todo el camino">${ico('zoom_menos', 22)}</button></div>
     <div class="nv-panel-w">${panel}</div></div>`;
