@@ -88,7 +88,8 @@ Para cambios grandes (rediseñar, reorganizar), avisales que conviene avisarle a
 - Aparece un cartel "Orden: ..." con una ✕ arriba de la lista. "Limpiar filtros" también lo quita. Mientras hay un orden elegido no se puede arrastrar para reordenar a mano.
 - Esto es distinto de tocar un círculo, columna o barra dentro de la tarjeta: eso filtra, no ordena.
 
-## A gestionar (rayo)
-- Cada obra tiene un rayo ⚡ junto a la estrella (campo `gestionar` en `asignaciones/<id>`, booleano; `fix()` lo conserva). Marca las obras que hay que mover ya.
-- Se muestran en una sección "A gestionar" **justo debajo de "Obras destacadas"** y arriba de las sedes (filas naranjas, borde naranja; colores `--gst-*`). Salen de su sede, igual que las destacadas. Siguen contando como obras en curso; la tarjeta "Obras" dice "⚡ N a gestionar" y el título de cada sede aclara cuántas están arriba.
-- **Una obra es destacada o a gestionar, nunca las dos**: al marcar una, se saca la otra (en `index.html`, los clics de `data-star` y `data-rayo` guardan los dos campos juntos). Si por datos viejos tuviera las dos, manda la estrella.
+## Obras importantes (segundo nivel, rombo)
+- Las obras tienen tres niveles de importancia: **1.º destacadas** (estrella, amarillo), **2.º importantes** (rombo ◆, azul) y **3.º el resto**, sin marca, en sus sedes.
+- El rombo está junto a la estrella en cada obra. **El campo en la base se llama `gestionar`** (nombre viejo, de cuando se llamaba "A gestionar" con un rayo; se conservó para no perder las marcas ya hechas; `fix()` lo conserva). Hoy significa "obra importante".
+- Se muestran en una sección "Obras importantes" **justo debajo de "Obras destacadas"** y arriba de las sedes (filas azules, borde azul; colores `--gst-*`). Salen de su sede, igual que las destacadas. Siguen contando como obras en curso; la tarjeta "Obras" dice "◆ N importantes" y el título de cada sede aclara cuántas están arriba.
+- **Una obra es destacada o importante, nunca las dos**: al marcar una, se saca la otra (en `index.html`, los clics de `data-star` y `data-rayo` guardan los dos campos juntos). Si por datos viejos tuviera las dos, manda la estrella.

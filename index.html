@@ -560,13 +560,13 @@ button.tk:hover{box-shadow:0 0 0 2px var(--accent-soft),0 0 0 3px var(--accent)}
 .card h3 .ord:hover::after{opacity:.9}
 .card h3 .ord[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
 .card h3 .ord[aria-pressed="true"]::after{content:"↓";opacity:1}
-/* A gestionar: rayo en cada obra y sección propia con filas naranjas (una obra es destacada o a gestionar, no las dos) */
-:root{--gst-bg:#fff3e6;--gst-head:#ffe0c2;--gst-line:#ee7a1a;--gst-ring:#ffe6cf;--gst-ico:#e0680d}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--gst-bg:#3a2410;--gst-head:#4d3014;--gst-line:#d9741f;--gst-ring:#2e1c0b;--gst-ico:#ff9a4d}}
-:root[data-theme="dark"]{--gst-bg:#3a2410;--gst-head:#4d3014;--gst-line:#d9741f;--gst-ring:#2e1c0b;--gst-ico:#ff9a4d}
-.rx{flex:none;display:grid;place-items:center;width:22px;height:22px;border:0;background:none;font-size:15px;line-height:1;padding:0;border-radius:6px;cursor:pointer;filter:grayscale(1);opacity:.35}
-.rx:hover:not(:disabled){background:var(--gst-bg);filter:none;opacity:1}
-.rx.on{filter:none;opacity:1;background:var(--gst-bg)}
+/* Obras importantes (segundo nivel): rombo en cada obra y sección azul debajo de las destacadas (una obra es destacada o importante, no las dos) */
+:root{--gst-bg:#eef4fd;--gst-head:#d4e4f8;--gst-line:#2f6fc4;--gst-ring:#e3eefb;--gst-ico:#1d4f9a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--gst-bg:#162a44;--gst-head:#1d3858;--gst-line:#4a86d6;--gst-ring:#0f1d30;--gst-ico:#8fb8f5}}
+:root[data-theme="dark"]{--gst-bg:#162a44;--gst-head:#1d3858;--gst-line:#4a86d6;--gst-ring:#0f1d30;--gst-ico:#8fb8f5}
+.rx{flex:none;display:grid;place-items:center;width:22px;height:22px;border:0;background:none;color:var(--line);font-size:14px;line-height:1;padding:0;border-radius:6px;cursor:pointer}
+.rx:hover:not(:disabled){background:var(--gst-bg);color:var(--gst-ico)}
+.rx.on{color:var(--gst-line)}
 .rx:disabled{cursor:default}
 .gst h2{color:var(--gst-ico);display:flex;align-items:center;gap:8px}
 .gst h2 small{color:var(--muted);font-weight:600}
@@ -574,7 +574,7 @@ button.tk:hover{box-shadow:0 0 0 2px var(--accent-soft),0 0 0 3px var(--accent)}
 .gst .tbl>div:first-child{background:var(--gst-head)}
 .gst .item .row{background:var(--gst-bg)}
 .gst .item .nmin{font-weight:800!important}
-.c-total .sub .gsub{color:#ffb066;font-weight:700}
+.c-total .sub .gsub{color:#9cc4ff;font-weight:700}
 </style>
 
 <div class="wrap">
@@ -957,7 +957,7 @@ function renderStats(){
   const tl=nOT+nEs+sinLl||1, aOT=nOT/tl*360, aEs=nEs/tl*360;
   const pct=Math.round(nOT/tl*100);
   document.getElementById("stats").innerHTML=`
-    <div class="card c-total"><h3>Obras</h3><div class="big">${act.length}</div><div class="sub">${nDest?`<span class="dsub">★ ${nDest} ${nDest>1?"destacadas":"destacada"}</span>`:""}${nGes?`<span class="gsub">⚡ ${nGes} a gestionar</span>`:""}${fuera.length?fuera.map(([k,a,b])=>`<span>+ ${k} ${k>1?b:a}</span>`).join(""):(nDest||nGes?"":"todas en curso")}</div></div>
+    <div class="card c-total"><h3>Obras</h3><div class="big">${act.length}</div><div class="sub">${nDest?`<span class="dsub">★ ${nDest} ${nDest>1?"destacadas":"destacada"}</span>`:""}${nGes?`<span class="gsub">◆ ${nGes} ${nGes>1?"importantes":"importante"}</span>`:""}${fuera.length?fuera.map(([k,a,b])=>`<span>+ ${k} ${k>1?b:a}</span>`).join(""):(nDest||nGes?"":"todas en curso")}</div></div>
     <div class="card"><h3>${ordBtn("env","Envergadura")}</h3><div class="bubs">${bubbles}</div>${sinEnv?`<button type="button" class="lg-mini" ${pressed("env","__none")}>${sinEnv} sin definir</button>`:""}</div>
     <div class="card"><h3>${ordBtn("pr","Prioridad")}</h3><div class="cols3">${cols}</div>${sinPr?`<button type="button" class="lg-mini" ${pressed("pr","__none")}>${sinPr} sin definir</button>`:""}</div>
     <div class="card c-etapa"><h3>${ordBtn("est","Etapa")}</h3><div class="hbs">${hbars}</div>${sinEt?`<button type="button" class="lg-mini" ${pressed("est","__none")}>${sinEt} sin etapa</button>`:""}</div>
@@ -1146,7 +1146,7 @@ function row(o,showSede){
   return `<div class="item ${done?"done":""} ${isOpen?"open":""} ${sgOpen?"sgopen":""} ${a.estado==="Suspendida"?"no":FUERA.includes(a.estado)?"fu":""}" id="o-${o.id}">
     <div class="row" ${(canWrite&&!ORD[state.orden])?`draggable="true" data-drag="${o.id}"`:""}>
       <div class="main-cell">
-        <div class="nm"><button class="ed" type="button" data-ed="${o.id}" data-v="${a.envergadura}" title="Envergadura: ${a.envergadura||"sin definir"} (tocá para cambiar)" aria-label="Envergadura de ${esc(nom(o))}: ${a.envergadura||"sin definir"}" ${canWrite?"":"disabled"}>${a.envergadura?a.envergadura[0]:""}</button><button class="st${a.destacada?" on":""}" type="button" data-star="${o.id}" aria-pressed="${!!a.destacada}" title="${a.destacada?"Quitar de obras destacadas":"Marcar como obra destacada"}" aria-label="${a.destacada?"Quitar de obras destacadas":"Marcar como obra destacada"}: ${esc(nom(o))}" ${canWrite?"":"disabled"}>${a.destacada?"★":"☆"}</button><button class="rx${a.gestionar?" on":""}" type="button" data-rayo="${o.id}" aria-pressed="${!!a.gestionar}" title="${a.gestionar?"Sacar de A gestionar":"Marcar como A gestionar (hay que moverla ya)"}" aria-label="${a.gestionar?"Sacar de A gestionar":"Marcar como A gestionar"}: ${esc(nom(o))}" ${canWrite?"":"disabled"}>⚡</button><input class="nmin" id="nm-${o.id}" data-id="${o.id}" data-f="nombre" value="${esc(nom(o))}" aria-label="Nombre de la obra" title="Tocá para editar el nombre" ${canWrite?"":"readonly"}>${showSede?`<span class="sd">${SEDE_LABEL[o.sede]}</span>`:""}${planOpen?`<button class="chev sgt" type="button" data-sgtoggle="${o.id}" aria-expanded="${sgOpen}" title="Ver seguimiento de etapas" aria-label="Seguimiento de etapas de ${esc(nom(o))}">▸</button>`:""}</div>
+        <div class="nm"><button class="ed" type="button" data-ed="${o.id}" data-v="${a.envergadura}" title="Envergadura: ${a.envergadura||"sin definir"} (tocá para cambiar)" aria-label="Envergadura de ${esc(nom(o))}: ${a.envergadura||"sin definir"}" ${canWrite?"":"disabled"}>${a.envergadura?a.envergadura[0]:""}</button><button class="st${a.destacada?" on":""}" type="button" data-star="${o.id}" aria-pressed="${!!a.destacada}" title="${a.destacada?"Quitar de obras destacadas":"Marcar como obra destacada"}" aria-label="${a.destacada?"Quitar de obras destacadas":"Marcar como obra destacada"}: ${esc(nom(o))}" ${canWrite?"":"disabled"}>${a.destacada?"★":"☆"}</button><button class="rx${a.gestionar?" on":""}" type="button" data-rayo="${o.id}" aria-pressed="${!!a.gestionar}" title="${a.gestionar?"Quitar de obras importantes":"Marcar como obra importante"}" aria-label="${a.gestionar?"Quitar de obras importantes":"Marcar como obra importante"}: ${esc(nom(o))}" ${canWrite?"":"disabled"}>${a.gestionar?"◆":"◇"}</button><input class="nmin" id="nm-${o.id}" data-id="${o.id}" data-f="nombre" value="${esc(nom(o))}" aria-label="Nombre de la obra" title="Tocá para editar el nombre" ${canWrite?"":"readonly"}>${showSede?`<span class="sd">${SEDE_LABEL[o.sede]}</span>`:""}${planOpen?`<button class="chev sgt" type="button" data-sgtoggle="${o.id}" aria-expanded="${sgOpen}" title="Ver seguimiento de etapas" aria-label="Seguimiento de etapas de ${esc(nom(o))}">▸</button>`:""}</div>
       </div>
       <div class="c-pr">${sel("pr","prioridad",PR,a.prioridad,"—","Prioridad")}</div>
       <div class="c-est">${sel("es","estado",ESTADOS,a.estado,"Estado / Etapa","Estado")}${planOpen?`<span class="lanes" aria-hidden="true"><b>Real</b><b>Previsto</b></span>`:""}</div>
@@ -1205,14 +1205,14 @@ function renderList(){
   const dest=sortItems(act.filter(o=>asg(o).destacada&&(!state.sede||o.sede===state.sede)).sort((x,y)=>ordOf(x)-ordOf(y)));
   let html=dest.length?`<section class="sede dst"><h2>★ Obras destacadas <small>${dest.length} ${dest.length===1?"obra":"obras"}</small></h2><div class="tbl">${hdr()}${dest.map(o=>row(o,true)).join("")}</div></section>`:"";
   const ges=sortItems(act.filter(o=>asg(o).gestionar&&!asg(o).destacada&&(!state.sede||o.sede===state.sede)).sort((x,y)=>ordOf(x)-ordOf(y)));
-  if(ges.length) html+=`<section class="sede gst"><h2>⚡ A gestionar <small>${ges.length} ${ges.length===1?"obra":"obras"} · para mover ya</small></h2><div class="tbl">${hdr()}${ges.map(o=>row(o,true)).join("")}</div></section>`;
+  if(ges.length) html+=`<section class="sede gst"><h2>◆ Obras importantes <small>${ges.length} ${ges.length===1?"obra":"obras"}</small></h2><div class="tbl">${hdr()}${ges.map(o=>row(o,true)).join("")}</div></section>`;
   html+=SEDES.map(s=>{
     if(state.sede&&state.sede!==s) return "";
     const items=sortItems(act.filter(o=>o.sede===s&&!asg(o).destacada&&!(asg(o).gestionar)).sort((x,y)=>ordOf(x)-ordOf(y))); if(!items.length&&!noFilter) return "";
     const base=LIVE().filter(o=>o.sede===s&&!isFuera(o));
     const asignadas=base.filter(o=>asg(o).responsable).length, nd=base.filter(o=>asg(o).destacada).length, ng=base.filter(o=>asg(o).gestionar&&!asg(o).destacada).length;
     const addF=canWrite?`<form class="addf" data-sede="${s}"><input id="add-${s.replace(/\W/g,"")}" data-id="add" placeholder="+ Agregar obra en ${SEDE_LABEL[s]}…" aria-label="Nombre de la obra nueva en ${SEDE_LABEL[s]}" autocomplete="off"><button type="submit" class="act pri">Agregar</button></form>`:"";
-    return `<section class="sede"><div class="sh-h"><h2>${SEDE_LABEL[s]}</h2><span class="sh-n">${base.length} ${base.length===1?"obra":"obras"}${nd?` · ${nd} ${nd===1?"destacada":"destacadas"} arriba`:""}${ng?` · ${ng} a gestionar arriba`:""}</span><span class="sh-p" title="${asignadas} de ${base.length} con responsable"><span class="pbar"><i style="width:${base.length?Math.round(asignadas/base.length*100):0}%"></i></span>${asignadas}/${base.length} con responsable</span></div>
+    return `<section class="sede"><div class="sh-h"><h2>${SEDE_LABEL[s]}</h2><span class="sh-n">${base.length} ${base.length===1?"obra":"obras"}${nd?` · ${nd} ${nd===1?"destacada":"destacadas"} arriba`:""}${ng?` · ${ng} ${ng===1?"importante":"importantes"} arriba`:""}</span><span class="sh-p" title="${asignadas} de ${base.length} con responsable"><span class="pbar"><i style="width:${base.length?Math.round(asignadas/base.length*100):0}%"></i></span>${asignadas}/${base.length} con responsable</span></div>
       <div class="tbl">${hdr()}${items.map(o=>row(o)).join("")}${addF}</div></section>`;
   }).join("");
   GRUPOS_FUERA.forEach(([est,titulo])=>{
