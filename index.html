@@ -2052,77 +2052,93 @@ window.initRapidas=function(db){
 <style>
 #cl-tab{position:absolute;right:0;top:620px;z-index:100;writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;gap:8px;min-height:110px;box-sizing:border-box;background:var(--total-bg);color:#fff;border:0;border-radius:10px 0 0 10px;padding:14px 8px;font:700 12px var(--f-body);letter-spacing:.06em;cursor:pointer;box-shadow:-2px 2px 8px rgba(0,0,0,.2)}
 #cl-tab:hover{filter:brightness(1.15)}
-#cl-p{position:fixed;top:12px;right:12px;bottom:12px;z-index:101;width:min(780px,calc(100vw - 24px));display:flex;flex-direction:column;overflow:clip;border-radius:18px;background:var(--total-bg);color:#fff;box-shadow:0 16px 44px rgba(0,20,50,.4);opacity:0;pointer-events:none;transform:translateX(calc(100% + 24px));transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .2s}
+#cl-p{--cv-vac:#8ddcbc;--cv-vact:#0b3d2b;--cv-vacs:#dff5ec;--cv-vacf:#1f7a58;--cv-fer:#d64a3c;--cv-fers:#fde8e5;--cv-lim:#2f6fc4;--cv-lims:#e3eefb;--cv-acas:#efe8fd;--cv-acaf:#5b35b0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #cl-p{--cv-vac:#2f8f6f;--cv-vact:#eafff6;--cv-vacs:#173a30;--cv-vacf:#7fe0bd;--cv-fer:#ff8a7a;--cv-fers:#3a1f1c;--cv-lim:#8fb0ff;--cv-lims:#1c2540;--cv-acas:#2b2347;--cv-acaf:#cdb8ff}}
+:root[data-theme="dark"] #cl-p{--cv-vac:#2f8f6f;--cv-vact:#eafff6;--cv-vacs:#173a30;--cv-vacf:#7fe0bd;--cv-fer:#ff8a7a;--cv-fers:#3a1f1c;--cv-lim:#8fb0ff;--cv-lims:#1c2540;--cv-acas:#2b2347;--cv-acaf:#cdb8ff}
+#cl-p{position:fixed;top:12px;right:12px;bottom:12px;z-index:101;width:min(800px,calc(100vw - 24px));display:flex;flex-direction:column;overflow:clip;border-radius:18px;background:var(--surface);color:var(--fg);border:1px solid var(--line);box-shadow:0 16px 44px rgba(0,30,70,.28);opacity:0;pointer-events:none;transform:translateX(calc(100% + 24px));transition:transform .3s cubic-bezier(.2,.8,.2,1),opacity .2s}
 #cl-p.open{transform:none;opacity:1;pointer-events:auto}
 #cl-p[hidden],#cl-tab[hidden]{display:none!important}
 .cl-h{display:flex;align-items:flex-start;gap:8px;padding:14px 14px 8px}
 .cl-h div{flex:1;min-width:0}
-.cl-h h2{margin:0;font:700 16px/1.2 var(--f-display);color:#fff}
-.cl-h p{margin:3px 0 0;color:rgba(255,255,255,.65);font-size:11px}
-.cl-x{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:8px;width:26px;height:26px;font-size:16px;line-height:1;cursor:pointer;flex:none}
-.cl-x:hover{background:rgba(255,255,255,.24)}
-.cl-seg{display:flex;gap:4px;margin:0 14px 8px;padding:3px;background:rgba(255,255,255,.08);border-radius:10px}
-.cl-seg button{flex:1;border:0;border-radius:8px;padding:6px 8px;background:none;color:rgba(255,255,255,.7);font:600 11.5px var(--f-body);cursor:pointer}
-.cl-seg button.on{background:#fff;color:#002C55}
+.cl-h h2{margin:0;font:700 16px/1.2 var(--f-display);color:var(--accent)}
+.cl-h p{margin:3px 0 0;color:var(--muted);font-size:11px}
+.cl-x{border:0;background:var(--surface-2);color:var(--fg);border-radius:8px;width:26px;height:26px;font-size:16px;line-height:1;cursor:pointer;flex:none}
+.cl-x:hover{background:var(--line)}
+.cl-seg{display:flex;gap:4px;margin:0 14px 8px;padding:3px;background:var(--surface-2);border-radius:10px;overflow-x:auto;scrollbar-width:none}
+.cl-seg button{flex:1 0 auto;border:0;border-radius:8px;padding:6px 10px;background:none;color:var(--muted);font:600 11.5px var(--f-body);cursor:pointer;white-space:nowrap}
+.cl-seg button.on{background:var(--total-bg);color:#fff}
 .cl-b{flex:1;min-height:0;overflow:auto;padding:2px 14px 16px;display:grid;gap:10px;align-content:start;grid-auto-rows:max-content}
 .cl-b::-webkit-scrollbar{width:10px}
-.cl-b::-webkit-scrollbar-thumb{background:rgba(255,255,255,.28);border-radius:10px;border:2px solid transparent;background-clip:padding-box}
+.cl-b::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--fg) 28%,transparent);border-radius:10px;border:2px solid transparent;background-clip:padding-box}
 .cl-nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.cl-nav h3{margin:0;flex:1;min-width:120px;text-align:center;font:700 15px var(--f-display)}
-.cl-nav button,.cl-g{border:0;border-radius:8px;background:rgba(255,255,255,.12);color:#fff;padding:6px 11px;font:600 12px var(--f-body);cursor:pointer}
-.cl-nav button:hover,.cl-g:hover{background:rgba(255,255,255,.22)}
+.cl-nav h3{margin:0;flex:1;min-width:120px;text-align:center;font:700 15px var(--f-display);color:var(--fg)}
+.cl-nav button,.cl-g{border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);padding:5px 11px;font:600 12px var(--f-body);cursor:pointer}
+.cl-nav button:hover,.cl-g:hover{background:var(--surface-2)}
 .cl-cap{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.cl-cap label{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.07);font:600 11px var(--f-body);cursor:pointer;user-select:none}
+.cl-cap label{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--surface-2);font:600 11px var(--f-body);cursor:pointer;user-select:none;color:var(--fg)}
 .cl-cap label i{width:9px;height:9px;border-radius:50%;display:inline-block}
 .cl-cap input{display:none}
-.cl-cap label.off{opacity:.45}
-#cl-p select,#cl-p input[type=text],#cl-p input[type=date]{font:inherit;font-size:12px;color:#fff;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 8px;min-width:0;color-scheme:dark}
-#cl-p select option{color:#111;background:#fff}
-#cl-p input::placeholder{color:rgba(255,255,255,.45)}
-#cl-p select:focus,#cl-p input:focus{outline:none;border-color:#fff}
+.cl-cap label.off{opacity:.45;text-decoration:line-through}
+#cl-p select,#cl-p input[type=text],#cl-p input[type=date]{font:inherit;font-size:12px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;min-width:0}
+#cl-p select:focus,#cl-p input:focus{outline:none;border-color:var(--total-bg)}
 .cl-wd,.cl-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
-.cl-wd span{text-align:center;font:700 10px var(--f-body);letter-spacing:.06em;color:rgba(255,255,255,.55);padding:2px 0}
-.cl-c{position:relative;min-height:74px;padding:4px 5px 14px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid transparent;cursor:pointer;display:grid;align-content:start;gap:2px;text-align:left;color:#fff;font:inherit;overflow:hidden}
-.cl-c.fin{background:rgba(255,255,255,.035)}
-.cl-c.otro{opacity:.4}
-.cl-c.hoy{border-color:#fff}
-.cl-c.sel{background:rgba(255,255,255,.2);border-color:#8dbcff}
-.cl-c:hover{background:rgba(255,255,255,.14)}
+.cl-wd span{text-align:center;font:700 10px var(--f-body);letter-spacing:.06em;color:var(--muted);padding:2px 0}
+.cl-c{position:relative;min-height:76px;padding:4px 5px 14px;border-radius:8px;background:var(--surface);border:1px solid var(--line);cursor:pointer;display:grid;align-content:start;gap:2px;text-align:left;color:var(--fg);font:inherit;overflow:hidden}
+.cl-c.fin{background:var(--bg)}
+.cl-c.otro{opacity:.45}
+.cl-c.hoy{border:2px solid var(--total-bg)}
+.cl-c.sel{background:var(--accent-soft);border-color:var(--total-bg)}
+.cl-c:hover{border-color:var(--total-bg)}
 .cl-n{font:700 11px var(--f-body)}
-.cl-f{font:600 9.5px/1.15 var(--f-body);color:#ffb3a8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cl-v{display:inline-block;font:700 9.5px var(--f-body);background:rgba(90,210,170,.2);color:#8ee8c8;border-radius:5px;padding:1px 5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cl-l{display:inline-block;font:700 9.5px var(--f-body);background:rgba(141,188,255,.2);color:#b9d3ff;border-radius:5px;padding:1px 5px}
+.cl-c.hoy .cl-n{color:var(--accent)}
+.cl-f{font:600 9.5px/1.15 var(--f-body);color:var(--cv-fer);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl-v{display:inline-block;font:700 9.5px var(--f-body);background:var(--cv-vacs);color:var(--cv-vacf);border-radius:5px;padding:1px 5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl-l{display:inline-block;font:700 9.5px var(--f-body);background:var(--cv-lims);color:var(--cv-lim);border-radius:5px;padding:1px 5px}
 .cl-a{position:absolute;left:0;right:0;bottom:0;display:flex;height:5px}
 .cl-a i{flex:1}
-.cl-det{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 12px;display:grid;gap:6px}
+.cl-det{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:6px}
 .cl-det h4{margin:0;font:700 13px var(--f-body)}
 .cl-det p{margin:0;font-size:12px;display:flex;gap:8px;align-items:flex-start}
 .cl-det p b{flex:none;font:800 9px var(--f-body);letter-spacing:.06em;padding:3px 7px;border-radius:6px;text-transform:uppercase}
-.cl-det .t-fer b{background:rgba(255,120,105,.2);color:#ffb3a8}.cl-det .t-vac b{background:rgba(90,210,170,.2);color:#8ee8c8}.cl-det .t-aca b{background:rgba(179,136,255,.22);color:#d3baff}.cl-det .t-lim b{background:rgba(141,188,255,.2);color:#b9d3ff}
-.cl-det small{color:rgba(255,255,255,.55);font-size:11.5px}
-.cl-form{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;padding:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px}
-.cl-form label{display:grid;gap:3px;font:600 10.5px var(--f-body);color:rgba(255,255,255,.65);flex:1 1 130px;min-width:0}
+.cl-det .t-fer b{background:var(--cv-fers);color:var(--cv-fer)}.cl-det .t-vac b{background:var(--cv-vacs);color:var(--cv-vacf)}.cl-det .t-aca b{background:var(--cv-acas);color:var(--cv-acaf)}.cl-det .t-lim b{background:var(--cv-lims);color:var(--cv-lim)}
+.cl-det small{color:var(--muted);font-size:11.5px}
+.cl-form{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;padding:10px;background:var(--bg);border:1px solid var(--line);border-radius:12px}
+.cl-form label{display:grid;gap:3px;font:600 10.5px var(--f-body);color:var(--muted);flex:1 1 130px;min-width:0}
 .cl-form label.p{flex:2 1 180px}
-.cl-form .go{flex:none;background:#fff;color:#002C55;border:0;border-radius:8px;padding:7px 14px;font:700 12px var(--f-body);cursor:pointer}
-.cl-err{flex-basis:100%;color:#ffb3a8;font-size:11px}
+.cl-form .go{flex:none;background:var(--total-bg);color:#fff;border:0;border-radius:8px;padding:8px 14px;font:700 12px var(--f-body);cursor:pointer}
+.cl-err{flex-basis:100%;color:var(--martin);font-size:11px}
 .cl-err:empty{display:none}
-.cl-li{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px 10px}
+.cl-li{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
 .cl-li div{flex:1;min-width:0}
 .cl-li b{display:block;font:600 12.5px var(--f-body);overflow-wrap:anywhere}
-.cl-li small{color:rgba(255,255,255,.6);font-size:11px}
-.cl-li button{flex:none;border:0;background:none;color:rgba(255,255,255,.55);font-size:16px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:6px}
-.cl-li button:hover{color:#ffa497;background:rgba(255,255,255,.1)}
-.cl-gt{margin:6px 0 0;font:700 10px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5)}
-.cl-note{color:rgba(255,255,255,.5);font-size:10.5px;font-style:italic;margin:0}
-.cl-vacio{color:rgba(255,255,255,.55);font-size:12px;text-align:center;padding:16px 0}
-.cl-link{border:0;background:none;color:#b9d3ff;font:600 11px var(--f-body);cursor:pointer;text-decoration:underline;padding:0}
-@media (max-width:640px){.cl-c{min-height:54px;padding:3px 3px 12px}.cl-f{font-size:0;width:6px;height:6px;border-radius:50%;background:#ffb3a8}.cl-v{font-size:9px;padding:0 4px}.cl-l{font-size:9px;padding:0 4px}}
+.cl-li small{color:var(--muted);font-size:11px}
+.cl-li button{flex:none;border:0;background:none;color:var(--muted);font-size:16px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:6px}
+.cl-li button:hover{color:var(--martin);background:var(--surface-2)}
+.cl-note{color:var(--muted);font-size:10.5px;font-style:italic;margin:0}
+.cl-vacio{color:var(--muted);font-size:12px;text-align:center;padding:16px 0}
+.cl-link{border:0;background:none;color:var(--accent);font:600 11px var(--f-body);cursor:pointer;text-decoration:underline;padding:0}
+/* línea de tiempo */
+.tl{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:8px 10px 10px 110px;overflow:hidden}
+.tl-m{display:flex;height:22px}
+.tl-m span{border-left:1px solid var(--line);padding:3px 0 0 5px;font:700 10px var(--f-body);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden}
+.tl-r{position:relative;border-top:1px solid var(--line)}
+.tl-r>b{position:absolute;left:-102px;top:0;width:96px;font:600 11.5px/26px var(--f-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-r>b.g{font:700 10px/26px var(--f-body);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.tl-bar{position:absolute;height:18px;border-radius:6px;font:700 9.5px/18px var(--f-body);padding:0 6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;border:0;color:#17202b;text-align:left}
+.tl-bar.v{background:var(--cv-vac);color:var(--cv-vact)}
+.tl-tick{position:absolute;top:4px;width:4px;height:18px;border-radius:2px;background:var(--cv-fer);cursor:pointer;padding:0;border:0}
+.tl-pin{position:absolute;top:8px;width:11px;height:11px;transform:rotate(45deg);background:var(--cv-lim);cursor:pointer;padding:0;border:0}
+.tl-line{position:absolute;top:0;bottom:0;border-left:1.5px dashed color-mix(in srgb,var(--cv-fer) 55%,transparent);pointer-events:none}
+.tl-hoy{position:absolute;top:0;bottom:0;width:2px;background:var(--total-bg);pointer-events:none;z-index:2}
+.tl-lz{position:absolute;inset:0 0 0 110px;pointer-events:none}
+.cl-leg{margin:0;font-size:11px;color:var(--muted)}
+@media (max-width:640px){.cl-c{min-height:54px;padding:3px 3px 12px}.cl-f{font-size:0;width:6px;height:6px;border-radius:50%;background:var(--cv-fer)}.cl-v{font-size:9px;padding:0 4px}.cl-l{font-size:9px;padding:0 4px}.tl{padding-left:74px}.tl-r>b{left:-68px;width:64px;font-size:10.5px}.tl-lz{left:74px}}
 body:has(#mj.open) #cl-tab,body:has(#mn-p.open) #cl-tab{display:none}
 </style>
 <button id="cl-tab" type="button" hidden aria-expanded="false" aria-controls="cl-p">Calendario</button>
 <aside id="cl-p" hidden aria-label="Calendario">
   <div class="cl-h"><div><h2>Calendario</h2><p>Vacaciones del equipo, calendario académico y feriados, para planificar las obras.</p></div><button class="cl-x" type="button" id="cl-cerrar" aria-label="Cerrar">×</button></div>
-  <div class="cl-seg" role="tablist" id="cl-seg"><button data-v="mes" class="on">Mes</button><button data-v="vac">Vacaciones</button><button data-v="aca">Académico</button><button data-v="fer">Feriados</button></div>
+  <div class="cl-seg" role="tablist" id="cl-seg"><button data-v="mes" class="on">Mes</button><button data-v="tl">Línea de tiempo</button><button data-v="vac">Vacaciones</button><button data-v="aca">Académico</button><button data-v="fer">Feriados</button></div>
   <div class="cl-b" id="cl-b"></div>
   <datalist id="cl-personas"></datalist>
 </aside>
@@ -2134,9 +2150,10 @@ body:has(#mj.open) #cl-tab,body:has(#mn-p.open) #cl-tab{display:none}
 window.initCalendario=function(db){
   const col=db.collection("calendario"), $=id=>document.getElementById(id), tab=$("cl-tab"), pan=$("cl-p"); let docs={}, vista="mes", ver=new Date(), sel=null, capas={vac:true,aca:true,fer:true,lim:true}, persona="", msg="";
   ver=new Date(ver.getFullYear(),ver.getMonth(),1);
+  let tlIni=new Date(ver.getFullYear(),ver.getMonth(),1), tlSpan=4, tlInfo="";
   const FER_BASE=[["2026-01-01","Año Nuevo"],["2026-02-16","Carnaval"],["2026-02-17","Carnaval"],["2026-03-23","Puente turístico"],["2026-03-24","Día de la Memoria"],["2026-04-02","Día del Veterano y de los Caídos en Malvinas"],["2026-04-03","Viernes Santo"],["2026-05-01","Día del Trabajador"],["2026-05-25","Revolución de Mayo"],["2026-06-15","Paso a la Inmortalidad del Gral. Güemes (trasladado)"],["2026-06-20","Paso a la Inmortalidad del Gral. Belgrano"],["2026-07-09","Día de la Independencia"],["2026-07-10","Puente turístico"],["2026-08-17","Paso a la Inmortalidad del Gral. San Martín"],["2026-10-12","Día del Respeto a la Diversidad Cultural"],["2026-11-23","Día de la Soberanía Nacional (trasladado)"],["2026-12-07","Puente turístico"],["2026-12-08","Inmaculada Concepción de María"],["2026-12-25","Navidad"],
    ["2027-01-01","Año Nuevo"],["2027-02-08","Carnaval"],["2027-02-09","Carnaval"],["2027-03-24","Día de la Memoria"],["2027-03-26","Viernes Santo"],["2027-04-02","Día del Veterano y de los Caídos en Malvinas"],["2027-05-01","Día del Trabajador"],["2027-05-25","Revolución de Mayo"],["2027-06-20","Paso a la Inmortalidad del Gral. Belgrano"],["2027-06-21","Paso a la Inmortalidad del Gral. Güemes (trasladado)"],["2027-07-09","Día de la Independencia"],["2027-08-16","Paso a la Inmortalidad del Gral. San Martín (trasladado)"],["2027-10-11","Día del Respeto a la Diversidad Cultural (trasladado)"],["2027-11-22","Día de la Soberanía Nacional (trasladado)"],["2027-12-08","Inmaculada Concepción de María"],["2027-12-25","Navidad"]];
-  const COL=["#b388ff","#7fd0a5","#ffd166","#ff9aa2","#8ecae6"];
+  const COL=["#a98bf0","#f2b84b","#6fb7dc","#c99cdb","#e59e6d"];
   const hash=t=>{let h=0; for(const c of t) h=(h*31+c.charCodeAt(0))>>>0; return h};
   const pad=n=>String(n).padStart(2,"0"), ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()), parse=s=>{const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d)};
   const ok=s=>typeof s==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(s);
@@ -2174,11 +2191,35 @@ window.initCalendario=function(db){
     return e;
   }
   // ---- vistas ----
+  const capHtml=()=>`<div class="cl-cap">`+[["vac","Vacaciones","#2fb68a"],["aca","Académico","#a98bf0"],["fer","Feriados","#d64a3c"],["lim","Fechas límite de obras","#2f6fc4"]].map(([k,t,c])=>`<label class="${capas[k]?"":"off"}"><input type="checkbox" data-capa="${k}" ${capas[k]?"checked":""}><i style="background:${c}"></i>${t}</label>`).join("")+`<select id="cl-pf" aria-label="Persona"><option value="">Vacaciones de todos</option>${personas().map(p=>`<option ${p===persona?"selected":""}>${esc(p)}</option>`).join("")}</select></div>`;
+  function vTl(){
+    const ini=tlIni, fin=new Date(ini.getFullYear(),ini.getMonth()+tlSpan,0), total=Math.round((fin-ini)/864e5)+1, s0=ymd(ini), s1=ymd(fin), hoy=ymd(new Date());
+    const pos=(a,b)=>{const A=a<s0?s0:a, B=b>s1?s1:b; if(B<s0||A>s1) return null; const i=Math.round((parse(A)-ini)/864e5), l=Math.round((parse(B)-parse(A))/864e5)+1; return {l:i/total*100,w:Math.max(l/total*100,.6)};};
+    const meses=[]; for(let k=0;k<tlSpan;k++){const d=new Date(ini.getFullYear(),ini.getMonth()+k,1), n=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(); meses.push(`<span style="flex:${n}">${d.toLocaleDateString("es-AR",{month:"short",year:tlSpan>6?"2-digit":undefined}).replace(".","")}</span>`);}
+    const stl=p=>`left:${p.l}%;width:${p.w}%`, dato=(tipo,t,a,b)=>esc(tipo+": "+t+" · "+rango(a,b));
+    // calendario académico: cada período en su carril para que no se pisen
+    let carriles=[]; const ac=capas.aca?lista("aca").filter(x=>pos(x.d1,x.d2)).sort((a,b)=>a.d1<b.d1?-1:1):[];
+    const barrasAc=ac.map(x=>{let k=carriles.findIndex(f=>f<x.d1); if(k<0){k=carriles.length; carriles.push("");} carriles[k]=x.d2; const p=pos(x.d1,x.d2); return `<button type="button" class="tl-bar" data-tl="${dato("Académico",x.t,x.d1,x.d2)}" style="${stl(p)};top:${4+k*24}px;background:${COL[hash(x.t)%COL.length]}">${esc(x.t)}</button>`;}).join("");
+    const filas=[]; 
+    if(capas.aca) filas.push(`<div class="tl-r" style="height:${Math.max(1,carriles.length)*24+8}px"><b class="g">Académico</b>${barrasAc}</div>`);
+    if(capas.vac){const por={}; lista("vac").filter(x=>pos(x.d1,x.d2)&&(!persona||x.t===persona)).forEach(x=>(por[x.t]=por[x.t]||[]).push(x));
+      Object.keys(por).sort((a,b)=>a.localeCompare(b,"es")).forEach(n=>filas.push(`<div class="tl-r" style="height:28px"><b>${esc(n)}</b>${por[n].map(x=>`<button type="button" class="tl-bar v" data-tl="${dato("Vacaciones",x.t,x.d1,x.d2)}" style="${stl(pos(x.d1,x.d2))};top:5px">${""}</button>`).join("")}</div>`));
+      if(!Object.keys(por).length) filas.push(`<div class="tl-r" style="height:28px"><b class="g">Vacaciones</b><span style="position:absolute;left:8px;top:6px;font-size:11px;color:var(--muted)">Nadie tiene vacaciones en estos meses.</span></div>`);}
+    const fer=capas.fer?feriados().filter(x=>pos(x.d1,x.d2)):[];
+    if(capas.fer) filas.push(`<div class="tl-r" style="height:28px"><b class="g">Feriados</b>${fer.map(x=>`<button type="button" class="tl-tick" data-tl="${dato("Feriado",x.t,x.d1,x.d2)}" style="left:${pos(x.d1,x.d2).l}%"></button>`).join("")}</div>`);
+    if(capas.lim){const lm=LIVE().filter(o=>!isFuera(o)&&asg(o).limite&&asg(o).limite>=s0&&asg(o).limite<=s1);
+      filas.push(`<div class="tl-r" style="height:28px"><b class="g">Fechas límite</b>${lm.map(o=>`<button type="button" class="tl-pin" data-tl="${esc("Fecha límite: "+nom(o)+" · "+largo(asg(o).limite))}" style="left:${pos(asg(o).limite,asg(o).limite).l}%"></button>`).join("")}</div>`);}
+    const lineas=fer.map(x=>`<span class="tl-line" style="left:${pos(x.d1,x.d1).l}%"></span>`).join("")+(hoy>=s0&&hoy<=s1?`<span class="tl-hoy" style="left:${pos(hoy,hoy).l}%"></span>`:"");
+    const nm=ini.toLocaleDateString("es-AR",{month:"short",year:"numeric"}).replace(".","")+" a "+fin.toLocaleDateString("es-AR",{month:"short",year:"numeric"}).replace(".","");
+    return `<div class="cl-nav"><button data-tlnav="-1" aria-label="Antes">‹</button><h3>${cap1(nm)}</h3><button data-tlnav="1" aria-label="Después">›</button><button data-tlnav="0">Hoy</button><select id="cl-span" aria-label="Meses a ver">${[3,4,6,12].map(n=>`<option value="${n}" ${n===tlSpan?"selected":""}>${n} meses</option>`).join("")}</select></div>${capHtml()}
+      <div class="tl"><div class="tl-m">${meses.join("")}</div>${filas.join("")}<div class="tl-lz">${lineas}</div></div>
+      <div class="cl-det"><small>${tlInfo?esc(tlInfo):"Tocá una barra, una raya o un rombo para ver el detalle."}</small></div>
+      <p class="cl-leg">Línea azul: hoy · Rayas rojas: feriados · Rombos azules: fechas límite de las obras.</p>`;
+  }
   function vMes(){
     const y=ver.getFullYear(), m=ver.getMonth(), primero=new Date(y,m,1), off=(primero.getDay()+6)%7, ini=new Date(y,m,1-off), hoy=ymd(new Date());
     const nm=cap1(ver.toLocaleDateString("es-AR",{month:"long",year:"numeric"}).replace(" de "," "));
-    const cap=[["vac","Vacaciones","#5ad2aa"],["aca","Académico","#b388ff"],["fer","Feriados","#ff8a7a"],["lim","Fechas límite de obras","#8dbcff"]].map(([k,t,c])=>`<label class="${capas[k]?"":"off"}"><input type="checkbox" data-capa="${k}" ${capas[k]?"checked":""}><i style="background:${c}"></i>${t}</label>`).join("");
-    const ps=personas();
+    const cap=capHtml();
     let celdas="";
     for(let i=0;i<42;i++){const d=new Date(ini.getFullYear(),ini.getMonth(),ini.getDate()+i), s=ymd(d), e=eventos(s), fin=d.getDay()===0||d.getDay()===6;
       const barras=e.aca.length?`<span class="cl-a">${e.aca.map(x=>`<i style="background:${COL[hash(x.t)%COL.length]}" title="${esc(x.t)}"></i>`).join("")}</span>`:"";
@@ -2189,7 +2230,7 @@ window.initCalendario=function(db){
       det=`<div class="cl-det"><h4>${cap1(parse(sel).toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long",year:"numeric"}))}</h4>`
        +(hay?e.fer.map(x=>`<p class="t-fer"><b>Feriado</b>${esc(x.t)}</p>`).join("")+e.aca.map(x=>`<p class="t-aca"><b>Académico</b><span>${esc(x.t)} <small>${rango(x.d1,x.d2)}</small></span></p>`).join("")+e.vac.map(x=>`<p class="t-vac"><b>Vacaciones</b><span>${esc(x.t)} <small>${rango(x.d1,x.d2)}</small></span></p>`).join("")+e.lim.map(x=>`<p class="t-lim"><b>Límite</b><span>${esc(x.t)} <small>${esc(x.sede)}</small></span></p>`).join(""):`<small>No hay nada marcado este día.</small>`)+`</div>`;}
     return `<div class="cl-nav"><button data-nav="-1" aria-label="Mes anterior">‹</button><h3>${nm}</h3><button data-nav="1" aria-label="Mes siguiente">›</button><button data-nav="0">Hoy</button></div>
-      <div class="cl-cap">${cap}<select id="cl-pf" aria-label="Persona"><option value="">Vacaciones de todos</option>${ps.map(p=>`<option ${p===persona?"selected":""}>${esc(p)}</option>`).join("")}</select></div>
+      ${cap}
       <div><div class="cl-wd">${["L","M","M","J","V","S","D"].map(x=>`<span>${x}</span>`).join("")}</div><div class="cl-grid">${celdas}</div></div>${det}`;
   }
   const form=(campos,btn)=>`<form class="cl-form" id="cl-form">${campos}<button class="go" type="submit">${btn}</button><div class="cl-err" id="cl-err" role="alert">${esc(msg)}</div></form>`;
@@ -2207,11 +2248,13 @@ window.initCalendario=function(db){
      +(oc?`<p class="cl-note">${oc} ${oc===1?"feriado sacado":"feriados sacados"} de la lista. <button class="cl-link" data-restaurar="1">Restaurar</button></p>`:"");}
   function pintar(){ if(!pan.classList.contains("open")) return;
     const b=$("cl-b"), y=b.scrollTop; $("cl-personas").innerHTML=personas().map(p=>`<option value="${esc(p)}">`).join("");
-    b.innerHTML=vista==="mes"?vMes():vista==="vac"?vVac():vista==="aca"?vAca():vFer(); b.scrollTop=y;
+    b.innerHTML=vista==="mes"?vMes():vista==="tl"?vTl():vista==="vac"?vVac():vista==="aca"?vAca():vFer(); b.scrollTop=y;
     document.querySelectorAll("#cl-seg button").forEach(x=>x.classList.toggle("on",x.dataset.v===vista)); }
   $("cl-seg").onclick=e=>{const b=e.target.closest("button[data-v]"); if(!b) return; vista=b.dataset.v; msg=""; pintar();};
   $("cl-b").addEventListener("click",async e=>{
     const n=e.target.closest("[data-nav]"); if(n){const k=+n.dataset.nav; ver=k?new Date(ver.getFullYear(),ver.getMonth()+k,1):new Date(new Date().getFullYear(),new Date().getMonth(),1); pintar(); return;}
+    const tn=e.target.closest("[data-tlnav]"); if(tn){const k=+tn.dataset.tlnav; tlIni=k?new Date(tlIni.getFullYear(),tlIni.getMonth()+k,1):new Date(new Date().getFullYear(),new Date().getMonth(),1); pintar(); return;}
+    const ti=e.target.closest("[data-tl]"); if(ti){tlInfo=ti.dataset.tl; pintar(); return;}
     const d=e.target.closest("[data-dia]"); if(d){sel=sel===d.dataset.dia?null:d.dataset.dia; pintar(); return;}
     const x=e.target.closest("[data-del]"); if(x){const id=x.dataset.del;
       try{ if(id.startsWith("base:")){ if(confirm("¿Sacar este feriado de la lista?")) await col.doc(nid()).set({tipo:"oculto",d1:id.slice(5),d2:id.slice(5),t:"",n:firma(),f:Date.now()}); }
@@ -2220,6 +2263,7 @@ window.initCalendario=function(db){
   });
   $("cl-b").addEventListener("change",e=>{
     const c=e.target.closest("[data-capa]"); if(c){capas[c.dataset.capa]=c.checked; pintar(); return;}
+    if(e.target.id==="cl-span"){tlSpan=+e.target.value; pintar(); return;}
     if(e.target.id==="cl-pf"){persona=e.target.value; pintar();}});
   $("cl-b").addEventListener("submit",async e=>{e.preventDefault(); const f=$("cl-form"); if(!f||e.target!==f) return; msg="";
     const t=$("cl-t").value.trim(), d1=$("cl-d1").value, d2=$("cl-d2")?$("cl-d2").value:d1, er=$("cl-err"), tipo=vista==="vac"?"vac":vista==="aca"?"aca":"fer";
