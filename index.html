@@ -1406,7 +1406,7 @@ renderAll();
     if(missing.length&&userNs&&userNs.profiles){try{const ps=await userNs.profiles(missing); missing.forEach(i=>{names[i]=(ps&&ps[i]&&ps[i].name)||""}); refreshFromStore();}catch(e){}}
   },err=>{});
   };
-  iniciar(); if(window.initMejoras) window.initMejoras(db); if(window.initMinutas) window.initMinutas(db);
+  iniciar(); if(window.initMejoras) window.initMejoras(db); if(window.initMinutas) window.initMinutas(db); if(window.initRapidas) window.initRapidas(db);
 })();
 </script>
 
@@ -1883,6 +1883,110 @@ window.initMinutas=function(db){
       pdf:typeof v.pdf==="string"&&v.pdf.startsWith("data:application/pdf")?v.pdf:"",kb:+v.kb||0,link:typeof v.link==="string"?v.link:""};});
     pintar();},()=>{});
   pintar();
+};
+</script>
+<style>
+#rp-fab{position:fixed;right:max(20px,env(safe-area-inset-right,0px));bottom:max(20px,env(safe-area-inset-bottom,0px));z-index:120;width:54px;height:54px;border-radius:50%;border:0;background:var(--total-bg);color:#fff;font:300 32px/1 var(--f-body);display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 24px rgba(0,30,70,.4);transition:transform .15s}
+#rp-fab:hover{transform:scale(1.06)}
+#rp-fab span{margin-top:-3px;transition:transform .2s}
+#rp-fab[aria-expanded="true"] span{transform:rotate(45deg)}
+#rp-fab b{position:absolute;top:-5px;right:-5px;background:#00A4EB;color:#04223a;border-radius:999px;font:800 11px var(--f-body);padding:2px 7px}
+#rp-pop{position:fixed;right:max(20px,env(safe-area-inset-right,0px));bottom:84px;z-index:119;width:min(360px,calc(100vw - 40px));max-height:min(600px,calc(100vh - 110px));max-height:min(600px,calc(100dvh - 110px));display:flex;flex-direction:column;gap:10px;padding:14px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:16px;box-shadow:0 16px 40px rgba(0,30,70,.28);opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .15s,transform .15s}
+#rp-pop.open{opacity:1;pointer-events:auto;transform:none}
+#rp-fab[hidden],#rp-pop[hidden]{display:none!important}
+body:has(#mj.open) #rp-fab,body:has(#mn-p.open) #rp-fab,body:has(#mj.open) #rp-pop,body:has(#mn-p.open) #rp-pop{display:none}
+.rp-h{display:flex;align-items:center;gap:8px}
+.rp-h h3{margin:0;font:700 13px var(--f-body);color:var(--accent)}
+.rp-h span{flex:1;color:var(--muted);font-size:11px}
+.rp-x{border:0;background:none;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:6px}
+.rp-x:hover{background:var(--surface-2);color:var(--fg)}
+#rp-form{display:grid;gap:7px}
+.rp-seg{display:flex;gap:4px;background:var(--surface-2);border-radius:8px;padding:3px}
+.rp-seg button{flex:1;border:0;border-radius:6px;padding:6px;background:none;color:var(--muted);font:600 11.5px var(--f-body);cursor:pointer}
+.rp-seg button.on{background:var(--total-bg);color:#fff}
+#rp-pop input[type=text],#rp-pop select{font:inherit;font-size:12.5px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0;width:100%;box-sizing:border-box}
+#rp-pop input[type=text]:focus,#rp-pop select:focus{outline:none;border-color:var(--total-bg)}
+.rp-f2{display:flex;gap:7px}
+.rp-f2 #rp-nom{flex:0 0 36%}
+.rp-go{background:var(--total-bg);color:#fff;border:0;border-radius:8px;padding:0 14px;font:700 12px var(--f-body);cursor:pointer;white-space:nowrap}
+.rp-save{justify-self:end;padding:7px 18px}
+.rp-err{color:var(--martin);font-size:11px}
+.rp-err:empty{display:none}
+.rp-l{flex:1;min-height:0;overflow:auto;display:grid;gap:7px;align-content:start;grid-auto-rows:max-content;padding-top:8px;border-top:1px solid var(--line)}
+.rp-l::-webkit-scrollbar{width:10px}
+.rp-l::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--fg) 28%,transparent);border-radius:10px;border:2px solid transparent;background-clip:padding-box}
+.rp-i{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;gap:6px}
+.rp-r1{display:flex;gap:8px;align-items:flex-start}
+.rp-tag{flex:none;border:0;border-radius:6px;padding:3px 7px;font:800 9px var(--f-body);letter-spacing:.06em;cursor:pointer;background:var(--ot-soft);color:var(--ot)}
+.rp-tag.obra{background:var(--obra-soft);color:var(--obra)}
+.rp-tag:hover{filter:brightness(.95);outline:1px dashed currentColor}
+.rp-t{flex:1;min-width:0;font:600 12.5px/1.35 var(--f-body);overflow-wrap:anywhere}
+.rp-del{flex:none;border:0;background:none;color:var(--muted);cursor:pointer;font-size:15px;line-height:1;padding:0 3px}
+.rp-del:hover{color:var(--martin)}
+.rp-m{font-size:10.5px;color:var(--muted)}
+.rp-ac{display:flex;gap:6px}
+.rp-ac select{flex:1;padding:5px 8px!important;font-size:11.5px!important}
+.rp-ac button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:5px 10px;font:700 11px var(--f-body);cursor:pointer}
+.rp-ac button.ok{background:var(--total-bg);color:#fff;border-color:var(--total-bg)}
+.rp-vacio{color:var(--muted);font-size:11.5px;text-align:center;padding:14px 0}
+@media (prefers-reduced-motion:reduce){#rp-pop,#rp-fab,#rp-fab span{transition:none}}
+</style>
+<button id="rp-fab" type="button" hidden aria-label="Notas rápidas" aria-expanded="false" aria-controls="rp-pop"><span>+</span><b id="rp-n" hidden>0</b></button>
+<aside id="rp-pop" hidden aria-label="Notas rápidas">
+  <div class="rp-h"><h3>Notas rápidas</h3><span id="rp-cnt"></span><button class="rp-x" type="button" id="rp-cerrar" aria-label="Cerrar">×</button></div>
+  <form id="rp-form">
+    <div class="rp-seg" role="group" aria-label="Tipo"><button type="button" data-t="nota" class="on">Nota</button><button type="button" data-t="obra">Título de obra</button></div>
+    <div class="rp-f2"><input type="text" id="rp-nom" maxlength="60" placeholder="Tu nombre" aria-label="Tu nombre" autocomplete="name"><input type="text" id="rp-txt" maxlength="300" placeholder="Escribí acá y apretá Enter…" aria-label="Nota rápida" autocomplete="off"></div>
+    <div class="rp-err" id="rp-err" role="alert"></div>
+    <button type="submit" class="rp-go rp-save">Guardar</button>
+  </form>
+  <div class="rp-l" id="rp-lista"></div>
+</aside>
+<script>
+// Notas rápidas: cada una es un documento de la colección "rapidas" en Firestore: t (texto), tipo ("nota" u "obra"), n (quién), f (cuándo).
+// Un título de obra se pasa a obra eligiendo la sede (se crea en "obras"); una nota se asocia a una obra (queda como comentario de esa obra).
+window.initRapidas=function(db){
+  const col=db.collection("rapidas"), $=id=>document.getElementById(id), fab=$("rp-fab"), pop=$("rp-pop"); let items={}, tipoNuevo="nota", sel={};
+  const dia=ms=>new Date(ms).toLocaleDateString("es-AR",{day:"numeric",month:"short"});
+  const nid=()=>"r"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  const nombre=()=>{const n=$("rp-nom").value.trim().slice(0,60); try{localStorage.setItem("obras-firma",n)}catch(e){} return n;};
+  try{$("rp-nom").value=localStorage.getItem("obras-firma")||""}catch(e){}
+  const abrir=v=>{pop.classList.toggle("open",v); fab.setAttribute("aria-expanded",v); if(v) $("rp-txt").focus();};
+  const sedeOpts=()=>'<option value="">Elegir sede…</option>'+SEDES.map(s=>`<option value="${esc(s)}">${esc(SEDE_LABEL[s])}</option>`).join("");
+  const obraOpts=()=>'<option value="">Asociar a una obra…</option>'+SEDES.map(s=>`<optgroup label="${esc(SEDE_LABEL[s])}">`+LIVE().filter(o=>o.sede===s).map(o=>`<option value="${esc(o.id)}">${esc(nom(o))}</option>`).join("")+"</optgroup>").join("");
+  function pintar(){
+    const ids=Object.keys(items).sort((a,b)=>items[b].f-items[a].f), n=ids.length;
+    $("rp-n").textContent=n; $("rp-n").hidden=!n; $("rp-cnt").textContent=n?"· "+n+(n===1?" por acomodar":" por acomodar"):"";
+    $("rp-lista").innerHTML=n?ids.map(i=>{const x=items[i], id=esc(i), esObra=x.tipo==="obra";
+      return `<div class="rp-i"><div class="rp-r1"><button type="button" class="rp-tag ${esObra?"obra":"nota"}" data-a="tipo" data-i="${id}" title="Tocá para cambiar entre nota y título de obra">${esObra?"OBRA":"NOTA"}</button><div class="rp-t">${esc(x.t)}</div><button type="button" class="rp-del" data-a="del" data-i="${id}" aria-label="Borrar">×</button></div>
+      <div class="rp-m">${x.n?esc(x.n)+" · ":""}${dia(x.f)}</div>
+      <div class="rp-ac"><select data-s="${id}" aria-label="${esObra?"Sede":"Obra"}">${esObra?sedeOpts():obraOpts()}</select><button type="button" class="ok" data-a="${esObra?"obra":"asoc"}" data-i="${id}">${esObra?"Pasar a obra":"Asociar"}</button></div></div>`}).join("")
+      :'<div class="rp-vacio">No hay nada por acomodar.<br>Lo que anotes arriba aparece acá.</div>';
+    document.querySelectorAll("#rp-lista select[data-s]").forEach(s=>{const v=sel[s.dataset.s+"|"+items[s.dataset.s].tipo]; if(v) s.value=v;});
+  }
+  col.onSnapshot(s=>{items={}; s.docs.forEach(d=>{const v=d.data(); if(!v||typeof v.t!=="string") return;
+    items[d.id]={t:v.t,tipo:v.tipo==="obra"?"obra":"nota",n:typeof v.n==="string"?v.n:"",f:+v.f||0};}); pintar();},()=>{});
+  fab.hidden=false; pop.hidden=false; pintar();
+  fab.onclick=()=>abrir(!pop.classList.contains("open")); $("rp-cerrar").onclick=()=>abrir(false);
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&pop.classList.contains("open")) abrir(false);});
+  document.querySelectorAll(".rp-seg button").forEach(b=>b.onclick=()=>{tipoNuevo=b.dataset.t; document.querySelectorAll(".rp-seg button").forEach(x=>x.classList.toggle("on",x===b)); $("rp-txt").placeholder=tipoNuevo==="obra"?"Título de la obra y Enter…":"Escribí acá y apretá Enter…"; $("rp-txt").focus();});
+  $("rp-form").onsubmit=async e=>{e.preventDefault(); const t=$("rp-txt").value.trim(), er=$("rp-err"); er.textContent=""; if(!t) return;
+    const n=nombre(); if(!n){er.textContent="Poné tu nombre."; $("rp-nom").focus(); return;}
+    $("rp-txt").value="";
+    try{await col.doc(nid()).set({t:t.slice(0,300),tipo:tipoNuevo,n,f:Date.now()});}
+    catch(x){$("rp-txt").value=t; er.textContent="No se pudo guardar. Probá de nuevo (si sigue fallando, avisá: puede faltar publicar las reglas nuevas en Firebase).";}
+    $("rp-txt").focus();};
+  $("rp-lista").addEventListener("change",e=>{const s=e.target.closest("select[data-s]"); if(s) sel[s.dataset.s+"|"+items[s.dataset.s].tipo]=s.value;});
+  $("rp-lista").onclick=async e=>{const b=e.target.closest("[data-a]"); if(!b) return; const i=b.dataset.i, x=items[i], a=b.dataset.a; if(!x) return;
+    const valor=()=>{const s=document.querySelector(`#rp-lista select[data-s="${CSS.escape(i)}"]`); return s?s.value:"";};
+    try{
+      if(a==="tipo") await col.doc(i).update({tipo:x.tipo==="obra"?"nota":"obra"});
+      else if(a==="del"){ if(confirm("¿Borrar esta nota rápida?")) await col.doc(i).delete(); }
+      else if(a==="obra"){ const sede=valor(); if(!sede){showNotice("Elegí primero la sede."); return;}
+        await db.collection("obras").add({sede,nombre:x.t.slice(0,200),creado:Date.now()}); await col.doc(i).delete(); showNotice("Obra agregada en "+SEDE_LABEL[sede]+". Ahora podés completarla en la lista."); }
+      else if(a==="asoc"){ const obra=valor(); if(!obra){showNotice("Elegí primero la obra."); return;} if(!myId){showNotice("No se pudo identificar tu usuario. Recargá la página."); return;}
+        await db.collection("comentarios").add({obra,tipo:"nota",texto:x.t.slice(0,2000),autor:myId,firma:(x.n||nombre()||"Alguien").slice(0,60),fecha:Date.now()}); await col.doc(i).delete(); showNotice("Nota agregada como comentario de la obra."); }
+    }catch(err){showNotice("No se pudo completar la acción. Probá de nuevo.");}};
 };
 </script>
 </body></html>

@@ -55,6 +55,16 @@ service cloud.firestore {
         && request.resource.data.t.size() <= 150;
       allow delete: if esMiembro();
     }
+    // Notas rápidas: texto corto de una nota o de un título de obra por acomodar (lo ven todos los del equipo).
+    match /rapidas/{id} {
+      allow read: if esMiembro();
+      allow create, update: if esMiembro()
+        && request.resource.data.t is string
+        && request.resource.data.t.size() <= 300
+        && request.resource.data.tipo in ['nota', 'obra']
+        && request.resource.size() < 5000;
+      allow delete: if esMiembro();
+    }
     match /comentarios/{id} {
       allow read: if esMiembro();
       allow create: if esMiembro()
