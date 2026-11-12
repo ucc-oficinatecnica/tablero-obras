@@ -55,6 +55,15 @@ service cloud.firestore {
         && request.resource.data.t.size() <= 150;
       allow delete: if esMiembro();
     }
+    // Notas rápidas: texto corto anotado al paso, por acomodar después (lo ven todos los del equipo).
+    match /rapidas/{id} {
+      allow read: if esMiembro();
+      allow create, update: if esMiembro()
+        && request.resource.data.t is string
+        && request.resource.data.t.size() <= 300
+        && request.resource.size() < 5000;
+      allow delete: if esMiembro();
+    }
     match /comentarios/{id} {
       allow read: if esMiembro();
       allow create: if esMiembro()
