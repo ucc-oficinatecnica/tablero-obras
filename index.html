@@ -22,7 +22,7 @@
   --f-display:"Montserrat", "Helvetica Neue", Arial, sans-serif;
   --f-body:"Montserrat", "Segoe UI", Arial, sans-serif;
   --r:10px; --total-bg:#002C55; --plan:#00A4EB;
-  --e1b:#b3261e; --e1f:#ffffff; --e2b:#d4edbc; --e2f:#1e5a1e; --e3b:#ffcfc9; --e3f:#8a1c12; --e4b:#11734b; --e4f:#ffffff; --e5b:#bfe1f6; --e5f:#0b4f7c; --e6b:#0a53a8; --e6f:#ffffff; --e7b:#ffe5a0; --e7f:#6b4a00; --e8b:#4b5459; --e8f:#ffffff; --e9b:#e4d7f5; --e9f:#4b2a7a;
+  --e1b:#b3261e; --e1f:#ffffff; --e2b:#d4edbc; --e2f:#1e5a1e; --e3b:#ffcfc9; --e3f:#8a1c12; --e4b:#11734b; --e4f:#ffffff; --e5b:#bfe1f6; --e5f:#0b4f7c; --e6b:#0a53a8; --e6f:#ffffff; --e7b:#ffe5a0; --e7f:#6b4a00; --e8b:#4b5459; --e8f:#ffffff; --e9b:#e4d7f5; --e9f:#4b2a7a; --e10b:#cfe4e6; --e10f:#154750;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0a1626; --surface:#102238; --surface-2:#17304c; --line:#26405e;
@@ -31,7 +31,7 @@
   --martin:#ff8a7a; --martin-soft:#3a1f1c;
   --ot:#8fb0ff; --ot-soft:#1c2540;
   --warn:#f0c35a; --warn-soft:#3a2f12;
-  --p:#7bcf9c; --m:#f0b950; --g:#ff8e72; --total-bg:#0b4a85; --plan:#00A4EB; --e1b:#c9382f; --e1f:#ffffff; --e2b:#2c4a22; --e2f:#bfe6a8; --e3b:#4d2420; --e3f:#ffb4aa; --e4b:#1c8a5c; --e4f:#ffffff; --e5b:#173c56; --e5f:#a8d8f7; --e6b:#2f6fc4; --e6f:#ffffff; --e7b:#4a3c12; --e7f:#ffdf8a; --e8b:#79838a; --e8f:#ffffff; --e9b:#3a2a52; --e9f:#d9c4f7; color-scheme:dark}}
+  --p:#7bcf9c; --m:#f0b950; --g:#ff8e72; --total-bg:#0b4a85; --plan:#00A4EB; --e1b:#c9382f; --e1f:#ffffff; --e2b:#2c4a22; --e2f:#bfe6a8; --e3b:#4d2420; --e3f:#ffb4aa; --e4b:#1c8a5c; --e4f:#ffffff; --e5b:#173c56; --e5f:#a8d8f7; --e6b:#2f6fc4; --e6f:#ffffff; --e7b:#4a3c12; --e7f:#ffdf8a; --e8b:#79838a; --e8f:#ffffff; --e9b:#3a2a52; --e9f:#d9c4f7; --e10b:#1f3d44; --e10f:#a9d9e2; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0a1626; --surface:#102238; --surface-2:#17304c; --line:#26405e;
   --fg:#e8eff7; --muted:#9db0c6; --accent:#4cc3f5; --accent-soft:#12324d;
@@ -39,7 +39,7 @@
   --martin:#ff8a7a; --martin-soft:#3a1f1c;
   --ot:#8fb0ff; --ot-soft:#1c2540;
   --warn:#f0c35a; --warn-soft:#3a2f12;
-  --p:#7bcf9c; --m:#f0b950; --g:#ff8e72; --total-bg:#0b4a85; --plan:#00A4EB; --e1b:#c9382f; --e1f:#ffffff; --e2b:#2c4a22; --e2f:#bfe6a8; --e3b:#4d2420; --e3f:#ffb4aa; --e4b:#1c8a5c; --e4f:#ffffff; --e5b:#173c56; --e5f:#a8d8f7; --e6b:#2f6fc4; --e6f:#ffffff; --e7b:#4a3c12; --e7f:#ffdf8a; --e8b:#79838a; --e8f:#ffffff; --e9b:#3a2a52; --e9f:#d9c4f7; color-scheme:dark}
+  --p:#7bcf9c; --m:#f0b950; --g:#ff8e72; --total-bg:#0b4a85; --plan:#00A4EB; --e1b:#c9382f; --e1f:#ffffff; --e2b:#2c4a22; --e2f:#bfe6a8; --e3b:#4d2420; --e3f:#ffb4aa; --e4b:#1c8a5c; --e4f:#ffffff; --e5b:#173c56; --e5f:#a8d8f7; --e6b:#2f6fc4; --e6f:#ffffff; --e7b:#4a3c12; --e7f:#ffdf8a; --e8b:#79838a; --e8f:#ffffff; --e9b:#3a2a52; --e9f:#d9c4f7; --e10b:#1f3d44; --e10f:#a9d9e2; color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:12.5px;line-height:1.5}
@@ -254,6 +254,7 @@ main{padding-block:10px 60px;display:grid;gap:18px}
 .es[data-v="Suspendida"]{background:var(--e7b);color:var(--e7f);border-color:transparent}
 .es[data-v="Programada"]{background:var(--e9b);color:var(--e9f);border-color:transparent}
 .es[data-v="En stand by"]{background:var(--e8b);color:var(--e8f);border-color:transparent}
+.es[data-v="Mantenimiento"]{background:var(--e10b);color:var(--e10f);border-color:transparent}
 .pr{border-width:1.5px}
 .pr[data-v="Alta"]{color:var(--martin);border-color:var(--martin);font-weight:700}
 .pr[data-v="Media"]{color:var(--warn);border-color:var(--warn)}
@@ -324,6 +325,8 @@ main{padding-block:10px 60px;display:grid;gap:18px}
 .row select option{background:var(--surface);color:var(--fg)}
 .item.no .main-cell,.item.no .c-lleva,.item.no .c-resp{opacity:.45}
 .item.no .nmin{text-decoration:line-through;text-decoration-color:var(--muted)}
+.item.fu .main-cell,.item.fu .c-lleva,.item.fu .c-resp{opacity:.75}
+.c-total .sub span{display:block}
 .row input::placeholder{color:var(--muted);opacity:.7}
 .seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--bg)}
 .seg button{font:600 11px var(--f-body);color:var(--fg);background:transparent;border:0;border-right:1px solid var(--line);padding:4px 2px;cursor:pointer}
@@ -672,7 +675,9 @@ const LIVE=()=>OBRAS.filter(o=>!asg(o).borrada);
 const nom=o=>asg(o).nombre||o.nombre;
 const PR=["Alta","Media","Baja"];
 const SH=["Sí","No","A definir"];
-const ESTADOS=["Pendiente","Programada","Proyecto / Planificación","Presupuestación / Adjudicación","Ejecución","Post-Venta","Terminada","En stand by","Suspendida"];
+const ESTADOS=["Pendiente","Programada","Proyecto / Planificación","Presupuestación / Adjudicación","Ejecución","Post-Venta","Terminada","En stand by","Suspendida","Mantenimiento"];
+// Obras que no cuentan como obras en curso: no entran en el contador ni en los gráficos y se muestran aparte
+const FUERA=["Suspendida","En stand by","Mantenimiento"];
 const ENV=["Pequeña","Mediana","Grande"];
 
 // ---- Seguimiento de etapas: fechas, historial y plazos ----
@@ -686,7 +691,7 @@ const fmtL=s=>{const d=pYmd(s); return d?pad2(d.getDate())+"/"+pad2(d.getMonth()
 const nDias=n=>n+" "+(n===1?"día":"días");
 const fmtYmd=s=>{const d=pYmd(s); return d?d.getDate()+"/"+(d.getMonth()+1):"";};
 // Un solo color por etapa, el mismo en la lista, los gráficos y el calendario
-const ECOL={"Pendiente":1,"Proyecto / Planificación":2,"Presupuestación / Adjudicación":3,"Ejecución":4,"Post-Venta":5,"Terminada":6,"Suspendida":7,"En stand by":8,"Programada":9};
+const ECOL={"Pendiente":1,"Proyecto / Planificación":2,"Presupuestación / Adjudicación":3,"Ejecución":4,"Post-Venta":5,"Terminada":6,"Suspendida":7,"En stand by":8,"Programada":9,"Mantenimiento":10};
 const eVar=e=>"var(--e"+(ECOL[e]||8)+"b)", eFg=e=>"var(--e"+(ECOL[e]||8)+"f)";
 // Calendario: "real" en tono fuerte y "previsto" en tono bien claro, para cualquier etapa
 const eFuerte=e=>[1,4,6,8].includes(ECOL[e]||8)?{bg:eVar(e),fg:eFg(e)}:{bg:eFg(e),fg:eVar(e)};
@@ -711,7 +716,7 @@ function planDur(a,e){const t=teoDe(a,e); return t?diasEntre(t.i,t.f)+1:prevOf(a
 function openEntry(a){const h=a.hist||[]; const l=h[h.length-1]; return l&&!l.f?l:null;}
 // Estado del plazo de la etapa actual: ok, near (vence pronto), late (demorada), free (sin previsto), nodate, done, none
 function plazo(o){
-  const a=asg(o), e=a.estado; if(!e||e==="Suspendida") return {k:"none",txt:""};
+  const a=asg(o), e=a.estado; if(!e||e==="Suspendida"||e==="Mantenimiento") return {k:"none",txt:""};
   if(e==="Programada") return {k:"prog",fecha:a.prog||"",txt:a.prog?"Programada para el "+fmtYmd(a.prog)+(diasEntre(a.prog,hoyS())>0?" (la fecha ya pasó)":""):"Programada, sin fecha definida"};
   const op=openEntry(a);
   if(e==="Terminada") return {k:"done",inicio:op&&op.e===e?op.i:"",txt:op&&op.e===e?"Terminada el "+fmtYmd(op.i):"Terminada"};
@@ -888,13 +893,14 @@ function matches(o){
 }
 
 function renderStats(){
-  const live=LIVE(), act=live.filter(o=>!isSusp(o)).map(asg), nSus=live.length-act.length, n=act.length||1;
+  const live=LIVE(), act=live.filter(o=>!isFuera(o)).map(asg), n=act.length||1;
+  const nF=e=>live.filter(o=>asg(o).estado===e).length, fuera=[[nF("Suspendida"),"suspendida","suspendidas"],[nF("En stand by"),"stand by","stand by"],[nF("Mantenimiento"),"mantenimiento","mantenimiento"]].filter(x=>x[0]);
   const cnt=f=>act.filter(f).length;
   const item=(f,v,label,k,color)=>`<button type="button" class="lg ${k?"":"zero"}" data-sf="${f}" data-sv="${esc(v)}" aria-pressed="${state[f]===v}"><i style="background:${color}"></i><span>${label}</span><b>${k}</b></button>`;
   const bar=segs=>`<div class="sbar" aria-hidden="true">${segs.filter(x=>x[0]).map(([k,c])=>`<i style="flex:${k};background:${c}"></i>`).join("")}</div>`;
   const prCol={Alta:"var(--martin)",Media:"var(--warn)",Baja:"var(--muted)"};
   const prs=PR.map(p=>[p,cnt(a=>a.prioridad===p)]), sinPr=cnt(a=>!a.prioridad);
-  const ets=ESTADOS.filter(e=>e!=="Suspendida").map(e=>[e,cnt(a=>a.estado===e),eVar(e)]), sinEt=cnt(a=>!a.estado);
+  const ets=ESTADOS.filter(e=>!FUERA.includes(e)).map(e=>[e,cnt(a=>a.estado===e),eVar(e)]), sinEt=cnt(a=>!a.estado);
   const envCol={Pequeña:"var(--p)",Mediana:"var(--m)",Grande:"var(--g)"}, envs=ENV.map(e=>[e,cnt(a=>a.envergadura===e)]), sinEnv=cnt(a=>!a.envergadura);
   const nOT=cnt(a=>a.lleva===OT), nEs=cnt(a=>a.lleva&&a.lleva!==OT), sinLl=cnt(a=>!a.lleva);
   const none="var(--surface-2)";
@@ -913,7 +919,7 @@ function renderStats(){
   const tl=nOT+nEs+sinLl||1, aOT=nOT/tl*360, aEs=nEs/tl*360;
   const pct=Math.round(nOT/tl*100);
   document.getElementById("stats").innerHTML=`
-    <div class="card c-total"><h3>Obras</h3><div class="big">${act.length}</div><div class="sub">${nSus?`+ ${nSus} suspendida${nSus>1?"s":""}`:"sin suspendidas"}</div></div>
+    <div class="card c-total"><h3>Obras</h3><div class="big">${act.length}</div><div class="sub">${fuera.length?fuera.map(([k,a,b])=>`<span>+ ${k} ${k>1?b:a}</span>`).join(""):"todas en curso"}</div></div>
     <div class="card"><h3>Envergadura</h3><div class="bubs">${bubbles}</div>${sinEnv?`<button type="button" class="lg-mini" ${pressed("env","__none")}>${sinEnv} sin definir</button>`:""}</div>
     <div class="card"><h3>Prioridad</h3><div class="cols3">${cols}</div>${sinPr?`<button type="button" class="lg-mini" ${pressed("pr","__none")}>${sinPr} sin definir</button>`:""}</div>
     <div class="card c-etapa"><h3>Etapa</h3><div class="hbs">${hbars}</div>${sinEt?`<button type="button" class="lg-mini" ${pressed("est","__none")}>${sinEt} sin etapa</button>`:""}</div>
@@ -930,7 +936,7 @@ function renderChips(){
 }
 
 function renderTabs(){
-  const cnt=s=>LIVE().filter(o=>!s||o.sede===s).length;
+  const cnt=s=>LIVE().filter(o=>!isFuera(o)&&(!s||o.sede===s)).length;
   document.getElementById("tabs").innerHTML=[["","Todas"],...SEDES.map(s=>[s,SEDE_LABEL[s]])].map(([v,l])=>
     `<button class="tab" role="tab" data-sede="${v}" aria-selected="${state.sede===v}">${l} <em>${cnt(v)}</em></button>`).join("");
 }
@@ -975,13 +981,13 @@ function seguimientoHtml(o,a){
   const dl=a.limite?diasEntre(hoy,a.limite):null;
   let kE, kEs;
   if(!e){kE="Sin etapa"; kEs="Elegí una en la lista de obras";}
-  else if(e==="Suspendida"){kE=chip(e); kEs="No se cuenta el tiempo";}
+  else if(e==="Suspendida"||e==="Mantenimiento"){kE=chip(e); kEs="No se cuenta el tiempo";}
   else if(e==="Programada"){kE=chip(e); kEs=a.prog?"Para el "+fmtL(a.prog):"Sin fecha todavía";}
   else if(e==="Terminada"){kE=chip(e); kEs=op&&op.e===e?"Desde el "+fmtL(op.i):"";}
   else if(p.k==="nodate"){kE=chip(e); kEs="Falta la fecha en que empezó";}
   else {kE=chip(e); kEs="Lleva "+nDias(p.dias)+", desde el "+fmtL(p.inicio);}
   const PK={ok:["En término","ok"],near:["Próxima a vencer","near"],late:["Demorada","late"],free:["Sin plazo","free"],days:["Solo se cuentan los días","free"],nodate:["Sin fecha de inicio","free"],prog:["No se cuenta","free"],done:["Obra terminada","ok"],none:["No se cuenta","free"]};
-  const kp=PK[p.k]; const kPs=({free:"Falta cargar cuántos días dura la etapa",days:"Esta etapa no tiene plazo",nodate:"Cargá la fecha en la pestaña Desarrollo real",prog:"Programada: no cuenta días",done:op&&op.e===e?"Terminó el "+fmtL(op.i):"",none:e==="Suspendida"?"Suspendida: no cuenta tiempo":"Elegí una etapa en la lista"})[p.k]??(p.aviso?cap(p.aviso.split(": ").slice(1).join(": ")):"");
+  const kp=PK[p.k]; const kPs=({free:"Falta cargar cuántos días dura la etapa",days:"Esta etapa no tiene plazo",nodate:"Cargá la fecha en la pestaña Desarrollo real",prog:"Programada: no cuenta días",done:op&&op.e===e?"Terminó el "+fmtL(op.i):"",none:e==="Suspendida"?"Suspendida: no cuenta tiempo":e==="Mantenimiento"?"Mantenimiento: no cuenta tiempo":"Elegí una etapa en la lista"})[p.k]??(p.aviso?cap(p.aviso.split(": ").slice(1).join(": ")):"");
   const kL=a.limite?fmtL(a.limite):"Sin fecha límite", kLs=a.limite?(e==="Terminada"?"":(dl>=0?"Faltan "+nDias(dl):"Se pasó hace "+nDias(-dl))):"Todavía no la cargaste";
   const kPl=teo.length?`${fmtL(teo[0].i)} → ${fmtL(teo[teo.length-1].f)}`:"Sin plan", kPls=teo.length?teo.length+(teo.length===1?" etapa planificada":" etapas planificadas"):"Armalo en la pestaña Plan";
   const kpi=(l,v,s,cls)=>`<div class="sg-kpi ${cls||""}"><span class="sg-kl">${l}</span><span class="sg-kv">${v}</span><span class="sg-ks">${esc(s||"")}</span></div>`;
@@ -996,7 +1002,7 @@ function seguimientoHtml(o,a){
     const last=h.length-1, curSel=op&&op.e===e?sel(`id="hs-${id}-${last}" data-id="${id}" data-hk="${last}" data-hf="e"`,e):chip(e);
     let campos="", nota="";
     if(!e) campos=`<div class="sg-hint">Elegí una etapa en la lista de obras para empezar a contar el tiempo.</div>`;
-    else if(e==="Suspendida") campos=campo("Etapa",curSel)+`<div class="sg-hint">No se cuenta el tiempo mientras la obra esté suspendida.</div>`;
+    else if(e==="Suspendida"||e==="Mantenimiento") campos=campo("Etapa",curSel)+`<div class="sg-hint">No se cuenta el tiempo mientras la obra esté ${e==="Suspendida"?"suspendida":"en mantenimiento"}.</div>`;
     else if(e==="Programada") campos=campo("Etapa",curSel)+campo("Programada para el",dIn(`id="prog-${id}" data-id="${id}" data-prog="1"`,a.prog,"Fecha para la que está programada"));
     else if(e==="Terminada") campos=campo("Etapa",curSel)+campo("Terminada el",dIn(`id="ini-${id}" data-id="${id}" data-ini="1"`,op&&op.e===e?op.i:"","Fecha de terminación"));
     else if(p.k==="nodate") campos=campo("Etapa",chip(e))+campo("Empezó el",dIn(`id="ini-${id}" data-id="${id}" data-ini="1"`,"","Fecha de inicio de la etapa"))+`<button type="button" class="act" data-usehoy="${id}" ${dis}>Empezó hoy</button>`, nota=`<div class="sg-hint">Cargá la fecha en que empezó para empezar a contar los días.</div>`;
@@ -1065,7 +1071,7 @@ function barsHtml(a){
 function renderPlazoFilter(){
   const sel=document.getElementById("fPlazo"); if(!sel) return;
   const c={ok:0,near:0,late:0,sin:0};
-  LIVE().filter(o=>!isSusp(o)).forEach(o=>{const k=plazo(o).k; if(k==="ok")c.ok++; else if(k==="near")c.near++; else if(k==="late")c.late++; else if(k==="nodate"||k==="free")c.sin++;});
+  LIVE().filter(o=>!isFuera(o)).forEach(o=>{const k=plazo(o).k; if(k==="ok")c.ok++; else if(k==="near")c.near++; else if(k==="late")c.late++; else if(k==="nodate"||k==="free")c.sin++;});
   sel.innerHTML=`<option value="">Plazo: todos</option><option value="ok">En término (${c.ok})</option><option value="near">Próxima a vencer (${c.near})</option><option value="late">Demorada (${c.late})</option><option value="sin">Sin fecha o sin previsto (${c.sin})</option>`;
   sel.value=state.plazo||"";
 }
@@ -1076,7 +1082,7 @@ function renderPlazos(){
   p.innerHTML=`<div class="pz-h">Duración general de cada etapa</div>
     <p class="pz-n">Cuántos días dura cada etapa, para todas las obras. Sirve para armar los planes y para el semáforo cuando una obra no tiene plan. Para cambiarlo en una obra en particular, tocá su contador (o la flecha ▸) y escribí otro número en "Cuántos días dura cada etapa". Una etapa figura <b>próxima a vencer</b> cuando le queda el 20% de su plazo o menos, y <b>demorada</b> cuando lo superó.</p>
     <div class="pz-g">${ETAPAS_PLAZO.map((e,i)=>`<label class="pz-i"><span class="tkp-e" style="background:${eVar(e)};color:${eFg(e)}">${esc(etCorta(e))}</span><input type="number" min="1" max="3650" step="1" id="pz-${i}" data-id="pz" data-pz="${esc(e)}" value="${DEFPREV[e]||""}" placeholder="días" ${dis} aria-label="Duración prevista de ${esc(e)} en días"> <span>días</span></label>`).join("")}</div>
-    <p class="pz-n"><b>Cómo se cuenta cada etapa:</b> Pendiente y En stand by solo cuentan los días que llevan ahí. Programada no cuenta días: se le pone la fecha para la que está programada. Suspendida no cuenta nada. Terminada marca la fecha de fin.</p>
+    <p class="pz-n"><b>Cómo se cuenta cada etapa:</b> Pendiente y En stand by solo cuentan los días que llevan ahí. Programada no cuenta días: se le pone la fecha para la que está programada. Suspendida y Mantenimiento no cuentan nada. Terminada marca la fecha de fin. Las obras Suspendidas, En stand by y en Mantenimiento no entran en el contador de obras: se muestran aparte, debajo de las sedes.</p>
     ${sinFecha?(pzConfirm
       ?`<div class="pz-a"><span class="warn-t">¿Usar hoy (${fmtYmd(hoyS())}) como inicio de la etapa actual en ${sinFecha} ${sinFecha===1?"obra":"obras"}?</span><button type="button" class="act pri" data-pzgo ${dis}>Sí, usar hoy</button><button type="button" class="act" data-pzno>Cancelar</button></div>`
       :`<div class="pz-a"><span>Hay <b>${sinFecha}</b> ${sinFecha===1?"obra":"obras"} con etapa pero sin fecha de inicio, así que todavía no cuentan días.</span><button type="button" class="act" data-pzask ${dis}>Usar hoy como inicio en todas</button></div>`):""}`;
@@ -1097,7 +1103,7 @@ function row(o,showSede){
   const isOpen=open.has(o.id);
   const sel=(cls,f,opts,v,ph,lbl)=>`<select class="${cls} ${v?"":"empty"}" id="${f}-${o.id}" data-id="${o.id}" data-f="${f}" data-v="${esc(v)}" aria-label="${lbl} de ${esc(nom(o))}" ${canWrite?"":"disabled"}><option value="">${ph}</option>${opts.map(x=>`<option ${x===v?"selected":""}>${x}</option>`).join("")}</select>`;
   const sgOpen=planOpen&&openSg.has(o.id);
-  return `<div class="item ${done?"done":""} ${isOpen?"open":""} ${sgOpen?"sgopen":""} ${a.estado==="Suspendida"?"no":""}" id="o-${o.id}">
+  return `<div class="item ${done?"done":""} ${isOpen?"open":""} ${sgOpen?"sgopen":""} ${a.estado==="Suspendida"?"no":FUERA.includes(a.estado)?"fu":""}" id="o-${o.id}">
     <div class="row" ${(canWrite&&!state.sortPr)?`draggable="true" data-drag="${o.id}"`:""}>
       <div class="main-cell">
         <div class="nm"><button class="ed" type="button" data-ed="${o.id}" data-v="${a.envergadura}" title="Envergadura: ${a.envergadura||"sin definir"} (tocá para cambiar)" aria-label="Envergadura de ${esc(nom(o))}: ${a.envergadura||"sin definir"}" ${canWrite?"":"disabled"}>${a.envergadura?a.envergadura[0]:""}</button><input class="nmin" id="nm-${o.id}" data-id="${o.id}" data-f="nombre" value="${esc(nom(o))}" aria-label="Nombre de la obra" title="Tocá para editar el nombre" ${canWrite?"":"readonly"}>${showSede?`<span class="sd">${SEDE_LABEL[o.sede]}</span>`:""}${planOpen?`<button class="chev sgt" type="button" data-sgtoggle="${o.id}" aria-expanded="${sgOpen}" title="Ver seguimiento de etapas" aria-label="Seguimiento de etapas de ${esc(nom(o))}">▸</button>`:""}</div>
@@ -1123,7 +1129,7 @@ function row(o,showSede){
 }
 
 const hdr=()=>`<div class="hdr"><span class="h-obra">Obra <button type="button" class="plan-t" aria-pressed="${planOpen}">${planOpen?"◂ Cerrar planificación":"Planificación ▸"}</button></span><span class="h-pr">Prioridad</span><span>Estado / Etapa</span><span class="h-ll">Quién lo lleva</span><span class="h-rs">Responsable</span><span class="h-ch"></span>${planOpen?`<span class="h-g">${PLAN_HDR}</span>`:""}</div>`;
-const isSusp=o=>asg(o).estado==="Suspendida";
+const isFuera=o=>FUERA.includes(asg(o).estado);
 // Orden manual de las obras dentro de cada sede: cada obra puede tener un número "orden"; si no lo tiene, vale su posición original x 1000
 const ordOf=o=>{const v=asg(o).orden; return typeof v==="number"?v:OBRAS.indexOf(o)*1000;};
 // Mueve una obra a continuación (after) o antes de otra, tomando un número entre las dos vecinas: se guarda solo esa obra
@@ -1136,7 +1142,8 @@ function moverObra(id,refId,after){
   const v=(A&&B)?(ord(A)+ord(B))/2:(A?ord(A)+1000:ord(B)-1000);
   guardar(id,{orden:v});
 }
-let suspOpen=true;
+const GRUPOS_FUERA=[["Suspendida","Obras suspendidas"],["En stand by","Obras en stand by"],["Mantenimiento","Obras en mantenimiento"]];
+let fueraOpen={};   // qué grupos de obras fuera del conteo están desplegados (por defecto todos)
 function sortItems(items){
   if(!state.sortPr) return items;
   const rk=o=>{const i=PR.indexOf(asg(o).prioridad);return i<0?9:i};
@@ -1145,23 +1152,24 @@ function sortItems(items){
 function renderList(){
   const main=document.getElementById("main");
   const vis=LIVE().filter(matches);
-  const act=vis.filter(o=>!isSusp(o)), sus=vis.filter(isSusp);
-  document.getElementById("count").textContent=`${vis.length} de ${LIVE().length} obras`;
+  const act=vis.filter(o=>!isFuera(o));
+  document.getElementById("count").textContent=`${vis.filter(o=>!isFuera(o)).length} de ${LIVE().filter(o=>!isFuera(o)).length} obras`;
   const noFilter=!state.q&&!state.resp&&!state.lleva&&!state.env&&!state.est&&!state.pr&&!state.plazo;
   let html=SEDES.map(s=>{
     if(state.sede&&state.sede!==s) return "";
     const items=sortItems(act.filter(o=>o.sede===s).sort((x,y)=>ordOf(x)-ordOf(y))); if(!items.length&&!noFilter) return "";
-    const base=LIVE().filter(o=>o.sede===s&&!isSusp(o));
+    const base=LIVE().filter(o=>o.sede===s&&!isFuera(o));
     const asignadas=base.filter(o=>asg(o).responsable).length;
     const addF=canWrite?`<form class="addf" data-sede="${s}"><input id="add-${s.replace(/\W/g,"")}" data-id="add" placeholder="+ Agregar obra en ${SEDE_LABEL[s]}…" aria-label="Nombre de la obra nueva en ${SEDE_LABEL[s]}" autocomplete="off"><button type="submit" class="act pri">Agregar</button></form>`:"";
     return `<section class="sede"><div class="sh-h"><h2>${SEDE_LABEL[s]}</h2><span class="sh-n">${base.length} ${base.length===1?"obra":"obras"}</span><span class="sh-p" title="${asignadas} de ${base.length} con responsable"><span class="pbar"><i style="width:${base.length?Math.round(asignadas/base.length*100):0}%"></i></span>${asignadas}/${base.length} con responsable</span></div>
       <div class="tbl">${hdr()}${items.map(o=>row(o)).join("")}${addF}</div></section>`;
   }).join("");
-  if(sus.length){
-    const items=sortItems(sus.slice().sort((a,b)=>SEDES.indexOf(a.sede)-SEDES.indexOf(b.sede)));
-    html+=`<section class="sede susp"><h2><button type="button" class="susp-t" aria-expanded="${suspOpen}">${suspOpen?"▾":"▸"} Obras suspendidas</button> <small>${sus.length} ${sus.length===1?"obra":"obras"}</small></h2>
-      <div class="tbl" ${suspOpen?"":"hidden"}>${hdr()}${items.map(o=>row(o,true)).join("")}</div></section>`;
-  }
+  GRUPOS_FUERA.forEach(([est,titulo])=>{
+    const sus=vis.filter(o=>asg(o).estado===est); if(!sus.length) return;
+    const items=sortItems(sus.slice().sort((a,b)=>SEDES.indexOf(a.sede)-SEDES.indexOf(b.sede))), ab=fueraOpen[est]!==false;
+    html+=`<section class="sede susp"><h2><button type="button" class="susp-t" data-e="${esc(est)}" aria-expanded="${ab}">${ab?"▾":"▸"} ${titulo}</button> <small>${sus.length} ${sus.length===1?"obra":"obras"}</small></h2>
+      <div class="tbl" ${ab?"":"hidden"}>${hdr()}${items.map(o=>row(o,true)).join("")}</div></section>`;
+  });
   const del=OBRAS.filter(o=>asg(o).borrada);
   if(del.length){
     html+=`<section class="sede dels"><h2><button type="button" class="dels-t" aria-expanded="${delOpen}">${delOpen?"▾":"▸"} Obras borradas</button> <small>${del.length}</small></h2>
@@ -1255,7 +1263,7 @@ document.addEventListener("click",e=>{
   if(ed){const id=ed.dataset.ed, cur=asg(OBRAS.find(x=>x.id===id)).envergadura; const nv=ENV[(ENV.indexOf(cur)+2)%4-1]||"";
     ed.dataset.v=nv; ed.textContent=nv?nv[0]:""; ed.title="Envergadura: "+(nv||"sin definir")+" (tocá para cambiar)"; save(id,{envergadura:nv}); return;}
   if(e.target.closest(".plan-t")){planOpen=!planOpen; try{localStorage.setItem("obras-plan",planOpen?"1":"0")}catch(err){} renderList(); return;}
-  if(e.target.closest(".susp-t")){suspOpen=!suspOpen; renderList(); return;}
+  const sg=e.target.closest(".susp-t"); if(sg){const k=sg.dataset.e; fueraOpen[k]=fueraOpen[k]===false; renderList(); return;}
   if(e.target.closest(".dels-t")){delOpen=!delOpen; renderList(); return;}
   const ae=e.target.closest("[data-edit],[data-askdel],[data-cancel],[data-dodel],[data-restore]");
   if(ae){

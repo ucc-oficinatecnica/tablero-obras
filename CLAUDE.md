@@ -70,3 +70,8 @@ Para cambios grandes (rediseñar, reorganizar), avisales que conviene avisarle a
 - Si `seguridad/acceso` no existe o `codigo` no es texto, **nadie** puede entrar. Las reglas se publican a mano en la consola (Firestore → Reglas), igual que antes.
 - La pantalla de código está en `index.html` (`pedirCodigo`, `probe`, clases `gate-*`). Si cambia el diseño del login, mantenela simple: logo, un campo numérico y "Entrar".
 - Limitación a tener presente: con 6 dígitos alguien podría probar números con un programa. Si hace falta más protección, alargar el código (cambiarlo en la consola no requiere tocar la página).
+## Obras que no cuentan (Suspendida, En stand by, Mantenimiento)
+- Las obras con etapa **Suspendida**, **En stand by** o **Mantenimiento** (constante `FUERA` en `index.html`) **no entran en el contador de obras** ni en los gráficos de arriba, ni en los números de las pestañas de sede. Se muestran aparte, debajo de las sedes, en una sección desplegable por cada una (`GRUPOS_FUERA`): "Obras suspendidas", "Obras en stand by" y "Obras en mantenimiento".
+- La tarjeta "Obras" muestra el total en curso y, abajo, cuántas hay en cada grupo (ej: "+ 1 suspendida", "+ 2 stand by").
+- **Mantenimiento** es una etapa más (`ESTADOS`, color `--e10b`/`--e10f`) y, igual que Suspendida, **no cuenta días** ni muestra semáforo. **En stand by** sigue contando solo los días que lleva ahí (`SOLO_DIAS`).
+- Una obra vuelve al conteo cuando se le cambia la etapa a cualquiera que no sea una de las tres.
