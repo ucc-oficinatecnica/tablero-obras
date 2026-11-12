@@ -82,3 +82,8 @@ Para cambios grandes (rediseñar, reorganizar), avisales que conviene avisarle a
 - Las obras destacadas **salen de su sede** y se muestran juntas en una sección "Obras destacadas" arriba de las sedes (filas amarillas, borde dorado; colores `--dst-*`). Si hay una sede elegida arriba, la sección muestra solo las destacadas de esa sede. Cada fila lleva una etiqueta con su sede.
 - **Siguen contando** como obras en curso (en el número grande, los gráficos y las pestañas). La tarjeta "Obras" dice cuántas hay ("★ 3 destacadas") y el título de cada sede aclara cuántas están arriba.
 - Una obra destacada que pase a Suspendida, En stand by o Mantenimiento se muestra en esa sección aparte (conserva su estrella).
+
+## Ordenar tocando el título de las tarjetas
+- Los títulos Envergadura, Prioridad, Etapa y Quién lo lleva (tarjetas de arriba) son botones de orden (`state.orden`, tabla `ORD` en `index.html`). Al tocar uno, dentro de cada sede (y de las secciones Destacadas, Suspendidas, etc.) las obras se acomodan: Prioridad Alta, Media, Baja; Envergadura Grande, Mediana, Pequeña; Etapa en orden de avance; Quién lo lleva primero Oficina Técnica, después estudios. Lo "sin definir" va al final y el resto mantiene el orden manual. Tocar de nuevo lo apaga.
+- Aparece un cartel "Orden: ..." con una ✕ arriba de la lista. "Limpiar filtros" también lo quita. Mientras hay un orden elegido no se puede arrastrar para reordenar a mano.
+- Esto es distinto de tocar un círculo, columna o barra dentro de la tarjeta: eso filtra, no ordena.

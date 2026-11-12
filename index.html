@@ -553,6 +553,13 @@ button.tk:hover{box-shadow:0 0 0 2px var(--accent-soft),0 0 0 3px var(--accent)}
 .dst .item .row{background:var(--dst-bg)}
 .dst .item .nmin{font-weight:800!important}
 .c-total .sub .dsub{color:#ffd54a;font-weight:700}
+/* Título de las tarjetas de arriba como botón de orden */
+.card h3 .ord{font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;background:none;border:0;padding:3px 7px;margin:-3px -7px;border-radius:7px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .15s,color .15s}
+.card h3 .ord::after{content:"↕";font-size:11px;letter-spacing:0;opacity:.45}
+.card h3 .ord:hover{background:var(--surface-2);color:var(--fg)}
+.card h3 .ord:hover::after{opacity:.9}
+.card h3 .ord[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
+.card h3 .ord[aria-pressed="true"]::after{content:"↓";opacity:1}
 </style>
 
 <div class="wrap">
@@ -881,7 +888,7 @@ let editing=null, confirmDel=null, delOpen=false;
 let firma=""; try{firma=localStorage.getItem("obras-firma")||""}catch(e){}
 let tipoSel="nota";
 const fmtDate=t=>{try{return new Date(t).toLocaleDateString("es-AR",{day:"numeric",month:"numeric"})}catch(e){return ""}};
-const state={sede:"",q:"",resp:"",lleva:"",env:"",sh:"",est:"",pr:"",plazo:"",sortPr:false,quick:""};
+const state={sede:"",q:"",resp:"",lleva:"",env:"",sh:"",est:"",pr:"",plazo:"",sortPr:false,orden:"",quick:""};
 try{const s=JSON.parse(localStorage.getItem("obras-filtros")||"null"); if(s) Object.assign(state,s,{quick:""});}catch(e){}
 // Sacados de la barra de arriba: no dejar activos filtros u orden que ya no se pueden apagar
 state.plazo=""; state.sortPr=false;
@@ -907,6 +914,7 @@ function matches(o){
   return true;
 }
 
+const ordBtn=(k,t)=>`<button type="button" class="ord" data-ord="${k}" aria-pressed="${state.orden===k}" title="${state.orden===k?"Volver al orden de antes":"Ordenar la lista por "+t.toLowerCase()}">${t}</button>`;
 function renderStats(){
   const live=LIVE(), act=live.filter(o=>!isFuera(o)).map(asg), n=act.length||1, nDest=act.filter(a=>a.destacada).length;
   const nF=e=>live.filter(o=>asg(o).estado===e).length, fuera=[[nF("Suspendida"),"suspendida","suspendidas"],[nF("En stand by"),"stand by","stand by"],[nF("Mantenimiento"),"mantenimiento","mantenimiento"]].filter(x=>x[0]);
@@ -935,10 +943,10 @@ function renderStats(){
   const pct=Math.round(nOT/tl*100);
   document.getElementById("stats").innerHTML=`
     <div class="card c-total"><h3>Obras</h3><div class="big">${act.length}</div><div class="sub">${nDest?`<span class="dsub">★ ${nDest} ${nDest>1?"destacadas":"destacada"}</span>`:""}${fuera.length?fuera.map(([k,a,b])=>`<span>+ ${k} ${k>1?b:a}</span>`).join(""):(nDest?"":"todas en curso")}</div></div>
-    <div class="card"><h3>Envergadura</h3><div class="bubs">${bubbles}</div>${sinEnv?`<button type="button" class="lg-mini" ${pressed("env","__none")}>${sinEnv} sin definir</button>`:""}</div>
-    <div class="card"><h3>Prioridad</h3><div class="cols3">${cols}</div>${sinPr?`<button type="button" class="lg-mini" ${pressed("pr","__none")}>${sinPr} sin definir</button>`:""}</div>
-    <div class="card c-etapa"><h3>Etapa</h3><div class="hbs">${hbars}</div>${sinEt?`<button type="button" class="lg-mini" ${pressed("est","__none")}>${sinEt} sin etapa</button>`:""}</div>
-    <div class="card c-lleva"><h3>Quién lo lleva</h3><div class="dn-w"><div class="dn" style="background:conic-gradient(var(--accent) 0 ${aOT}deg,var(--ot) ${aOT}deg ${aOT+aEs}deg,var(--surface-2) ${aOT+aEs}deg 360deg)"><span><b>${pct}%</b><small>OT</small></span></div>
+    <div class="card"><h3>${ordBtn("env","Envergadura")}</h3><div class="bubs">${bubbles}</div>${sinEnv?`<button type="button" class="lg-mini" ${pressed("env","__none")}>${sinEnv} sin definir</button>`:""}</div>
+    <div class="card"><h3>${ordBtn("pr","Prioridad")}</h3><div class="cols3">${cols}</div>${sinPr?`<button type="button" class="lg-mini" ${pressed("pr","__none")}>${sinPr} sin definir</button>`:""}</div>
+    <div class="card c-etapa"><h3>${ordBtn("est","Etapa")}</h3><div class="hbs">${hbars}</div>${sinEt?`<button type="button" class="lg-mini" ${pressed("est","__none")}>${sinEt} sin etapa</button>`:""}</div>
+    <div class="card c-lleva"><h3>${ordBtn("lleva","Quién lo lleva")}</h3><div class="dn-w"><div class="dn" style="background:conic-gradient(var(--accent) 0 ${aOT}deg,var(--ot) ${aOT}deg ${aOT+aEs}deg,var(--surface-2) ${aOT+aEs}deg 360deg)"><span><b>${pct}%</b><small>OT</small></span></div>
       <div class="lgs">${item("lleva",OT,"Oficina Técnica",nOT,"var(--accent)")}${item("lleva","__estudio","Estudios",nEs,"var(--ot)")}${sinLl?item("lleva","__none","Sin definir",sinLl,none):""}</div></div></div>`;
 }
 const CHIP_LBL={pr:"Prioridad",est:"Etapa",lleva:"Quién lo lleva",env:"Envergadura",resp:"Responsable",plazo:"Plazo"};
@@ -947,7 +955,9 @@ function renderChips(){
   const el=document.getElementById("chips"); const out=[];
   ["pr","est","lleva","env","resp","plazo"].forEach(f=>{if(state[f]) out.push(`<button type="button" class="chip" data-unset="${f}">${CHIP_LBL[f]}: <b>${esc(chipVal(f,state[f]))}</b> <span aria-hidden="true">✕</span></button>`);});
   if(state.q) out.push(`<button type="button" class="chip" data-unset="q">Búsqueda: <b>${esc(state.q)}</b> <span aria-hidden="true">✕</span></button>`);
-  el.innerHTML=out.length?`<span class="chips-l">Filtrando</span>`+out.join(""):""; el.hidden=!out.length;
+  const filtrando=out.length>0;
+  if(ORD[state.orden]) out.push(`<button type="button" class="chip" data-unset="orden">Orden: <b>${esc(ORD[state.orden].txt)}</b> <span aria-hidden="true">✕</span></button>`);
+  el.innerHTML=out.length?`<span class="chips-l">${filtrando?"Filtrando":"Ordenando"}</span>`+out.join(""):""; el.hidden=!out.length;
 }
 
 function renderTabs(){
@@ -1119,7 +1129,7 @@ function row(o,showSede){
   const sel=(cls,f,opts,v,ph,lbl)=>`<select class="${cls} ${v?"":"empty"}" id="${f}-${o.id}" data-id="${o.id}" data-f="${f}" data-v="${esc(v)}" aria-label="${lbl} de ${esc(nom(o))}" ${canWrite?"":"disabled"}><option value="">${ph}</option>${opts.map(x=>`<option ${x===v?"selected":""}>${x}</option>`).join("")}</select>`;
   const sgOpen=planOpen&&openSg.has(o.id);
   return `<div class="item ${done?"done":""} ${isOpen?"open":""} ${sgOpen?"sgopen":""} ${a.estado==="Suspendida"?"no":FUERA.includes(a.estado)?"fu":""}" id="o-${o.id}">
-    <div class="row" ${(canWrite&&!state.sortPr)?`draggable="true" data-drag="${o.id}"`:""}>
+    <div class="row" ${(canWrite&&!ORD[state.orden])?`draggable="true" data-drag="${o.id}"`:""}>
       <div class="main-cell">
         <div class="nm"><button class="ed" type="button" data-ed="${o.id}" data-v="${a.envergadura}" title="Envergadura: ${a.envergadura||"sin definir"} (tocá para cambiar)" aria-label="Envergadura de ${esc(nom(o))}: ${a.envergadura||"sin definir"}" ${canWrite?"":"disabled"}>${a.envergadura?a.envergadura[0]:""}</button><button class="st${a.destacada?" on":""}" type="button" data-star="${o.id}" aria-pressed="${!!a.destacada}" title="${a.destacada?"Quitar de obras destacadas":"Marcar como obra destacada"}" aria-label="${a.destacada?"Quitar de obras destacadas":"Marcar como obra destacada"}: ${esc(nom(o))}" ${canWrite?"":"disabled"}>${a.destacada?"★":"☆"}</button><input class="nmin" id="nm-${o.id}" data-id="${o.id}" data-f="nombre" value="${esc(nom(o))}" aria-label="Nombre de la obra" title="Tocá para editar el nombre" ${canWrite?"":"readonly"}>${showSede?`<span class="sd">${SEDE_LABEL[o.sede]}</span>`:""}${planOpen?`<button class="chev sgt" type="button" data-sgtoggle="${o.id}" aria-expanded="${sgOpen}" title="Ver seguimiento de etapas" aria-label="Seguimiento de etapas de ${esc(nom(o))}">▸</button>`:""}</div>
       </div>
@@ -1159,10 +1169,17 @@ function moverObra(id,refId,after){
 }
 const GRUPOS_FUERA=[["Suspendida","Obras suspendidas"],["En stand by","Obras en stand by"],["Mantenimiento","Obras en mantenimiento"]];
 let fueraOpen={};   // qué grupos de obras fuera del conteo están desplegados (por defecto todos)
+// Orden elegido al tocar el título de una tarjeta de arriba: dentro de cada sede, primero lo más importante y al final lo "sin definir"
+const ETAPA_ORD=ESTADOS.filter(e=>!FUERA.includes(e));
+const ORD={
+  pr:{rk:a=>{const i=PR.indexOf(a.prioridad); return i<0?9:i}, txt:"Prioridad (alta primero)"},
+  env:{rk:a=>{const i=ENV.indexOf(a.envergadura); return i<0?9:ENV.length-1-i}, txt:"Envergadura (grande primero)"},
+  est:{rk:a=>{const i=ETAPA_ORD.indexOf(a.estado); return i<0?99:i}, txt:"Etapa (en orden de avance)"},
+  lleva:{rk:a=>!a.lleva?2:(a.lleva===OT?0:1), txt:"Quién lo lleva (Oficina Técnica primero)"}
+};
 function sortItems(items){
-  if(!state.sortPr) return items;
-  const rk=o=>{const i=PR.indexOf(asg(o).prioridad);return i<0?9:i};
-  return items.map((o,i)=>[o,i]).sort((x,y)=>rk(x[0])-rk(y[0])||x[1]-y[1]).map(x=>x[0]);
+  const od=ORD[state.orden]; if(!od) return items;
+  return items.map((o,i)=>[o,i]).sort((x,y)=>od.rk(asg(x[0]))-od.rk(asg(y[0]))||x[1]-y[1]).map(x=>x[0]);
 }
 function renderList(){
   const main=document.getElementById("main");
@@ -1276,6 +1293,8 @@ document.addEventListener("click",e=>{
   if(e.target.closest("[data-pzask]")){pzConfirm=true; renderPlazos(); return;}
   if(e.target.closest("[data-pzno]")){pzConfirm=false; renderPlazos(); return;}
   if(e.target.closest("[data-pzgo]")){iniciarSinFecha(); pzConfirm=false; renderAll(); return;}
+  const ord=e.target.closest(".ord[data-ord]");
+  if(ord){state.orden=state.orden===ord.dataset.ord?"":ord.dataset.ord; saveFilters(); renderStats(); renderList(); return;}
   const star=e.target.closest(".st[data-star]");
   if(star){const id=star.dataset.star, o=OBRAS.find(x=>x.id===id); if(o&&canWrite){save(id,{destacada:!asg(o).destacada}); renderList();} return;}
   const ed=e.target.closest(".ed");
@@ -1383,7 +1402,7 @@ document.getElementById("sortPr").addEventListener("click",e=>{state.sortPr=!sta
 document.getElementById("fEst").addEventListener("change",e=>{state.est=e.target.value; saveFilters(); renderStats(); renderList();});
 document.getElementById("fEnv").addEventListener("change",e=>{state.env=e.target.value; saveFilters(); renderStats(); renderList();});
 document.getElementById("fPlazo").addEventListener("change",e=>{state.plazo=e.target.value; saveFilters(); renderList();});
-document.getElementById("clear").addEventListener("click",()=>{Object.assign(state,{sede:"",q:"",resp:"",lleva:"",env:"",sh:"",est:"",pr:"",plazo:"",sortPr:false}); syncFilterInputs(); saveFilters(); renderAll();});
+document.getElementById("clear").addEventListener("click",()=>{Object.assign(state,{sede:"",q:"",resp:"",lleva:"",env:"",sh:"",est:"",pr:"",plazo:"",sortPr:false,orden:""}); syncFilterInputs(); saveFilters(); renderAll();});
 function syncFilterInputs(){document.getElementById("q").value=state.q; document.getElementById("fLleva").value=state.lleva; document.getElementById("fEnv").value=state.env; document.getElementById("fEst").value=state.est; document.getElementById("fPr").value=state.pr; document.getElementById("fPlazo").value=state.plazo||""; document.getElementById("sortPr").setAttribute("aria-pressed",!!state.sortPr);}
 
 document.getElementById("fEst").innerHTML=`<option value="">Estado / Etapa: todos</option>`+ESTADOS.map(x=>`<option>${x}</option>`).join("")+`<option value="__none">Sin estado</option>`;
