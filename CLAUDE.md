@@ -93,3 +93,11 @@ Para cambios grandes (rediseñar, reorganizar), avisales que conviene avisarle a
 - El rombo está junto a la estrella en cada obra. **El campo en la base se llama `gestionar`** (nombre viejo, de cuando se llamaba "A gestionar" con un rayo; se conservó para no perder las marcas ya hechas; `fix()` lo conserva). Hoy significa "obra importante".
 - Se muestran en una sección "Obras importantes" **justo debajo de "Obras destacadas"** y arriba de las sedes (filas azules, borde azul; colores `--gst-*`). Salen de su sede, igual que las destacadas. Siguen contando como obras en curso; la tarjeta "Obras" dice "◆ N importantes" y el título de cada sede aclara cuántas están arriba.
 - **Una obra es destacada o importante, nunca las dos**: al marcar una, se saca la otra (en `index.html`, los clics de `data-star` y `data-rayo` guardan los dos campos juntos). Si por datos viejos tuviera las dos, manda la estrella.
+
+## Calendario (vacaciones, calendario académico y feriados)
+- Pestaña lateral "Calendario" (debajo de Minutas y Mejoras) que abre un panel ancho con cuatro vistas: **Mes** (grilla con todo lo marcado y detalle del día), **Vacaciones**, **Académico** y **Feriados**. Código en `index.html`: `initCalendario` (se llama desde `iniciar`, junto con las demás).
+- Datos en la colección `calendario` de Firestore (reglas en `firestore.rules`, **hay que publicarlas a mano**): `tipo` `vac` (vacaciones de una persona, `t` = nombre), `aca` (período del calendario académico, `t` = nombre), `fer` (feriado agregado a mano) y `oculto` (un feriado de la lista base que se sacó); `d1`/`d2` son las fechas aaaa-mm-dd (inicio y fin; el feriado usa la misma).
+- Los nombres para las vacaciones salen de los responsables de las obras (`people()`) más los que ya tengan vacaciones; se puede escribir uno nuevo.
+- Feriados de referencia: la lista `FER_BASE` (2026 y 2027) está en el código y **hay que verificarla con el calendario oficial** (puentes y traslados cambian por decreto). Para sacar uno se guarda un `oculto`; no se edita el código. Actualizar la lista cuando cambie el año.
+- El calendario académico no está precargado: lo cargan ellos (la UCC no nos dio las fechas).
+- La grilla también muestra las **fechas límite de las obras** (campo `limite`) para tenerlas presentes al planificar.

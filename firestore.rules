@@ -64,6 +64,20 @@ service cloud.firestore {
         && request.resource.size() < 5000;
       allow delete: if esMiembro();
     }
+    // Calendario compartido: vacaciones, períodos del calendario académico y feriados (lo ven y editan todos los del equipo).
+    match /calendario/{id} {
+      allow read: if esMiembro();
+      allow create, update: if esMiembro()
+        && request.resource.data.tipo in ['vac', 'aca', 'fer', 'oculto']
+        && request.resource.data.t is string
+        && request.resource.data.t.size() <= 80
+        && request.resource.data.d1 is string
+        && request.resource.data.d1.size() == 10
+        && request.resource.data.d2 is string
+        && request.resource.data.d2.size() == 10
+        && request.resource.size() < 3000;
+      allow delete: if esMiembro();
+    }
     match /comentarios/{id} {
       allow read: if esMiembro();
       allow create: if esMiembro()
