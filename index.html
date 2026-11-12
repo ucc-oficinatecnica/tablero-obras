@@ -538,6 +538,21 @@ button.tk:hover{box-shadow:0 0 0 2px var(--accent-soft),0 0 0 3px var(--accent)}
 .plg-i i.fl{width:10px;height:10px;transform:rotate(45deg);border-radius:2px}
 @media (max-width:760px){.tkp-cur,.tkp-r{gap:6px 10px}}
 @media (prefers-reduced-motion:no-preference){.item .row{transition:border-color .2s}}
+/* Obras destacadas: estrella en cada obra y sección propia arriba, con filas amarillas */
+:root{--dst-bg:#fffbea;--dst-head:#fff0b3;--dst-line:#e0a100;--dst-ring:#fff3c4;--dst-star:#d99a00}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--dst-bg:#33290f;--dst-head:#473a12;--dst-line:#c99200;--dst-ring:#2a2209;--dst-star:#f0c35a}}
+:root[data-theme="dark"]{--dst-bg:#33290f;--dst-head:#473a12;--dst-line:#c99200;--dst-ring:#2a2209;--dst-star:#f0c35a}
+.st{flex:none;display:grid;place-items:center;width:22px;height:22px;border:0;background:none;color:var(--line);font-size:18px;line-height:1;padding:0;border-radius:6px;cursor:pointer}
+.st:hover:not(:disabled){background:var(--warn-soft);color:var(--dst-star)}
+.st.on{color:var(--dst-star)}
+.st:disabled{cursor:default}
+.dst h2{color:var(--dst-star);display:flex;align-items:center;gap:8px}
+.dst h2 small{color:var(--muted);font-weight:600}
+.dst .tbl{border:2px solid var(--dst-line);box-shadow:0 0 0 4px var(--dst-ring)}
+.dst .tbl>div:first-child{background:var(--dst-head)}
+.dst .item .row{background:var(--dst-bg)}
+.dst .item .nmin{font-weight:800!important}
+.c-total .sub .dsub{color:#ffd54a;font-weight:700}
 </style>
 
 <div class="wrap">
@@ -650,7 +665,7 @@ function setExtra(list){EXTRA=list; OBRAS=BASE.concat(EXTRA);}
 const SEDES=["CAMPUS","CAMPUS URBANO","CENTRO","RÍO CUARTO"];
 const SEDE_LABEL={"CAMPUS":"Campus Universitario","CAMPUS URBANO":"Campus Urbano","CENTRO":"Campus Centro","RÍO CUARTO":"Campus Río Cuarto"};
 const OT="Oficina Técnica";
-function fix(x){let l=x.lleva||""; if(l==="Estudio externo"||l==="Mixto") l=x.estudio||""; return {responsable:x.responsable||"",lleva:l,envergadura:x.envergadura||"",sehace:x.sehace||"",estado:x.estado||"",prioridad:x.prioridad||"",nombre:typeof x.nombre==="string"?x.nombre:"",borrada:x.borrada===true,orden:(typeof x.orden==="number"&&isFinite(x.orden))?x.orden:null,plan:Array.isArray(x.plan)?x.plan.filter(n=>Number.isInteger(n)&&n>=0&&n<NDAYS):[],prog:(typeof x.prog==="string"&&pYmd(x.prog))?x.prog:"",limite:(typeof x.limite==="string"&&pYmd(x.limite))?x.limite:"",teo:Array.isArray(x.teo)?x.teo.filter(t=>t&&typeof t.e==="string"&&pYmd(t.i)&&pYmd(t.f)&&diasEntre(t.i,t.f)>=0).map(t=>({e:t.e,i:t.i,f:t.f})):[],hist:Array.isArray(x.hist)?x.hist.filter(h=>h&&typeof h.e==="string"&&pYmd(h.i)&&(!h.f||pYmd(h.f))).map(h=>({e:h.e,i:h.i,f:h.f||null})):[],prev:(x.prev&&typeof x.prev==="object")?Object.fromEntries(Object.entries(x.prev).filter(([k,v])=>Number.isInteger(v)&&v>0&&v<=3650)):{}};}
+function fix(x){let l=x.lleva||""; if(l==="Estudio externo"||l==="Mixto") l=x.estudio||""; return {responsable:x.responsable||"",lleva:l,envergadura:x.envergadura||"",sehace:x.sehace||"",estado:x.estado||"",prioridad:x.prioridad||"",nombre:typeof x.nombre==="string"?x.nombre:"",borrada:x.borrada===true,destacada:x.destacada===true,orden:(typeof x.orden==="number"&&isFinite(x.orden))?x.orden:null,plan:Array.isArray(x.plan)?x.plan.filter(n=>Number.isInteger(n)&&n>=0&&n<NDAYS):[],prog:(typeof x.prog==="string"&&pYmd(x.prog))?x.prog:"",limite:(typeof x.limite==="string"&&pYmd(x.limite))?x.limite:"",teo:Array.isArray(x.teo)?x.teo.filter(t=>t&&typeof t.e==="string"&&pYmd(t.i)&&pYmd(t.f)&&diasEntre(t.i,t.f)>=0).map(t=>({e:t.e,i:t.i,f:t.f})):[],hist:Array.isArray(x.hist)?x.hist.filter(h=>h&&typeof h.e==="string"&&pYmd(h.i)&&(!h.f||pYmd(h.f))).map(h=>({e:h.e,i:h.i,f:h.f||null})):[],prev:(x.prev&&typeof x.prev==="object")?Object.fromEntries(Object.entries(x.prev).filter(([k,v])=>Number.isInteger(v)&&v>0&&v<=3650)):{}};}
 const PLAN_START=new Date(2026,9,5), NWEEKS=43, NDAYS=NWEEKS*5, CW=12, PW=NDAYS*CW;
 const MESES=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 const MHUE={9:"#4a90c8",10:"#5aa6a0",11:"#8a9bb0",0:"#d9772f",1:"#e08a5a",2:"#c9a227",3:"#7bb36a",4:"#b07ac0",5:"#5f8fd6",6:"#d46a8a"};
@@ -893,7 +908,7 @@ function matches(o){
 }
 
 function renderStats(){
-  const live=LIVE(), act=live.filter(o=>!isFuera(o)).map(asg), n=act.length||1;
+  const live=LIVE(), act=live.filter(o=>!isFuera(o)).map(asg), n=act.length||1, nDest=act.filter(a=>a.destacada).length;
   const nF=e=>live.filter(o=>asg(o).estado===e).length, fuera=[[nF("Suspendida"),"suspendida","suspendidas"],[nF("En stand by"),"stand by","stand by"],[nF("Mantenimiento"),"mantenimiento","mantenimiento"]].filter(x=>x[0]);
   const cnt=f=>act.filter(f).length;
   const item=(f,v,label,k,color)=>`<button type="button" class="lg ${k?"":"zero"}" data-sf="${f}" data-sv="${esc(v)}" aria-pressed="${state[f]===v}"><i style="background:${color}"></i><span>${label}</span><b>${k}</b></button>`;
@@ -919,7 +934,7 @@ function renderStats(){
   const tl=nOT+nEs+sinLl||1, aOT=nOT/tl*360, aEs=nEs/tl*360;
   const pct=Math.round(nOT/tl*100);
   document.getElementById("stats").innerHTML=`
-    <div class="card c-total"><h3>Obras</h3><div class="big">${act.length}</div><div class="sub">${fuera.length?fuera.map(([k,a,b])=>`<span>+ ${k} ${k>1?b:a}</span>`).join(""):"todas en curso"}</div></div>
+    <div class="card c-total"><h3>Obras</h3><div class="big">${act.length}</div><div class="sub">${nDest?`<span class="dsub">★ ${nDest} ${nDest>1?"destacadas":"destacada"}</span>`:""}${fuera.length?fuera.map(([k,a,b])=>`<span>+ ${k} ${k>1?b:a}</span>`).join(""):(nDest?"":"todas en curso")}</div></div>
     <div class="card"><h3>Envergadura</h3><div class="bubs">${bubbles}</div>${sinEnv?`<button type="button" class="lg-mini" ${pressed("env","__none")}>${sinEnv} sin definir</button>`:""}</div>
     <div class="card"><h3>Prioridad</h3><div class="cols3">${cols}</div>${sinPr?`<button type="button" class="lg-mini" ${pressed("pr","__none")}>${sinPr} sin definir</button>`:""}</div>
     <div class="card c-etapa"><h3>Etapa</h3><div class="hbs">${hbars}</div>${sinEt?`<button type="button" class="lg-mini" ${pressed("est","__none")}>${sinEt} sin etapa</button>`:""}</div>
@@ -1106,7 +1121,7 @@ function row(o,showSede){
   return `<div class="item ${done?"done":""} ${isOpen?"open":""} ${sgOpen?"sgopen":""} ${a.estado==="Suspendida"?"no":FUERA.includes(a.estado)?"fu":""}" id="o-${o.id}">
     <div class="row" ${(canWrite&&!state.sortPr)?`draggable="true" data-drag="${o.id}"`:""}>
       <div class="main-cell">
-        <div class="nm"><button class="ed" type="button" data-ed="${o.id}" data-v="${a.envergadura}" title="Envergadura: ${a.envergadura||"sin definir"} (tocá para cambiar)" aria-label="Envergadura de ${esc(nom(o))}: ${a.envergadura||"sin definir"}" ${canWrite?"":"disabled"}>${a.envergadura?a.envergadura[0]:""}</button><input class="nmin" id="nm-${o.id}" data-id="${o.id}" data-f="nombre" value="${esc(nom(o))}" aria-label="Nombre de la obra" title="Tocá para editar el nombre" ${canWrite?"":"readonly"}>${showSede?`<span class="sd">${SEDE_LABEL[o.sede]}</span>`:""}${planOpen?`<button class="chev sgt" type="button" data-sgtoggle="${o.id}" aria-expanded="${sgOpen}" title="Ver seguimiento de etapas" aria-label="Seguimiento de etapas de ${esc(nom(o))}">▸</button>`:""}</div>
+        <div class="nm"><button class="ed" type="button" data-ed="${o.id}" data-v="${a.envergadura}" title="Envergadura: ${a.envergadura||"sin definir"} (tocá para cambiar)" aria-label="Envergadura de ${esc(nom(o))}: ${a.envergadura||"sin definir"}" ${canWrite?"":"disabled"}>${a.envergadura?a.envergadura[0]:""}</button><button class="st${a.destacada?" on":""}" type="button" data-star="${o.id}" aria-pressed="${!!a.destacada}" title="${a.destacada?"Quitar de obras destacadas":"Marcar como obra destacada"}" aria-label="${a.destacada?"Quitar de obras destacadas":"Marcar como obra destacada"}: ${esc(nom(o))}" ${canWrite?"":"disabled"}>${a.destacada?"★":"☆"}</button><input class="nmin" id="nm-${o.id}" data-id="${o.id}" data-f="nombre" value="${esc(nom(o))}" aria-label="Nombre de la obra" title="Tocá para editar el nombre" ${canWrite?"":"readonly"}>${showSede?`<span class="sd">${SEDE_LABEL[o.sede]}</span>`:""}${planOpen?`<button class="chev sgt" type="button" data-sgtoggle="${o.id}" aria-expanded="${sgOpen}" title="Ver seguimiento de etapas" aria-label="Seguimiento de etapas de ${esc(nom(o))}">▸</button>`:""}</div>
       </div>
       <div class="c-pr">${sel("pr","prioridad",PR,a.prioridad,"—","Prioridad")}</div>
       <div class="c-est">${sel("es","estado",ESTADOS,a.estado,"Estado / Etapa","Estado")}${planOpen?`<span class="lanes" aria-hidden="true"><b>Real</b><b>Previsto</b></span>`:""}</div>
@@ -1155,13 +1170,15 @@ function renderList(){
   const act=vis.filter(o=>!isFuera(o));
   document.getElementById("count").textContent=`${vis.filter(o=>!isFuera(o)).length} de ${LIVE().filter(o=>!isFuera(o)).length} obras`;
   const noFilter=!state.q&&!state.resp&&!state.lleva&&!state.env&&!state.est&&!state.pr&&!state.plazo;
-  let html=SEDES.map(s=>{
+  const dest=sortItems(act.filter(o=>asg(o).destacada&&(!state.sede||o.sede===state.sede)).sort((x,y)=>ordOf(x)-ordOf(y)));
+  let html=dest.length?`<section class="sede dst"><h2>★ Obras destacadas <small>${dest.length} ${dest.length===1?"obra":"obras"}</small></h2><div class="tbl">${hdr()}${dest.map(o=>row(o,true)).join("")}</div></section>`:"";
+  html+=SEDES.map(s=>{
     if(state.sede&&state.sede!==s) return "";
-    const items=sortItems(act.filter(o=>o.sede===s).sort((x,y)=>ordOf(x)-ordOf(y))); if(!items.length&&!noFilter) return "";
+    const items=sortItems(act.filter(o=>o.sede===s&&!asg(o).destacada).sort((x,y)=>ordOf(x)-ordOf(y))); if(!items.length&&!noFilter) return "";
     const base=LIVE().filter(o=>o.sede===s&&!isFuera(o));
-    const asignadas=base.filter(o=>asg(o).responsable).length;
+    const asignadas=base.filter(o=>asg(o).responsable).length, nd=base.filter(o=>asg(o).destacada).length;
     const addF=canWrite?`<form class="addf" data-sede="${s}"><input id="add-${s.replace(/\W/g,"")}" data-id="add" placeholder="+ Agregar obra en ${SEDE_LABEL[s]}…" aria-label="Nombre de la obra nueva en ${SEDE_LABEL[s]}" autocomplete="off"><button type="submit" class="act pri">Agregar</button></form>`:"";
-    return `<section class="sede"><div class="sh-h"><h2>${SEDE_LABEL[s]}</h2><span class="sh-n">${base.length} ${base.length===1?"obra":"obras"}</span><span class="sh-p" title="${asignadas} de ${base.length} con responsable"><span class="pbar"><i style="width:${base.length?Math.round(asignadas/base.length*100):0}%"></i></span>${asignadas}/${base.length} con responsable</span></div>
+    return `<section class="sede"><div class="sh-h"><h2>${SEDE_LABEL[s]}</h2><span class="sh-n">${base.length} ${base.length===1?"obra":"obras"}${nd?` · ${nd} ${nd===1?"destacada":"destacadas"} arriba`:""}</span><span class="sh-p" title="${asignadas} de ${base.length} con responsable"><span class="pbar"><i style="width:${base.length?Math.round(asignadas/base.length*100):0}%"></i></span>${asignadas}/${base.length} con responsable</span></div>
       <div class="tbl">${hdr()}${items.map(o=>row(o)).join("")}${addF}</div></section>`;
   }).join("");
   GRUPOS_FUERA.forEach(([est,titulo])=>{
@@ -1259,6 +1276,8 @@ document.addEventListener("click",e=>{
   if(e.target.closest("[data-pzask]")){pzConfirm=true; renderPlazos(); return;}
   if(e.target.closest("[data-pzno]")){pzConfirm=false; renderPlazos(); return;}
   if(e.target.closest("[data-pzgo]")){iniciarSinFecha(); pzConfirm=false; renderAll(); return;}
+  const star=e.target.closest(".st[data-star]");
+  if(star){const id=star.dataset.star, o=OBRAS.find(x=>x.id===id); if(o&&canWrite){save(id,{destacada:!asg(o).destacada}); renderList();} return;}
   const ed=e.target.closest(".ed");
   if(ed){const id=ed.dataset.ed, cur=asg(OBRAS.find(x=>x.id===id)).envergadura; const nv=ENV[(ENV.indexOf(cur)+2)%4-1]||"";
     ed.dataset.v=nv; ed.textContent=nv?nv[0]:""; ed.title="Envergadura: "+(nv||"sin definir")+" (tocá para cambiar)"; save(id,{envergadura:nv}); return;}

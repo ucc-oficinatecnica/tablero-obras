@@ -76,3 +76,9 @@ Para cambios grandes (rediseñar, reorganizar), avisales que conviene avisarle a
 - La tarjeta "Obras" muestra el total en curso y, abajo, cuántas hay en cada grupo (ej: "+ 1 suspendida", "+ 2 stand by").
 - **Mantenimiento** es una etapa más (`ESTADOS`, color `--e10b`/`--e10f`) y, igual que Suspendida, **no cuenta días** ni muestra semáforo. **En stand by** sigue contando solo los días que lleva ahí (`SOLO_DIAS`).
 - Una obra vuelve al conteo cuando se le cambia la etapa a cualquiera que no sea una de las tres.
+
+## Obras destacadas (estrella)
+- Cada obra tiene una estrella junto al nombre (campo `destacada` en `asignaciones/<id>`, booleano; `fix()` lo conserva: no lo saques de ahí). Se marca y se saca tocando la estrella.
+- Las obras destacadas **salen de su sede** y se muestran juntas en una sección "Obras destacadas" arriba de las sedes (filas amarillas, borde dorado; colores `--dst-*`). Si hay una sede elegida arriba, la sección muestra solo las destacadas de esa sede. Cada fila lleva una etiqueta con su sede.
+- **Siguen contando** como obras en curso (en el número grande, los gráficos y las pestañas). La tarjeta "Obras" dice cuántas hay ("★ 3 destacadas") y el título de cada sede aclara cuántas están arriba.
+- Una obra destacada que pase a Suspendida, En stand by o Mantenimiento se muestra en esa sección aparte (conserva su estrella).
