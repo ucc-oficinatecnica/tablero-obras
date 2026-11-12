@@ -1628,15 +1628,19 @@ renderAll();
 .mj-bt{display:flex;justify-content:flex-end}
 .mj-bt .mj-borrar{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:3px 8px;font:600 10.5px var(--f-body);cursor:pointer;background:rgba(255,120,105,.13);color:#ffa497;border:1px solid rgba(255,120,105,.35)}
 .mj-bt .mj-borrar svg{width:11px;height:11px}
-/* Barra de desplazamiento fina y redonda, en tonos del panel */
+/* Barra de desplazamiento cómoda: ancha, redonda, bien visible, con triangulitos arriba y abajo */
 .mj-l,.mn-l{scrollbar-gutter:stable}
-@supports not selector(::-webkit-scrollbar){.mj-l,.mn-l{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.3) transparent}}
-.mj-l{padding-right:4px}.mn-l{padding-right:2px}
-.mj-l::-webkit-scrollbar,.mn-l::-webkit-scrollbar{width:10px}
-.mj-l::-webkit-scrollbar-track,.mn-l::-webkit-scrollbar-track{background:transparent}
-.mj-l::-webkit-scrollbar-thumb,.mn-l::-webkit-scrollbar-thumb{background:rgba(255,255,255,.28);border-radius:10px;border:3px solid transparent;background-clip:padding-box}
-.mj-l::-webkit-scrollbar-thumb:hover,.mn-l::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.5);background-clip:padding-box}
-.mj-l::-webkit-scrollbar-button,.mn-l::-webkit-scrollbar-button{display:none;width:0;height:0}
+@supports not selector(::-webkit-scrollbar){.mj-l,.mn-l{scrollbar-width:auto;scrollbar-color:rgba(255,255,255,.45) rgba(255,255,255,.08)}}
+.mj-l::-webkit-scrollbar,.mn-l::-webkit-scrollbar{width:14px}
+.mj-l::-webkit-scrollbar-track,.mn-l::-webkit-scrollbar-track{background:rgba(255,255,255,.07);border-radius:10px;margin:2px 0}
+.mj-l::-webkit-scrollbar-thumb,.mn-l::-webkit-scrollbar-thumb{background:rgba(255,255,255,.42);border-radius:10px;border:2px solid transparent;background-clip:padding-box;min-height:44px}
+.mj-l::-webkit-scrollbar-thumb:hover,.mn-l::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.65);background-clip:padding-box}
+.mj-l::-webkit-scrollbar-thumb:active,.mn-l::-webkit-scrollbar-thumb:active{background:#fff;background-clip:padding-box}
+.mj-l::-webkit-scrollbar-button:single-button,.mn-l::-webkit-scrollbar-button:single-button{display:block;width:14px;height:14px;background-repeat:no-repeat;background-position:center;background-size:10px}
+.mj-l::-webkit-scrollbar-button:single-button:vertical:decrement,.mn-l::-webkit-scrollbar-button:single-button:vertical:decrement{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 2.5L8.6 7.5H1.4z' fill='%23ffffff' fill-opacity='.75'/%3E%3C/svg%3E")}
+.mj-l::-webkit-scrollbar-button:single-button:vertical:increment,.mn-l::-webkit-scrollbar-button:single-button:vertical:increment{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 7.5L8.6 2.5H1.4z' fill='%23ffffff' fill-opacity='.75'/%3E%3C/svg%3E")}
+.mj-l::-webkit-scrollbar-button:single-button:hover,.mn-l::-webkit-scrollbar-button:single-button:hover{background-color:rgba(255,255,255,.14);border-radius:6px}
+.mj-l{padding-right:2px}.mn-l{padding-right:2px}
 </style>
 <button id="mj-tab" type="button" hidden aria-expanded="false" aria-controls="mj">Mejoras <b id="mj-n">0</b></button>
 <aside id="mj" hidden aria-label="Mejoras de la interfaz">
