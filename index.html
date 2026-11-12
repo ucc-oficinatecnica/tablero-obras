@@ -1608,6 +1608,40 @@ renderAll();
 .mj-vacio span{font-size:11px}
 #mj-add,.mj-cf .mj-b{width:84px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;padding-left:0;padding-right:0;flex:none}
 .mj-tip{display:block;margin-top:2px;font-style:italic;font-size:10px;color:rgba(255,255,255,.4)}
+/* Lista de ideas: tres vistas. Fila con círculo para marcar hecha, título completo y detalle que se abre */
+.mj-l{grid-auto-rows:max-content}
+.mj-i{padding:0}
+.mj-fila{display:flex;align-items:flex-start;gap:9px;padding:9px 10px}
+.mj-chk{flex:none;width:20px;height:20px;margin-top:1px;padding:0;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);background:none;color:transparent;display:grid;place-items:center;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.mj-chk svg{width:12px;height:12px}
+.mj-chk:hover{border-color:#9be8ae;color:#9be8ae}
+.mj-i.ok .mj-chk{background:#2f9e5f;border-color:#2f9e5f;color:#fff}
+.mj-main{flex:1;min-width:0;cursor:pointer}
+.mj-t{font:600 12.5px/1.35 var(--f-body);overflow-wrap:anywhere}
+.mj-m{margin-top:3px;font-size:10.5px;color:rgba(255,255,255,.55)}
+.mj-hb{display:none;align-items:center;gap:5px;flex:none;border-radius:8px;padding:4px 9px;font:600 10.5px var(--f-body);cursor:pointer;background:rgba(90,210,130,.15);color:#9be8ae;border:1px solid rgba(90,210,130,.35)}
+.mj-hb svg{width:11px;height:11px}
+.mj-i.ok .mj-hb{background:rgba(255,255,255,.08);color:rgba(255,255,255,.75);border-color:rgba(255,255,255,.25)}
+.mj-chev{flex:none;width:22px;height:22px;padding:0;border:0;background:none;color:rgba(255,255,255,.6);cursor:pointer;display:grid;place-items:center;transition:transform .2s}
+.mj-chev svg{width:16px;height:16px}
+.mj-i.open .mj-chev{transform:rotate(180deg)}
+.mj-body{border-top:1px solid rgba(255,255,255,.1);padding:8px 10px 10px;display:grid;gap:7px;background:rgba(0,0,0,.14)}
+.mj-body .mj-fotos{gap:6px}
+.mj-body .mj-fotos img{width:56px;height:56px;border-radius:8px}
+.mj-bt{display:flex;justify-content:flex-end}
+.mj-bt .mj-borrar{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:3px 8px;font:600 10.5px var(--f-body);cursor:pointer;background:rgba(255,120,105,.13);color:#ffa497;border:1px solid rgba(255,120,105,.35)}
+.mj-bt .mj-borrar svg{width:11px;height:11px}
+.mj-tabs{display:flex;gap:4px;padding:3px;background:rgba(255,255,255,.07);border-radius:10px}
+.mj-tabs button{flex:1;border:0;border-radius:8px;padding:6px 8px;background:none;color:rgba(255,255,255,.65);font:600 11.5px var(--f-body);cursor:pointer}
+.mj-tabs button b{margin-left:4px;font-weight:700;opacity:.8}
+.mj-tabs button.on{background:#fff;color:#002C55}
+/* vista B: tarjetas con barra de color y botón "Marcar hecha" con texto */
+#mj[data-vista="b"] .mj-chk{display:none}
+#mj[data-vista="b"] .mj-hb{display:inline-flex}
+#mj[data-vista="b"] .mj-i{border-left:4px solid #f0c35a}
+#mj[data-vista="b"] .mj-i.ok{border-left-color:#5ad282}
+#mj[data-vista="b"] .mj-fila{padding:11px 10px 11px 12px;align-items:center}
+#mj[data-vista="b"] .mj-t{font-size:13px;font-weight:700}
 </style>
 <button id="mj-tab" type="button" hidden aria-expanded="false" aria-controls="mj">Mejoras <b id="mj-n">0</b></button>
 <aside id="mj" hidden aria-label="Mejoras de la interfaz">
@@ -1647,18 +1681,44 @@ window.initMejoras=function(db){
       let q=.75, d=c.toDataURL("image/jpeg",q); while(d.length>180000&&q>.35){q-=.1; d=c.toDataURL("image/jpeg",q);} d.length>180000?mal():ok(d);};
     im.onerror=()=>{URL.revokeObjectURL(u); mal();}; im.src=u;});}
 
+  // Tres formas de mostrar la lista (propuestas): a = lista compacta, b = tarjetas, c = pestañas Pendientes/Hechas
+  let vista=(()=>{try{return localStorage.getItem("mj-vista")}catch(e){return null}})()||"a", filtro="pend", over={};
+  pan.dataset.vista=vista;
+  window.mjVista=v=>{vista=v; filtro="pend"; over={}; pan.dataset.vista=v; try{localStorage.setItem("mj-vista",v)}catch(e){} pintar();};
+  const abierta=(i,x)=>i in over?over[i]:(vista==="b"&&!x.ok);
+  const CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const CHEV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  const TRASH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>';
+  const BUB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.7 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>';
+  function itemHtml(i,x){
+    const fs=Object.entries(x.fotos).sort((a,b)=>a[0]<b[0]?-1:1), cs=Object.entries(x.coms).sort((a,b)=>a[1].f-b[1].f), op=abierta(i,x), id=esc(i);
+    const meta=[x.n?esc(x.n):"",dia(x.f),cs.length?cs.length+(cs.length===1?" comentario":" comentarios"):"",fs.length?fs.length+(fs.length===1?" foto":" fotos"):""].filter(Boolean).join(" · ");
+    const txt=x.ok?"Reabrir":"Marcar hecha";
+    return `<div class="mj-i${x.ok?" ok":""}${op?" open":""}"><div class="mj-fila">
+      <button class="mj-chk" data-a="ok" data-i="${id}" aria-label="${txt}" title="${txt}">${CHK}</button>
+      <div class="mj-main" data-a="tog" data-i="${id}"><div class="mj-t">${esc(x.t)}</div><div class="mj-m">${meta}</div></div>
+      <button class="mj-hb" data-a="ok" data-i="${id}">${CHK}${txt}</button>
+      <button class="mj-chev" data-a="tog" data-i="${id}" aria-expanded="${op}" aria-label="${op?"Cerrar detalle":"Ver detalle"}">${CHEV}</button></div>
+      ${op?`<div class="mj-body">
+        ${fs.length?`<div class="mj-fotos">${fs.map(([k,d])=>`<div class="mj-ft"><img src="${d}" alt="Foto" data-z="1"><button class="mj-q" data-a="qf" data-i="${id}" data-k="${esc(k)}" aria-label="Quitar foto">×</button></div>`).join("")}</div>`:""}
+        ${cs.map(([k,c])=>`<div class="mj-c"><small><b>${esc(c.n||"Alguien")}</b>${dia(c.f)}<button data-a="qc" data-i="${id}" data-k="${esc(k)}" aria-label="Borrar comentario">×</button></small><p>${esc(c.t)}</p></div>`).join("")}
+        <div class="mj-cf"><div class="mj-cin">${BUB}<input type="text" maxlength="500" placeholder="Escribir un comentario…" aria-label="Comentario" data-c="${id}" value="${esc(borr[i]||"")}"></div><button class="mj-b" data-a="com" data-i="${id}">Enviar</button></div>
+        <div class="mj-bt"><button class="mj-borrar" data-a="del" data-i="${id}">${TRASH}Borrar idea</button></div></div>`:""}</div>`;
+  }
   function pintar(){
     const act=document.activeElement, keep=act&&act.dataset&&act.dataset.c?{i:act.dataset.c,s:act.selectionStart}:null;
     document.querySelectorAll("#mj-lista [data-c]").forEach(e=>{borr[e.dataset.c]=e.value;});
     const ids=Object.keys(items).sort((a,b)=>(items[a].ok-items[b].ok)||(items[b].f-items[a].f));
-    $("mj-n").textContent=ids.filter(i=>!items[i].ok).length;
-    $("mj-lista").innerHTML=ids.length?ids.map((i,n)=>{const x=items[i], fs=Object.entries(x.fotos).sort((a,b)=>a[0]<b[0]?-1:1), cs=Object.entries(x.coms).sort((a,b)=>a[1].f-b[1].f);
-      return `${x.ok&&(n===0||!items[ids[n-1]].ok)?'<div class="mj-sep"><span>Hechas</span></div>':""}<div class="mj-i${x.ok?" ok":""}"><div class="mj-top">
-      ${fs.length?`<div class="mj-fotos">${fs.map(([k,d])=>`<div class="mj-ft"><img src="${d}" alt="Foto" data-z="1"><button class="mj-q" data-a="qf" data-i="${esc(i)}" data-k="${esc(k)}" aria-label="Quitar foto">×</button></div>`).join("")}</div>`:""}
-      <div class="mj-info"><div class="mj-t">${esc(x.t)}</div><div class="mj-mrow"><div class="mj-m">${x.n?esc(x.n)+" · ":""}${dia(x.f)}</div>
-        <div class="mj-acc"><button class="mj-hecha" data-a="ok" data-i="${esc(i)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>${x.ok?"Reabrir":"Marcar hecha"}</button><button class="mj-borrar" data-a="del" data-i="${esc(i)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>Borrar</button></div></div></div></div>
-      <div class="mj-cs">${cs.map(([k,c])=>`<div class="mj-c"><small><b>${esc(c.n||"Alguien")}</b>${dia(c.f)}<button data-a="qc" data-i="${esc(i)}" data-k="${esc(k)}" aria-label="Borrar comentario">×</button></small><p>${esc(c.t)}</p></div>`).join("")}
-        <div class="mj-cf"><div class="mj-cin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.7 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><input type="text" maxlength="500" placeholder="Escribir un comentario…" aria-label="Comentario" data-c="${esc(i)}" value="${esc(borr[i]||"")}"></div><button class="mj-b" data-a="com" data-i="${esc(i)}">Enviar</button></div></div></div>`}).join(""):'<div class="mj-vacio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg><b>Todavía no hay ideas</b><span>Escribí la primera arriba.</span></div>';
+    const pend=ids.filter(i=>!items[i].ok), hech=ids.filter(i=>items[i].ok);
+    $("mj-n").textContent=pend.length;
+    let html="";
+    if(!ids.length) html='<div class="mj-vacio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg><b>Todavía no hay ideas</b><span>Escribí la primera arriba.</span></div>';
+    else if(vista==="c"){
+      const lista=filtro==="pend"?pend:hech;
+      html=`<div class="mj-tabs"><button class="${filtro==="pend"?"on":""}" data-a="fil" data-f="pend">Pendientes <b>${pend.length}</b></button><button class="${filtro==="hech"?"on":""}" data-a="fil" data-f="hech">Hechas <b>${hech.length}</b></button></div>`
+        +(lista.length?lista.map(i=>itemHtml(i,items[i])).join(""):`<div class="mj-vacio"><b>${filtro==="pend"?"No hay ideas pendientes":"Todavía no hay ideas hechas"}</b></div>`);
+    } else html=ids.map((i,n)=>(items[i].ok&&(n===0||!items[ids[n-1]].ok)?'<div class="mj-sep"><span>Hechas</span></div>':"")+itemHtml(i,items[i])).join("");
+    $("mj-lista").innerHTML=html;
     if(keep){const e=document.querySelector(`#mj-lista [data-c="${CSS.escape(keep.i)}"]`); if(e){e.focus(); try{e.setSelectionRange(keep.s,keep.s)}catch(_){}}}
   }
   function pintarPrev(){$("mj-prev").innerHTML=nuevas.map((d,k)=>`<div class="mj-ft"><img src="${d}" alt="Foto a agregar"><button type="button" class="mj-q" data-n="${k}" aria-label="Quitar foto">×</button></div>`).join(""); }
@@ -1693,7 +1753,10 @@ window.initMejoras=function(db){
     b.disabled=false;};
   $("mj-lista").onclick=async e=>{
     if(e.target.dataset.z){const z=document.createElement("div"); z.id="mj-zoom"; z.innerHTML=`<img src="${e.target.src}" alt="Foto">`; z.onclick=()=>z.remove(); document.body.appendChild(z); return;}
-    const b=e.target.closest("button[data-a]"); if(!b) return; const i=b.dataset.i, a=b.dataset.a, ref=col.doc(i), k=b.dataset.k;
+    const b=e.target.closest("[data-a]"); if(!b) return; const i=b.dataset.i, a=b.dataset.a, k=b.dataset.k;
+    if(a==="fil"){filtro=b.dataset.f; pintar(); return;}
+    if(a==="tog"){ if(items[i]){over[i]=!abierta(i,items[i]); pintar();} return; }
+    const ref=col.doc(i);
     try{
       if(a==="ok") await ref.update({ok:!items[i].ok});
       else if(a==="del"){ if(confirm("¿Borrar esta mejora con sus fotos y comentarios?")) await ref.delete(); }
