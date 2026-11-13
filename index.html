@@ -2141,6 +2141,46 @@ window.alinearPestanas=function(){
 .cl-bar.izq{margin-left:-2px;border-top-left-radius:0;border-bottom-left-radius:0}
 .cl-bar.der{margin-right:-2px;border-top-right-radius:0;border-bottom-right-radius:0}
 @media (max-width:640px){.cl-wk .cl-c{padding-top:calc(18px + var(--lanes,0)*15px)}.cl-bars{top:17px;grid-auto-rows:12px}.cl-bar{height:12px;font-size:9px;line-height:12px;padding:0 4px;border-radius:6px}}
+/* Vacaciones: calendario del año para marcar días (25 días hábiles por persona) */
+.vy-top{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.vy-top label{display:grid;gap:3px;font:600 10.5px var(--f-body);color:var(--muted);flex:1 1 200px;min-width:0}
+.vy-yr{display:flex;align-items:center;gap:8px}
+.vy-yr b{font:800 18px var(--f-display);min-width:52px;text-align:center}
+.vy-yr button{border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);padding:5px 11px;font:600 13px var(--f-body);cursor:pointer}
+.vy-res{padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);display:grid;gap:6px}
+.vy-n{font:600 13px var(--f-body)}
+.vy-n b{font:800 20px var(--f-display);color:var(--pc)}
+.vy-n small{color:var(--muted);font-size:12px}
+.vy-bar{height:8px;border-radius:5px;background:var(--surface-2);overflow:hidden}
+.vy-bar i{display:block;height:100%;background:var(--pc);border-radius:5px}
+.vy-s{font-size:11.5px;color:var(--muted)}
+.vy-res.pasa .vy-s{color:var(--martin);font-weight:700}
+.vy-res.pasa .vy-n b{color:var(--martin)}
+.vy-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px}
+.vy-m{border:1px solid var(--line);border-radius:10px;padding:7px 7px 8px;background:var(--surface)}
+.vy-m h6{margin:0 0 4px;font:700 12px var(--f-body);text-align:center}
+.vy-w,.vy-d{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.vy-w span{text-align:center;font:700 8.5px var(--f-body);color:var(--muted);padding-bottom:2px}
+.vy-d .o{display:block}
+.vy-c{position:relative;display:grid;place-items:center;height:22px;border:0;border-radius:4px;background:transparent;color:var(--fg);font:600 10px var(--f-body);padding:0;cursor:default}
+button.vy-c{cursor:pointer}
+button.vy-c:hover{background:var(--accent-soft)}
+.vy-c.w{background:var(--surface-2);color:var(--muted)}
+.vy-c.f{background:var(--cv-fers);color:var(--cv-fer);font-weight:800}
+.vy-c.hoy{outline:1.5px solid var(--total-bg);outline-offset:-1px}
+.vy-c.sel,button.vy-c.sel:hover{background:var(--pc,#2f7fd1);color:#fff;font-weight:800}
+.vy-c u,.vy-dot{text-decoration:none}
+.vy-c u{position:absolute;right:2px;bottom:2px;width:5px;height:5px;border-radius:50%;background:var(--cv-lim)}
+.vy-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--cv-lim)}
+.vy-k{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px}
+.vy-k.f{background:var(--cv-fers);outline:1px solid var(--cv-fer)}.vy-k.w{background:var(--surface-2);outline:1px solid var(--line)}
+.vy-p{display:flex;align-items:center;gap:10px;width:100%;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:7px 10px;cursor:pointer;text-align:left;font:inherit}
+.vy-p:hover,.vy-p.on{border-color:var(--total-bg)}
+.vy-p b{flex:0 1 130px;min-width:0;font:600 12.5px var(--f-body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vy-b{flex:1;height:7px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.vy-b i{display:block;height:100%;border-radius:4px}
+.vy-p small{flex:none;color:var(--muted);font-size:11px}
+.vy-p+.vy-p{margin-top:-4px}
 /* línea de tiempo */
 .tl{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:8px 10px 10px 110px;overflow:hidden}
 .tl-m{display:flex;height:22px}
@@ -2202,6 +2242,30 @@ window.initCalendario=function(db){
   // ---- datos ----
   const lista=tipo=>Object.entries(docs).filter(([i,x])=>x.tipo===tipo).map(([i,x])=>({id:i,...x}));
   const ocultos=()=>new Set(lista("oculto").map(x=>x.d1));
+  // Vacaciones: cada persona marca días sueltos (25 días hábiles por año). Se guardan en un documento por persona y año
+  // (campo "dias"); para mostrarlas se unen en rangos continuos: si entre dos días marcados solo hay fines de semana o feriados, es una sola barra.
+  const LIM=25, slug=t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"x";
+  const sumaDia=(s,k)=>{const d=parse(s); return ymd(new Date(d.getFullYear(),d.getMonth(),d.getDate()+k));};
+  const feriadoSet=()=>{const st=new Set(); feriados().forEach(x=>{for(let d=x.d1;d<=x.d2;d=sumaDia(d,1)) st.add(d);}); return st;};
+  const esHabil=(s,fs)=>{const w=parse(s).getDay(); return w!==0&&w!==6&&!(fs||feriadoSet()).has(s);};
+  const vacRangos=()=>{const fs=feriadoSet(), out=[];
+    lista("vac").forEach(x=>{ if(!x.dias){out.push(x); return;}
+      let ini=null, prev=null; x.dias.forEach(d=>{ if(prev){let k=sumaDia(prev,1), junto=true; while(k<d){ if(esHabil(k,fs)){junto=false; break;} k=sumaDia(k,1);} if(!junto){out.push({...x,d1:ini,d2:prev}); ini=d;} } else ini=d; prev=d; });
+      if(ini) out.push({...x,d1:ini,d2:prev}); });
+    return out;};
+  // días hábiles marcados por una persona en un año (une el documento nuevo con rangos viejos cargados antes)
+  const diasPersona=(n,a)=>{const st=new Set(), fs=feriadoSet(), i0=a+"-01-01", i1=a+"-12-31";
+    lista("vac").filter(x=>x.t===n).forEach(x=>{ if(x.dias) x.dias.forEach(d=>{if(d>=i0&&d<=i1) st.add(d);});
+      else for(let d=x.d1<i0?i0:x.d1; d<=x.d2&&d<=i1; d=sumaDia(d,1)) if(esHabil(d,fs)) st.add(d); });
+    return st;};
+  let cola=Promise.resolve();
+  function guardarDias(n,a,st){ // guarda los días de una persona y año (en orden, de a un cambio por vez)
+    const id="v"+a+"-"+slug(n), i0=a+"-01-01", i1=a+"-12-31", viejos=lista("vac").filter(x=>x.t===n&&!x.dias&&x.d1>=i0&&x.d2<=i1).map(x=>x.id), dias=[...st].sort();
+    if(dias.length) docs[id]={tipo:"vac",t:n,d1:dias[0],d2:dias[dias.length-1],n:firma(),f:Date.now(),dias}; else delete docs[id];
+    viejos.forEach(v=>delete docs[v]); pintar();
+    cola=cola.then(async()=>{ try{ if(dias.length) await col.doc(id).set({tipo:"vac",t:n,d1:dias[0],d2:dias[dias.length-1],dias,n:firma(),f:Date.now()}); else await col.doc(id).delete();
+        for(const v of viejos) await col.doc(v).delete(); }catch(err){showNotice("No se pudo guardar las vacaciones. Probá de nuevo (si sigue fallando, avisá: puede faltar publicar las reglas nuevas en Firebase).");} });
+    return cola;}
   const feriados=()=>{const oc=ocultos(); return FER_BASE.filter(([d])=>!oc.has(d)).map(([d,t])=>({id:"base:"+d,d1:d,d2:d,t,base:true})).concat(lista("fer")).sort((a,b)=>a.d1<b.d1?-1:a.d1>b.d1?1:0);};
   const personas=()=>{const s=new Set(people()); lista("vac").forEach(x=>s.add(x.t)); return [...s].filter(Boolean).sort((a,b)=>a.localeCompare(b,"es"));};
   const nombre1=t=>t.split(/\s+/)[0];
@@ -2209,7 +2273,7 @@ window.initCalendario=function(db){
     const e={fer:[],aca:[],vac:[],lim:[]};
     if(capas.fer) feriados().forEach(x=>{if(x.d1<=d&&d<=x.d2) e.fer.push(x)});
     if(capas.aca) lista("aca").forEach(x=>{if(x.d1<=d&&d<=x.d2) e.aca.push(x)});
-    if(capas.vac) lista("vac").forEach(x=>{if(x.d1<=d&&d<=x.d2&&(!persona||x.t===persona)) e.vac.push(x)});
+    if(capas.vac) vacRangos().forEach(x=>{if(x.d1<=d&&d<=x.d2&&(!persona||x.t===persona)) e.vac.push(x)});
     if(capas.lim) LIVE().forEach(o=>{const l=asg(o).limite; if(l===d&&!isFuera(o)) e.lim.push({t:nom(o),sede:SEDE_LABEL[o.sede]})});
     return e;
   }
@@ -2225,7 +2289,7 @@ window.initCalendario=function(db){
     const barrasAc=ac.map(x=>{let k=carriles.findIndex(f=>f<x.d1); if(k<0){k=carriles.length; carriles.push("");} carriles[k]=x.d2; const p=pos(x.d1,x.d2); return `<button type="button" class="tl-bar" data-tl="${dato("Académico",x.t,x.d1,x.d2)}" style="${stl(p)};top:${4+k*24}px;background:${COL[hash(x.t)%COL.length]}">${esc(x.t)}</button>`;}).join("");
     const filas=[]; 
     if(capas.aca) filas.push(`<div class="tl-r" style="height:${Math.max(1,carriles.length)*24+8}px"><b class="g">Académico</b>${barrasAc}</div>`);
-    if(capas.vac){const por={}; lista("vac").filter(x=>pos(x.d1,x.d2)&&(!persona||x.t===persona)).forEach(x=>(por[x.t]=por[x.t]||[]).push(x));
+    if(capas.vac){const por={}; vacRangos().filter(x=>pos(x.d1,x.d2)&&(!persona||x.t===persona)).forEach(x=>(por[x.t]=por[x.t]||[]).push(x));
       Object.keys(por).sort((a,b)=>a.localeCompare(b,"es")).forEach(n=>filas.push(`<div class="tl-r" style="height:28px"><b>${esc(n)}</b>${por[n].map(x=>`<button type="button" class="tl-bar v" data-tl="${dato("Vacaciones",x.t,x.d1,x.d2)}" style="${stl(pos(x.d1,x.d2))};top:5px">${""}</button>`).join("")}</div>`));
       if(!Object.keys(por).length) filas.push(`<div class="tl-r" style="height:28px"><b class="g">Vacaciones</b><span style="position:absolute;left:8px;top:6px;font-size:11px;color:var(--muted)">Nadie tiene vacaciones en estos meses.</span></div>`);}
     const fer=capas.fer?feriados().filter(x=>pos(x.d1,x.d2)):[];
@@ -2244,7 +2308,7 @@ window.initCalendario=function(db){
     const nm=cap1(ver.toLocaleDateString("es-AR",{month:"long",year:"numeric"}).replace(" de "," "));
     const cap=capHtml();
     let semanas="";
-    const vacs=capas.vac?lista("vac").filter(x=>!persona||x.t===persona):[];
+    const vacs=capas.vac?vacRangos().filter(x=>!persona||x.t===persona):[];
     for(let w=0;w<6;w++){
       const ws=new Date(ini.getFullYear(),ini.getMonth(),ini.getDate()+w*7), wsS=ymd(ws), weS=ymd(new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+6));
       // barras de vacaciones de esta semana (como en Google Calendar): cada una ocupa un carril para que no se pisen
@@ -2268,9 +2332,28 @@ window.initCalendario=function(db){
   }
   const form=(campos,btn)=>`<form class="cl-form" id="cl-form">${campos}<button class="go" type="submit">${btn}</button><div class="cl-err" id="cl-err" role="alert">${esc(msg)}</div></form>`;
   const fechas=`<label>Desde<input type="date" id="cl-d1"></label><label>Hasta<input type="date" id="cl-d2"></label>`;
-  function vVac(){const l=lista("vac").sort((a,b)=>a.d1<b.d1?-1:1);
-    return form(`<label class="p">Persona<input type="text" id="cl-t" list="cl-personas" maxlength="60" placeholder="Elegí o escribí un nombre" autocomplete="off"></label>${fechas}`,"Agregar vacaciones")
-     +(l.length?l.map(x=>`<div class="cl-li"><div><b>${esc(x.t)}</b><small>${rango(x.d1,x.d2)}</small></div><button data-del="${x.id}" aria-label="Borrar">×</button></div>`).join(""):'<div class="cl-vacio">Todavía no hay vacaciones cargadas.</div>');}
+  let vpers="", vanio=new Date().getFullYear();
+  const MESL=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  const sem=n=>{const w=Math.floor(n/5), d=n%5; return (w?w+(w===1?" semana":" semanas"):"")+(w&&d?" y ":"")+(d?d+(d===1?" día":" días"):"")||"0 días";};
+  function vVac(){
+    const fs=feriadoSet(), hoy=ymd(new Date()), pc=vpers?PCOL[hash(vpers)%PCOL.length]:"#2f7fd1", mios=vpers?diasPersona(vpers,vanio):new Set(), n=mios.size;
+    const otros={}; vacRangos().filter(x=>x.t!==vpers).forEach(x=>{for(let d=x.d1<vanio+"-01-01"?vanio+"-01-01":x.d1; d<=x.d2&&d<=vanio+"-12-31"; d=sumaDia(d,1)) if(esHabil(d,fs)) (otros[d]=otros[d]||[]).push(nombre1(x.t));});
+    const meses=MESL.map((nm,m)=>{const off=(new Date(vanio,m,1).getDay()+6)%7, dias=new Date(vanio,m+1,0).getDate(); let h='<i class="o"></i>'.repeat(off);
+      for(let d=1;d<=dias;d++){const k=vanio+"-"+pad(m+1)+"-"+pad(d), hab=esHabil(k,fs), esf=fs.has(k)&&parse(k).getDay()!==0&&parse(k).getDay()!==6, ot=otros[k], sel=mios.has(k);
+        const cls="vy-c"+(sel?" sel":"")+(!hab?(esf?" f":" w"):"")+(k===hoy?" hoy":"");
+        h+= hab&&vpers?`<button type="button" class="${cls}" data-vd="${k}" aria-pressed="${sel}" aria-label="${largo(k)}"${ot?` title="También de vacaciones: ${esc(ot.join(", "))}"`:""}>${d}${ot?'<u></u>':""}</button>`
+          :`<span class="${cls}"${esf&&!hab?` title="${esc((feriados().find(x=>x.d1<=k&&k<=x.d2)||{}).t||"Feriado")}"`:""}>${d}</span>`;}
+      return `<div class="vy-m"><h6>${nm}</h6><div class="vy-w"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class="vy-d">${h}</div></div>`;}).join("");
+    const pct=Math.min(100,Math.round(n/LIM*100)), resto=LIM-n;
+    const resumen=vpers?`<div class="vy-res${n>LIM?" pasa":""}" style="--pc:${pc}"><div class="vy-n"><b>${n}</b> de ${LIM} días hábiles <small>(${sem(n)})</small></div><div class="vy-bar"><i style="width:${pct}%"></i></div><div class="vy-s">${n>LIM?`Se pasa por ${n-LIM} ${n-LIM===1?"día":"días"}.`:resto===0?"Ya están los 25 días.":`Quedan ${resto} ${resto===1?"día":"días"} (${sem(resto)}).`}</div></div>`
+      :`<div class="cl-vacio">Elegí una persona para marcar los días que va a tomar.</div>`;
+    const todos={}; lista("vac").forEach(x=>{todos[x.t]=1;}); const filas=Object.keys(todos).sort((a,b)=>a.localeCompare(b,"es")).map(t=>({t,n:diasPersona(t,vanio).size})).filter(x=>x.n);
+    return `<p class="cl-note">Tocá los días que va a tomar. Son ${LIM} días hábiles por año (5 semanas). Los fines de semana y los feriados no se cuentan ni se marcan.</p>
+      <div class="vy-top"><label class="p">Persona<input type="text" id="cl-vp" list="cl-personas" maxlength="60" placeholder="Elegí o escribí un nombre" autocomplete="off" value="${esc(vpers)}"></label>
+        <div class="vy-yr"><button type="button" data-vy="-1" aria-label="Año anterior">‹</button><b>${vanio}</b><button type="button" data-vy="1" aria-label="Año siguiente">›</button></div></div>
+      ${resumen}<div class="vy-g">${meses}</div>
+      <p class="cl-leg"><span class="vy-k" style="background:${pc}"></span> día de vacaciones · <span class="vy-k f"></span> feriado · <span class="vy-k w"></span> fin de semana · <u class="vy-dot"></u> otra persona también está de vacaciones</p>
+      ${filas.length?`<h5 class="cl-gt">Vacaciones de todos en ${vanio}</h5>`+filas.map(x=>`<button type="button" class="vy-p${x.t===vpers?" on":""}" data-vp="${esc(x.t)}"><span class="vy-k" style="background:${PCOL[hash(x.t)%PCOL.length]}"></span><b>${esc(x.t)}</b><span class="vy-b"><i style="width:${Math.min(100,Math.round(x.n/LIM*100))}%;background:${x.n>LIM?"var(--martin)":PCOL[hash(x.t)%PCOL.length]}"></i></span><small>${x.n} de ${LIM}</small></button>`).join(""):""}`;}
   function vAca(){const l=lista("aca").sort((a,b)=>a.d1<b.d1?-1:1);
     return form(`<label class="p">Nombre del período<input type="text" id="cl-t" maxlength="80" placeholder="Ej: Receso invernal, Mesas de examen…" autocomplete="off"></label>${fechas}`,"Agregar período")
      +(l.length?l.map(x=>`<div class="cl-li"><span style="width:6px;align-self:stretch;border-radius:3px;background:${COL[hash(x.t)%COL.length]}"></span><div><b>${esc(x.t)}</b><small>${rango(x.d1,x.d2)}</small></div><button data-del="${x.id}" aria-label="Borrar">×</button></div>`).join(""):'<div class="cl-vacio">Todavía no hay períodos del calendario académico.<br>Agregá el inicio y fin de clases, los recesos y las mesas de examen.</div>');}
@@ -2286,6 +2369,9 @@ window.initCalendario=function(db){
   $("cl-seg").onclick=e=>{const b=e.target.closest("button[data-v]"); if(!b) return; vista=b.dataset.v; msg=""; pintar();};
   $("cl-b").addEventListener("click",async e=>{
     const n=e.target.closest("[data-nav]"); if(n){const k=+n.dataset.nav; ver=k?new Date(ver.getFullYear(),ver.getMonth()+k,1):new Date(new Date().getFullYear(),new Date().getMonth(),1); pintar(); return;}
+    const vd=e.target.closest("[data-vd]"); if(vd&&vpers){const st=diasPersona(vpers,vanio), k=vd.dataset.vd; st.has(k)?st.delete(k):st.add(k); guardarDias(vpers,vanio,st); return;}
+    const vy=e.target.closest("[data-vy]"); if(vy){vanio+=+vy.dataset.vy; pintar(); return;}
+    const vp=e.target.closest("[data-vp]"); if(vp){vpers=vp.dataset.vp; pintar(); return;}
     const tn=e.target.closest("[data-tlnav]"); if(tn){const k=+tn.dataset.tlnav; tlIni=k?new Date(tlIni.getFullYear(),tlIni.getMonth()+k,1):new Date(new Date().getFullYear(),new Date().getMonth(),1); pintar(); return;}
     const ti=e.target.closest("[data-tl]"); if(ti){tlInfo=ti.dataset.tl; pintar(); return;}
     const d=e.target.closest("[data-dia]"); if(d){sel=sel===d.dataset.dia?null:d.dataset.dia; pintar(); return;}
@@ -2296,6 +2382,7 @@ window.initCalendario=function(db){
   });
   $("cl-b").addEventListener("change",e=>{
     const c=e.target.closest("[data-capa]"); if(c){capas[c.dataset.capa]=c.checked; pintar(); return;}
+    if(e.target.id==="cl-vp"){vpers=e.target.value.trim().slice(0,60); pintar(); return;}
     if(e.target.id==="cl-span"){tlSpan=+e.target.value; pintar(); return;}
     if(e.target.id==="cl-pf"){persona=e.target.value; pintar();}});
   $("cl-b").addEventListener("submit",async e=>{e.preventDefault(); const f=$("cl-form"); if(!f||e.target!==f) return; msg="";
@@ -2305,7 +2392,8 @@ window.initCalendario=function(db){
     try{await col.doc(nid()).set({tipo,t:t.slice(0,80),d1,d2,n:firma(),f:Date.now()}); if(tipo!=="fer") {ver=new Date(parse(d1).getFullYear(),parse(d1).getMonth(),1);} else ver=new Date(parse(d1).getFullYear(),parse(d1).getMonth(),1); f.reset();}
     catch(err){er.textContent="No se pudo guardar. Probá de nuevo (si sigue fallando, avisá: puede faltar publicar las reglas nuevas en Firebase).";}});
   col.onSnapshot(s=>{docs={}; s.docs.forEach(d=>{const v=d.data(); if(!v||!["vac","aca","fer","oculto"].includes(v.tipo)||!ok(v.d1)) return;
-      docs[d.id]={tipo:v.tipo,t:typeof v.t==="string"?v.t:"",d1:v.d1,d2:ok(v.d2)?v.d2:v.d1,n:typeof v.n==="string"?v.n:"",f:+v.f||0};}); pintar();},()=>{});
+      docs[d.id]={tipo:v.tipo,t:typeof v.t==="string"?v.t:"",d1:v.d1,d2:ok(v.d2)?v.d2:v.d1,n:typeof v.n==="string"?v.n:"",f:+v.f||0};
+      if(v.tipo==="vac"&&Array.isArray(v.dias)) docs[d.id].dias=v.dias.filter(ok).sort();}); pintar();},()=>{});
   // si cambian las fechas límite de las obras, se actualiza la capa de fechas límite
   window.calendarioRefrescar=pintar;
 };
