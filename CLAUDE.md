@@ -101,3 +101,5 @@ Para cambios grandes (rediseñar, reorganizar), avisales que conviene avisarle a
 - Feriados de referencia: la lista `FER_BASE` (2026 y 2027) está en el código y **hay que verificarla con el calendario oficial** (puentes y traslados cambian por decreto). Para sacar uno se guarda un `oculto`; no se edita el código. Actualizar la lista cuando cambie el año.
 - El calendario académico no está precargado: lo cargan ellos (la UCC no nos dio las fechas).
 - La grilla también muestra las **fechas límite de las obras** (campo `limite`) para tenerlas presentes al planificar.
+
+- **Vista Mes:** los días de feriado se pintan de rojo suave (`.cl-c.fer`) y las vacaciones se dibujan como **barras gruesas que cruzan los días**, una por persona y de un color distinto (como en Google Calendar). La grilla se arma por semanas (`.cl-wk`): las barras de cada semana ocupan carriles para no pisarse y las que siguen en la semana siguiente se cortan en el borde. Los colores por persona están en `PCOL` (se eligen por el nombre).
