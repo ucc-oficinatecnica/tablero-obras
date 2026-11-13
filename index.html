@@ -1788,7 +1788,7 @@ window.initMejoras=function(db){
   tab.hidden=false; pan.hidden=false;
   // La pestaña toma la posición y el alto de la fila de tarjetas de arriba
   const st=document.getElementById("stats");
-  function alinear(){const r=st.getBoundingClientRect(); if(!r.height) return; tab.style.top=(r.top+scrollY)+"px"; tab.style.height=r.height+"px";}
+  function alinear(){if(window.alinearPestanas) window.alinearPestanas();}
   alinear(); addEventListener("resize",alinear); addEventListener("load",alinear);
   if(window.ResizeObserver) new ResizeObserver(alinear).observe(st);
   tab.onclick=()=>{abrir(true); $("mj-txt").focus();};
@@ -1908,12 +1908,7 @@ window.initMinutas=function(db){
   // En pantallas anchas la pestaña va al lado de la de Mejoras (a su izquierda), con el mismo alto que las tarjetas de arriba.
   // En pantallas angostas no hay lugar al costado y va justo debajo.
   const st=document.getElementById("stats"), mjt=$("mj-tab");
-  function alinear(){const r=st.getBoundingClientRect(); if(!r.height) return;
-    const h=Math.min(r.height,innerWidth<=760?150:1e9);
-    if(innerWidth>=1340){ tab.style.top=(r.top+scrollY)+"px"; tab.style.height=h+"px"; tab.style.right=(mjt&&!mjt.hidden?mjt.offsetWidth:0)+"px"; tab.style.borderRadius="10px 0 0 10px"; }
-    else { tab.style.top=(r.top+scrollY+h+8)+"px"; tab.style.height=""; tab.style.right="0"; tab.style.borderRadius="10px 0 0 10px"; }
-    // Pegadas: la de Mejoras queda recta del lado de la unión y con una línea finita gris clara de separación
-    if(mjt){const junto=innerWidth>=1340&&!tab.hidden; mjt.style.borderRadius=junto?"0":""; mjt.style.borderLeft=junto?"1px solid rgba(255,255,255,.3)":"";}}
+  function alinear(){if(window.alinearPestanas) window.alinearPestanas();}
   tab.hidden=false; pan.hidden=false; alinear(); addEventListener("resize",alinear); addEventListener("load",alinear);
   if(window.ResizeObserver) new ResizeObserver(alinear).observe(st);
   tab.onclick=()=>abrir(true); $("mn-cerrar").onclick=()=>abrir(false);
@@ -2049,6 +2044,23 @@ window.initRapidas=function(db){
     }catch(err){showNotice("No se pudo completar la acción. Probá de nuevo.");}};
 };
 </script>
+<script>
+// Pestañas laterales (Mejoras, Minutas y Calendario). En pantallas anchas van pegadas, una al lado de la otra, con el alto de las tarjetas de arriba:
+// de derecha a izquierda Mejoras, Minutas y Calendario. En pantallas angostas no hay lugar al costado y se apilan hacia abajo.
+window.alinearPestanas=function(){
+  const st=document.getElementById("stats"); if(!st) return; const r=st.getBoundingClientRect(); if(!r.height) return;
+  const todas=["mj-tab","mn-tab","cl-tab"].map(id=>document.getElementById(id)).filter(Boolean), vis=todas.filter(t=>!t.hidden), h=Math.min(r.height,innerWidth<=760?150:1e9);
+  if(innerWidth>=1340){
+    let right=0;
+    vis.forEach((t,i)=>{const ultima=i===vis.length-1; t.style.top=(r.top+scrollY)+"px"; t.style.height=h+"px"; t.style.right=right+"px"; right+=t.offsetWidth;
+      t.style.borderRadius=ultima?"10px 0 0 10px":"0"; t.style.borderLeft=ultima?"":"1px solid rgba(255,255,255,.3)";});
+  } else {
+    let y=r.top+scrollY;
+    todas.forEach((t,i)=>{ t.style.right="0"; t.style.borderRadius="10px 0 0 10px"; t.style.borderLeft=""; t.style.top=y+"px";
+      if(i===0){t.style.height=h+"px"; y+=h+8;} else {t.style.height=""; if(!t.hidden){t.dataset.h=t.offsetHeight;} y+=(+t.dataset.h||113)+8;} });
+  }
+};
+</script>
 <style>
 #cl-tab{position:absolute;right:0;top:620px;z-index:100;writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;gap:8px;min-height:110px;box-sizing:border-box;background:var(--total-bg);color:#fff;border:0;border-radius:10px 0 0 10px;padding:14px 8px;font:700 12px var(--f-body);letter-spacing:.06em;cursor:pointer;box-shadow:-2px 2px 8px rgba(0,0,0,.2)}
 #cl-tab:hover{filter:brightness(1.15)}
@@ -2165,15 +2177,13 @@ window.initCalendario=function(db){
   const nid=()=>"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
   const firma=()=>{try{return (localStorage.getItem("obras-firma")||"").slice(0,60)}catch(e){return ""}};
   const abrir=v=>{ if(v){ for(const id of ["mj","mn-p"]){const e=$(id); if(e&&e.classList.contains("open")){const c=$(id==="mj"?"mj-cerrar":"mn-cerrar"); if(c) c.click();}} }
-    pan.classList.toggle("open",v); tab.setAttribute("aria-expanded",v); tab.hidden=v; if(!v) alinear(); if(v) pintar(); };
-  // La pestaña va debajo de las otras (Minutas y Mejoras)
+    pan.classList.toggle("open",v); tab.setAttribute("aria-expanded",v); tab.hidden=v; alinear(); if(v) pintar(); };
+  // Las tres pestañas laterales se acomodan juntas (ver alinearPestanas)
   const st=document.getElementById("stats"), mnt=$("mn-tab"), mjt=$("mj-tab");
-  function alinear(){const r=st.getBoundingClientRect(); if(!r.height) return; const h=Math.min(r.height,innerWidth<=760?150:1e9); let top=r.top+scrollY+h+8;
-    if(innerWidth<1340){ const m=mnt&&!mnt.hidden?mnt:null; top=m?m.getBoundingClientRect().bottom+scrollY+8:top+130; }
-    tab.style.top=top+"px";}
+  function alinear(){if(window.alinearPestanas) window.alinearPestanas();}
   tab.hidden=false; pan.hidden=false; alinear(); addEventListener("resize",alinear); addEventListener("load",alinear);
   if(window.ResizeObserver) new ResizeObserver(alinear).observe(st);
-  for(const t of [mnt,mjt]) if(t){ t.addEventListener("click",()=>abrir(false)); new MutationObserver(alinear).observe(t,{attributes:true,attributeFilter:["hidden","style"]}); }
+  for(const t of [mnt,mjt]) if(t){ t.addEventListener("click",()=>abrir(false)); new MutationObserver(alinear).observe(t,{attributes:true,attributeFilter:["hidden"]}); }
   tab.onclick=()=>abrir(true); $("cl-cerrar").onclick=()=>abrir(false);
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&pan.classList.contains("open")) abrir(false);});
   // ---- datos ----
