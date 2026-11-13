@@ -2181,6 +2181,20 @@ button.vy-c:hover{background:var(--accent-soft)}
 .vy-b i{display:block;height:100%;border-radius:4px}
 .vy-p small{flex:none;color:var(--muted);font-size:11px}
 .vy-p+.vy-p{margin-top:-4px}
+/* Períodos académicos como barras en el mes, alta de feriados y períodos desde la misma vista */
+.cl-bar.ac{background:color-mix(in srgb,var(--bc) 30%,var(--surface));color:var(--fg);border-left:4px solid var(--bc);border-radius:4px;box-shadow:none;font-weight:700}
+.cl-bar.ac.izq{border-left-width:0;border-radius:0 4px 4px 0}
+.cl-bar.ac.der{border-radius:4px 0 0 4px}
+.cl-bar.ac.izq.der{border-radius:0}
+.cl-dx{flex:none;margin-left:auto;border:0;background:none;color:var(--muted);font-size:16px;line-height:1;padding:0 6px;border-radius:6px;cursor:pointer}
+.cl-dx:hover{color:var(--martin);background:var(--surface-2)}
+.cl-dx.txt{font:600 11px var(--f-body);color:var(--accent);text-decoration:underline}
+.cl-det p>span{flex:1;min-width:0}
+.cl-addb{justify-self:start}
+.cl-addt{flex-basis:100%;display:flex;gap:4px;padding:3px;background:var(--surface-2);border-radius:9px;width:max-content;max-width:100%}
+.cl-addt button{border:0;border-radius:7px;background:none;color:var(--muted);padding:6px 12px;font:600 11.5px var(--f-body);cursor:pointer}
+.cl-addt button.on{background:var(--total-bg);color:#fff}
+.cl-form .cl-g{align-self:flex-end}
 /* línea de tiempo */
 .tl{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:8px 10px 10px 110px;overflow:hidden}
 .tl-m{display:flex;height:22px}
@@ -2202,7 +2216,7 @@ body:has(#mj.open) #cl-tab,body:has(#mn-p.open) #cl-tab{display:none}
 <button id="cl-tab" type="button" hidden aria-expanded="false" aria-controls="cl-p">Calendario</button>
 <aside id="cl-p" hidden aria-label="Calendario">
   <div class="cl-h"><div><h2>Calendario</h2><p>Vacaciones del equipo, calendario académico y feriados, para planificar las obras.</p></div><button class="cl-x" type="button" id="cl-cerrar" aria-label="Cerrar">×</button></div>
-  <div class="cl-seg" role="tablist" id="cl-seg"><button data-v="mes" class="on">Mes</button><button data-v="tl">Línea de tiempo</button><button data-v="vac">Vacaciones</button><button data-v="aca">Académico</button><button data-v="fer">Feriados</button></div>
+  <div class="cl-seg" role="tablist" id="cl-seg"><button data-v="mes" class="on">Mes</button><button data-v="tl">Línea de tiempo</button><button data-v="vac">Vacaciones</button></div>
   <div class="cl-b" id="cl-b"></div>
   <datalist id="cl-personas"></datalist>
 </aside>
@@ -2308,31 +2322,38 @@ window.initCalendario=function(db){
     const nm=cap1(ver.toLocaleDateString("es-AR",{month:"long",year:"numeric"}).replace(" de "," "));
     const cap=capHtml();
     let semanas="";
-    const vacs=capas.vac?vacRangos().filter(x=>!persona||x.t===persona):[];
+    const vacs=capas.vac?vacRangos().filter(x=>!persona||x.t===persona):[], acs=capas.aca?lista("aca"):[];
     for(let w=0;w<6;w++){
       const ws=new Date(ini.getFullYear(),ini.getMonth(),ini.getDate()+w*7), wsS=ymd(ws), weS=ymd(new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+6));
       // barras de vacaciones de esta semana (como en Google Calendar): cada una ocupa un carril para que no se pisen
-      const segs=vacs.filter(x=>x.d2>=wsS&&x.d1<=weS).map(x=>{const a=x.d1<wsS?wsS:x.d1, z=x.d2>weS?weS:x.d2; return {x,c1:Math.round((parse(a)-ws)/864e5)+1,c2:Math.round((parse(z)-ws)/864e5)+2,izq:x.d1<wsS,der:x.d2>weS};})
-        .sort((p,q)=>p.c1-q.c1||(q.c2-q.c1)-(p.c2-p.c1)||(p.x.t<q.x.t?-1:1));
+      const mk=(x,kind)=>{const a=x.d1<wsS?wsS:x.d1, z=x.d2>weS?weS:x.d2; return {x,kind,c1:Math.round((parse(a)-ws)/864e5)+1,c2:Math.round((parse(z)-ws)/864e5)+2,izq:x.d1<wsS,der:x.d2>weS};};
+      const ord=(p,q)=>p.c1-q.c1||(q.c2-q.c1)-(p.c2-p.c1)||(p.x.t<q.x.t?-1:1);
+      const segs=acs.filter(x=>x.d2>=wsS&&x.d1<=weS).map(x=>mk(x,"a")).sort(ord).concat(vacs.filter(x=>x.d2>=wsS&&x.d1<=weS).map(x=>mk(x,"v")).sort(ord));
       const fin=[]; segs.forEach(g=>{let k=fin.findIndex(f=>f<=g.c1); if(k<0){k=fin.length; fin.push(0);} fin[k]=g.c2; g.k=k;});
-      const barras=segs.map(g=>`<span class="cl-bar${g.izq?" izq":""}${g.der?" der":""}" style="grid-column:${g.c1}/${g.c2};grid-row:${g.k+1};background:${PCOL[hash(g.x.t)%PCOL.length]}" title="${esc(g.x.t+" · "+rango(g.x.d1,g.x.d2))}">${esc(nombre1(g.x.t))}</span>`).join("");
+      const barras=segs.map(g=>g.kind==="a"
+        ?`<span class="cl-bar ac${g.izq?" izq":""}${g.der?" der":""}" style="grid-column:${g.c1}/${g.c2};grid-row:${g.k+1};--bc:${COL[hash(g.x.t)%COL.length]}" title="${esc("Académico: "+g.x.t+" · "+rango(g.x.d1,g.x.d2))}">${esc(g.x.t)}</span>`
+        :`<span class="cl-bar${g.izq?" izq":""}${g.der?" der":""}" style="grid-column:${g.c1}/${g.c2};grid-row:${g.k+1};background:${PCOL[hash(g.x.t)%PCOL.length]}" title="${esc(g.x.t+" · "+rango(g.x.d1,g.x.d2))}">${esc(nombre1(g.x.t))}</span>`).join("");
       let celdas="";
       for(let i=0;i<7;i++){const d=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+i), s=ymd(d), e=eventos(s), finde=d.getDay()===0||d.getDay()===6, esFer=e.fer.length>0;
-        const barrasAc=e.aca.length?`<span class="cl-a">${e.aca.map(x=>`<i style="background:${COL[hash(x.t)%COL.length]}" title="${esc(x.t)}"></i>`).join("")}</span>`:"";
-        celdas+=`<button type="button" class="cl-c${finde?" fin":""}${esFer?" fer":""}${d.getMonth()!==m?" otro":""}${s===hoy?" hoy":""}${s===sel?" sel":""}" data-dia="${s}" aria-label="${largo(s)}"><span class="cl-n">${d.getDate()}</span>${e.fer.map(x=>`<span class="cl-f" title="${esc(x.t)}">${esc(x.t)}</span>`).join("")}${e.lim.length?`<span class="cl-l">Límite ${e.lim.length}</span>`:""}${barrasAc}</button>`;}
+        celdas+=`<button type="button" class="cl-c${finde?" fin":""}${esFer?" fer":""}${d.getMonth()!==m?" otro":""}${s===hoy?" hoy":""}${s===sel?" sel":""}" data-dia="${s}" aria-label="${largo(s)}"><span class="cl-n">${d.getDate()}</span>${e.fer.map(x=>`<span class="cl-f" title="${esc(x.t)}">${esc(x.t)}</span>`).join("")}${e.lim.length?`<span class="cl-l">Límite ${e.lim.length}</span>`:""}</button>`;}
       semanas+=`<div class="cl-wk" style="--lanes:${fin.length}">${celdas}<div class="cl-bars">${barras}</div></div>`;
     }
     let det="";
-    if(sel){const e=eventos(sel), hay=e.fer.length+e.aca.length+e.vac.length+e.lim.length;
+    if(sel){const e=eventos(sel), hay=e.fer.length+e.aca.length+e.vac.length+e.lim.length, x_=id=>`<button type="button" class="cl-dx" data-del="${esc(id)}" aria-label="Sacar" title="Sacar">×</button>`;
       det=`<div class="cl-det"><h4>${cap1(parse(sel).toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long",year:"numeric"}))}</h4>`
-       +(hay?e.fer.map(x=>`<p class="t-fer"><b>Feriado</b>${esc(x.t)}</p>`).join("")+e.aca.map(x=>`<p class="t-aca"><b>Académico</b><span>${esc(x.t)} <small>${rango(x.d1,x.d2)}</small></span></p>`).join("")+e.vac.map(x=>`<p class="t-vac"><b>Vacaciones</b><span>${esc(x.t)} <small>${rango(x.d1,x.d2)}</small></span></p>`).join("")+e.lim.map(x=>`<p class="t-lim"><b>Límite</b><span>${esc(x.t)} <small>${esc(x.sede)}</small></span></p>`).join(""):`<small>No hay nada marcado este día.</small>`)+`</div>`;}
+       +(hay?e.fer.map(x=>`<p class="t-fer"><b>Feriado</b><span>${esc(x.t)}</span>${x_(x.id)}</p>`).join("")+e.aca.map(x=>`<p class="t-aca"><b>Académico</b><span>${esc(x.t)} <small>${rango(x.d1,x.d2)}</small></span>${x_(x.id)}</p>`).join("")+e.vac.map(x=>`<p class="t-vac"><b>Vacaciones</b><span>${esc(x.t)} <small>${rango(x.d1,x.d2)}</small></span><button type="button" class="cl-dx txt" data-vedit="${esc(x.t)}">Editar</button></p>`).join("")+e.lim.map(x=>`<p class="t-lim"><b>Límite</b><span>${esc(x.t)} <small>${esc(x.sede)}</small></span></p>`).join(""):`<small>No hay nada marcado este día.</small>`)+`</div>`;}
+    const oc=ocultos().size, ref=sel||ymd(new Date());
+    const alta=!agregar?`<button type="button" class="cl-g cl-addb" data-addtog="1">+ Agregar feriado o período académico</button>`
+      :`<form class="cl-form" id="cl-form"><div class="cl-addt" role="group" aria-label="Qué agregar"><button type="button" data-addt="fer" class="${tipoAdd==="fer"?"on":""}">Feriado</button><button type="button" data-addt="aca" class="${tipoAdd==="aca"?"on":""}">Período académico</button></div>
+        <label class="p">${tipoAdd==="fer"?"Nombre del feriado":"Nombre del período"}<input type="text" id="cl-t" maxlength="80" placeholder="${tipoAdd==="fer"?"Ej: Día no laborable":"Ej: Receso invernal, Mesas de examen…"}" autocomplete="off"></label>
+        <label>Desde<input type="date" id="cl-d1" value="${ref}"></label><label>Hasta${tipoAdd==="fer"?" (si dura más de un día)":""}<input type="date" id="cl-d2" value="${tipoAdd==="fer"?"":ref}"></label>
+        <button class="go" type="submit">Agregar</button><button type="button" class="cl-g" data-addtog="1">Cancelar</button><div class="cl-err" id="cl-err" role="alert">${esc(msg)}</div></form>`;
+    const notaFer=`<p class="cl-note">Los feriados ya cargados son de referencia: verificalos con el calendario oficial y sacá con la ✕ (tocando el día) los que no correspondan.${oc?` Hay ${oc} ${oc===1?"feriado sacado":"feriados sacados"}. <button class="cl-link" data-restaurar="1">Restaurar</button>`:""}</p>`;
     return `<div class="cl-nav"><button data-nav="-1" aria-label="Mes anterior">‹</button><h3>${nm}</h3><button data-nav="1" aria-label="Mes siguiente">›</button><button data-nav="0">Hoy</button></div>
       ${cap}
-      <div><div class="cl-wd">${["L","M","M","J","V","S","D"].map(x=>`<span>${x}</span>`).join("")}</div><div class="cl-grid">${semanas}</div></div>${det}`;
+      <div><div class="cl-wd">${["L","M","M","J","V","S","D"].map(x=>`<span>${x}</span>`).join("")}</div><div class="cl-grid">${semanas}</div></div>${det}${alta}${notaFer}`;
   }
-  const form=(campos,btn)=>`<form class="cl-form" id="cl-form">${campos}<button class="go" type="submit">${btn}</button><div class="cl-err" id="cl-err" role="alert">${esc(msg)}</div></form>`;
-  const fechas=`<label>Desde<input type="date" id="cl-d1"></label><label>Hasta<input type="date" id="cl-d2"></label>`;
-  let vpers="", vanio=new Date().getFullYear();
+  let vpers="", vanio=new Date().getFullYear(), agregar=false, tipoAdd="fer";
   const MESL=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   const sem=n=>{const w=Math.floor(n/5), d=n%5; return (w?w+(w===1?" semana":" semanas"):"")+(w&&d?" y ":"")+(d?d+(d===1?" día":" días"):"")||"0 días";};
   function vVac(){
@@ -2354,21 +2375,16 @@ window.initCalendario=function(db){
       ${resumen}<div class="vy-g">${meses}</div>
       <p class="cl-leg"><span class="vy-k" style="background:${pc}"></span> día de vacaciones · <span class="vy-k f"></span> feriado · <span class="vy-k w"></span> fin de semana · <u class="vy-dot"></u> otra persona también está de vacaciones</p>
       ${filas.length?`<h5 class="cl-gt">Vacaciones de todos en ${vanio}</h5>`+filas.map(x=>`<button type="button" class="vy-p${x.t===vpers?" on":""}" data-vp="${esc(x.t)}"><span class="vy-k" style="background:${PCOL[hash(x.t)%PCOL.length]}"></span><b>${esc(x.t)}</b><span class="vy-b"><i style="width:${Math.min(100,Math.round(x.n/LIM*100))}%;background:${x.n>LIM?"var(--martin)":PCOL[hash(x.t)%PCOL.length]}"></i></span><small>${x.n} de ${LIM}</small></button>`).join(""):""}`;}
-  function vAca(){const l=lista("aca").sort((a,b)=>a.d1<b.d1?-1:1);
-    return form(`<label class="p">Nombre del período<input type="text" id="cl-t" maxlength="80" placeholder="Ej: Receso invernal, Mesas de examen…" autocomplete="off"></label>${fechas}`,"Agregar período")
-     +(l.length?l.map(x=>`<div class="cl-li"><span style="width:6px;align-self:stretch;border-radius:3px;background:${COL[hash(x.t)%COL.length]}"></span><div><b>${esc(x.t)}</b><small>${rango(x.d1,x.d2)}</small></div><button data-del="${x.id}" aria-label="Borrar">×</button></div>`).join(""):'<div class="cl-vacio">Todavía no hay períodos del calendario académico.<br>Agregá el inicio y fin de clases, los recesos y las mesas de examen.</div>');}
-  function vFer(){const l=feriados(), oc=ocultos().size;
-    return `<p class="cl-note">Los feriados de la lista están cargados como referencia: verificá con el calendario oficial. Podés sacar los que no correspondan y agregar los que falten (puentes, días no laborables).</p>`
-     +form(`<label class="p">Nombre<input type="text" id="cl-t" maxlength="80" placeholder="Ej: Día no laborable" autocomplete="off"></label><label>Fecha<input type="date" id="cl-d1"></label>`,"Agregar feriado")
-     +l.map(x=>`<div class="cl-li"><div><b>${esc(x.t)}</b><small>${largo(x.d1)}${x.base?"":" · agregado por ustedes"}</small></div><button data-del="${esc(x.id)}" aria-label="Sacar">×</button></div>`).join("")
-     +(oc?`<p class="cl-note">${oc} ${oc===1?"feriado sacado":"feriados sacados"} de la lista. <button class="cl-link" data-restaurar="1">Restaurar</button></p>`:"");}
   function pintar(){ if(!pan.classList.contains("open")) return;
     const b=$("cl-b"), y=b.scrollTop; $("cl-personas").innerHTML=personas().map(p=>`<option value="${esc(p)}">`).join("");
-    b.innerHTML=vista==="mes"?vMes():vista==="tl"?vTl():vista==="vac"?vVac():vista==="aca"?vAca():vFer(); b.scrollTop=y;
+    b.innerHTML=vista==="mes"?vMes():vista==="tl"?vTl():vVac(); b.scrollTop=y;
     document.querySelectorAll("#cl-seg button").forEach(x=>x.classList.toggle("on",x.dataset.v===vista)); }
   $("cl-seg").onclick=e=>{const b=e.target.closest("button[data-v]"); if(!b) return; vista=b.dataset.v; msg=""; pintar();};
   $("cl-b").addEventListener("click",async e=>{
     const n=e.target.closest("[data-nav]"); if(n){const k=+n.dataset.nav; ver=k?new Date(ver.getFullYear(),ver.getMonth()+k,1):new Date(new Date().getFullYear(),new Date().getMonth(),1); pintar(); return;}
+    const at=e.target.closest("[data-addtog]"); if(at){agregar=!agregar; msg=""; pintar(); if(agregar&&$("cl-t")) $("cl-t").focus(); return;}
+    const ak=e.target.closest("[data-addt]"); if(ak){tipoAdd=ak.dataset.addt; msg=""; pintar(); if($("cl-t")) $("cl-t").focus(); return;}
+    const ve=e.target.closest("[data-vedit]"); if(ve){vpers=ve.dataset.vedit; vista="vac"; pintar(); return;}
     const vd=e.target.closest("[data-vd]"); if(vd&&vpers){const st=diasPersona(vpers,vanio), k=vd.dataset.vd; st.has(k)?st.delete(k):st.add(k); guardarDias(vpers,vanio,st); return;}
     const vy=e.target.closest("[data-vy]"); if(vy){vanio+=+vy.dataset.vy; pintar(); return;}
     const vp=e.target.closest("[data-vp]"); if(vp){vpers=vp.dataset.vp; pintar(); return;}
@@ -2386,10 +2402,10 @@ window.initCalendario=function(db){
     if(e.target.id==="cl-span"){tlSpan=+e.target.value; pintar(); return;}
     if(e.target.id==="cl-pf"){persona=e.target.value; pintar();}});
   $("cl-b").addEventListener("submit",async e=>{e.preventDefault(); const f=$("cl-form"); if(!f||e.target!==f) return; msg="";
-    const t=$("cl-t").value.trim(), d1=$("cl-d1").value, d2=$("cl-d2")?$("cl-d2").value:d1, er=$("cl-err"), tipo=vista==="vac"?"vac":vista==="aca"?"aca":"fer";
-    if(!t){er.textContent=vista==="vac"?"Poné el nombre de la persona.":"Poné un nombre."; return;}
+    const t=$("cl-t").value.trim(), d1=$("cl-d1").value, d2=$("cl-d2").value||(tipoAdd==="fer"?d1:""), er=$("cl-err"), tipo=tipoAdd;
+    if(!t){er.textContent="Poné un nombre."; return;}
     if(!d1||!d2){er.textContent="Poné las fechas."; return;} if(!ok(d1)||!ok(d2)||d2<d1){er.textContent="La fecha de fin no puede ser anterior a la de inicio."; return;}
-    try{await col.doc(nid()).set({tipo,t:t.slice(0,80),d1,d2,n:firma(),f:Date.now()}); if(tipo!=="fer") {ver=new Date(parse(d1).getFullYear(),parse(d1).getMonth(),1);} else ver=new Date(parse(d1).getFullYear(),parse(d1).getMonth(),1); f.reset();}
+    try{await col.doc(nid()).set({tipo,t:t.slice(0,80),d1,d2,n:firma(),f:Date.now()}); ver=new Date(parse(d1).getFullYear(),parse(d1).getMonth(),1); sel=d1; agregar=false; pintar();}
     catch(err){er.textContent="No se pudo guardar. Probá de nuevo (si sigue fallando, avisá: puede faltar publicar las reglas nuevas en Firebase).";}});
   col.onSnapshot(s=>{docs={}; s.docs.forEach(d=>{const v=d.data(); if(!v||!["vac","aca","fer","oculto"].includes(v.tipo)||!ok(v.d1)) return;
       docs[d.id]={tipo:v.tipo,t:typeof v.t==="string"?v.t:"",d1:v.d1,d2:ok(v.d2)?v.d2:v.d1,n:typeof v.n==="string"?v.n:"",f:+v.f||0};
