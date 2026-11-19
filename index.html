@@ -2145,7 +2145,7 @@ window.alinearPestanas=function(){
 .vy-top{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
 .vy-top label{display:grid;gap:3px;font:600 10.5px var(--f-body);color:var(--muted);flex:1 1 200px;min-width:0}
 .vy-yr{display:flex;align-items:center;gap:8px}
-.vy-yr b{font:800 18px var(--f-display);min-width:52px;text-align:center}
+.vy-yr b{font:800 15px var(--f-display);min-width:52px;text-align:center;white-space:nowrap}
 .vy-yr button{border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);padding:5px 11px;font:600 13px var(--f-body);cursor:pointer}
 .vy-res{padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);display:grid;gap:6px}
 .vy-n{font:600 13px var(--f-body)}
@@ -2170,8 +2170,8 @@ button.vy-c:hover{background:var(--accent-soft)}
 .vy-c.hoy{outline:1.5px solid var(--total-bg);outline-offset:-1px}
 .vy-c.sel,button.vy-c.sel:hover{background:var(--pc,#2f7fd1);color:#fff;font-weight:800}
 .vy-c u,.vy-dot{text-decoration:none}
-.vy-c u{position:absolute;right:2px;bottom:2px;width:5px;height:5px;border-radius:50%;background:var(--cv-lim)}
-.vy-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--cv-lim)}
+.vy-c u{position:absolute;left:5px;right:5px;bottom:2px;height:3px;border-radius:2px;background:var(--cv-lim)}
+.vy-dot{display:inline-block;width:14px;height:3px;border-radius:2px;background:var(--cv-lim);vertical-align:2px}
 .vy-k{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px}
 .vy-k.f{background:var(--cv-fers);outline:1px solid var(--cv-fer)}.vy-k.w{background:var(--surface-2);outline:1px solid var(--line)}
 .vy-p{display:flex;align-items:center;gap:10px;width:100%;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:7px 10px;cursor:pointer;text-align:left;font:inherit}
@@ -2203,6 +2203,32 @@ button.vy-c:hover{background:var(--accent-soft)}
 @media (max-width:640px){.cl-gear span{display:none}.cl-gear{padding:6px 8px}}
 .cl-seg{width:max-content;max-width:calc(100% - 28px)}
 .cl-seg button{flex:0 0 auto}
+/* Vacaciones: filtros por persona al lado del selector Calendario / Vacaciones */
+.cl-segrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 14px 8px}
+.cl-segrow .cl-seg{margin:0;max-width:100%}
+.vy-ps{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.vy-ps button{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--fg);padding:5px 12px 5px 9px;font:600 12px var(--f-body);cursor:pointer;white-space:nowrap}
+.vy-ps button i{width:9px;height:9px;border-radius:50%;background:var(--pc);flex:none}
+.vy-ps button:hover{border-color:var(--pc)}
+.vy-ps button[aria-pressed="true"]{background:var(--pc);border-color:var(--pc);color:#fff}
+.vy-ps button[aria-pressed="true"] i{background:#fff}
+/* El encabezado y los filtros terminan en el mismo borde derecho que el contenido (se descuenta el ancho de la barra de desplazamiento) */
+#cl-p .cl-h{padding-right:calc(14px + var(--sbw,0px))}
+#cl-p .cl-segrow{margin-right:calc(14px + var(--sbw,0px))}
+.vy-card{grid-template-columns:minmax(0,1fr) auto;align-items:stretch;gap:6px 16px;padding:12px 14px}
+.vy-l{display:grid;gap:6px;min-width:0}
+.vy-card.al{column-gap:0}
+.vy-card.al .vy-l{padding-right:16px}
+.vy-card.al .vy-per{padding-left:0}
+.vy-per{display:grid;gap:6px;justify-items:center;align-content:center;padding-left:16px;border-left:1px solid var(--line)}
+@media (max-width:560px){.vy-card{grid-template-columns:1fr}.vy-per{justify-items:start;padding:10px 0 0;border-left:0;border-top:1px solid var(--line)}}
+.vy-lbl{font:700 10px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+/* Selector de período en cápsula: flechas a los costados y "Vacaciones 2027" en una píldora azul */
+.vy-per .vy-yr{gap:4px;padding:4px;background:var(--surface-2);border-radius:999px}
+.vy-per .vy-yr button{width:30px;height:30px;padding:0;border:0;border-radius:50%;background:transparent;display:grid;place-items:center;font:700 16px var(--f-body)}
+.vy-per .vy-yr button:hover{background:var(--accent-soft)}
+.vy-per .vy-yr b{display:inline-flex;align-items:center;gap:8px;min-width:0;padding:7px 16px;border-radius:999px;background:var(--total-bg);color:#fff;font:700 13px var(--f-body)}
+.vy-per .vy-yr b svg{width:15px;height:15px;flex:none}
 .cl-nav h3{text-align:left}
 .cl-vsw{display:inline-flex;gap:3px;padding:3px;background:var(--surface-2);border-radius:10px;margin-left:auto}
 .cl-vsw button{display:inline-flex;align-items:center;gap:6px;border:0!important;background:none!important;color:var(--muted)!important;border-radius:8px!important;padding:5px 10px!important;font:600 11.5px var(--f-body)!important;cursor:pointer}
@@ -2247,10 +2273,9 @@ body:has(#mj.open) #cl-tab,body:has(#mn-p.open) #cl-tab{display:none}
 <button id="cl-tab" type="button" hidden aria-expanded="false" aria-controls="cl-p">Calendario</button>
 <aside id="cl-p" hidden aria-label="Calendario">
   <div class="cl-h"><div><h2>Calendario</h2></div><button class="cl-gear" type="button" id="cl-aj-btn" aria-expanded="false" aria-controls="cl-aj" title="Feriados y calendario académico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Feriados y académico</span></button><button class="cl-x" type="button" id="cl-cerrar" aria-label="Cerrar">×</button></div>
-  <div class="cl-seg" role="tablist" id="cl-seg"><button data-v="cal" class="on">Calendario</button><button data-v="vac">Vacaciones</button></div>
+  <div class="cl-segrow"><div class="cl-seg" role="tablist" id="cl-seg"><button data-v="cal" class="on">Calendario</button><button data-v="vac">Vacaciones</button></div><div class="vy-ps" id="cl-pers" role="group" aria-label="Filtrar por persona" hidden></div></div>
   <div class="cl-b" id="cl-b"></div>
   <div class="cl-aj" id="cl-aj" hidden role="dialog" aria-label="Feriados y calendario académico"></div>
-  <datalist id="cl-personas"></datalist>
 </aside>
 <script>
 // Calendario compartido: documentos de la colección "calendario" en Firestore.
@@ -2265,6 +2290,7 @@ window.initCalendario=function(db){
    ["2027-01-01","Año Nuevo"],["2027-02-08","Carnaval"],["2027-02-09","Carnaval"],["2027-03-24","Día de la Memoria"],["2027-03-26","Viernes Santo"],["2027-04-02","Día del Veterano y de los Caídos en Malvinas"],["2027-05-01","Día del Trabajador"],["2027-05-25","Revolución de Mayo"],["2027-06-20","Paso a la Inmortalidad del Gral. Belgrano"],["2027-06-21","Paso a la Inmortalidad del Gral. Güemes (trasladado)"],["2027-07-09","Día de la Independencia"],["2027-08-16","Paso a la Inmortalidad del Gral. San Martín (trasladado)"],["2027-10-11","Día del Respeto a la Diversidad Cultural (trasladado)"],["2027-11-22","Día de la Soberanía Nacional (trasladado)"],["2027-12-08","Inmaculada Concepción de María"],["2027-12-25","Navidad"]];
   const COL=["#a98bf0","#f2b84b","#6fb7dc","#c99cdb","#e59e6d"];
   const PCOL=["#2f9e6f","#2f7fd1","#8e44ad","#e67e22","#16a0a0","#c0457a","#6b8e23","#5c6bc0"]; // un color por persona, como en Google Calendar
+  const PERSONAS_VAC=["Agus","Fla","Vico","Vicky","Gabi"]; // filtros de la solapa Vacaciones, en este orden
   const hash=t=>{let h=0; for(const c of t) h=(h*31+c.charCodeAt(0))>>>0; return h};
   const pad=n=>String(n).padStart(2,"0"), ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()), parse=s=>{const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d)};
   const ok=s=>typeof s==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(s);
@@ -2288,7 +2314,7 @@ window.initCalendario=function(db){
   // ---- datos ----
   const lista=tipo=>Object.entries(docs).filter(([i,x])=>x.tipo===tipo).map(([i,x])=>({id:i,...x}));
   const ocultos=()=>new Set(lista("oculto").map(x=>x.d1));
-  // Vacaciones: cada persona marca días sueltos (25 días hábiles por año). Se guardan en un documento por persona y año
+  // Vacaciones: cada persona marca días sueltos (25 días hábiles por período, de noviembre a octubre). Se guardan en un documento por persona y año calendario
   // (campo "dias"); para mostrarlas se unen en rangos continuos: si entre dos días marcados solo hay fines de semana o feriados, es una sola barra.
   const LIM=25, slug=t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"x";
   const sumaDia=(s,k)=>{const d=parse(s); return ymd(new Date(d.getFullYear(),d.getMonth(),d.getDate()+k));};
@@ -2299,8 +2325,8 @@ window.initCalendario=function(db){
       let ini=null, prev=null; x.dias.forEach(d=>{ if(prev){let k=sumaDia(prev,1), junto=true; while(k<d){ if(esHabil(k,fs)){junto=false; break;} k=sumaDia(k,1);} if(!junto){out.push({...x,d1:ini,d2:prev}); ini=d;} } else ini=d; prev=d; });
       if(ini) out.push({...x,d1:ini,d2:prev}); });
     return out;};
-  // días hábiles marcados por una persona en un año (une el documento nuevo con rangos viejos cargados antes)
-  const diasPersona=(n,a)=>{const st=new Set(), fs=feriadoSet(), i0=a+"-01-01", i1=a+"-12-31";
+  // días hábiles marcados por una persona entre dos fechas (une el documento nuevo con rangos viejos cargados antes)
+  const diasPersona=(n,i0,i1)=>{const st=new Set(), fs=feriadoSet();
     lista("vac").filter(x=>x.t===n).forEach(x=>{ if(x.dias) x.dias.forEach(d=>{if(d>=i0&&d<=i1) st.add(d);});
       else for(let d=x.d1<i0?i0:x.d1; d<=x.d2&&d<=i1; d=sumaDia(d,1)) if(esHabil(d,fs)) st.add(d); });
     return st;};
@@ -2325,7 +2351,7 @@ window.initCalendario=function(db){
   }
   // ---- vistas ----
   const IC_G='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18M9 4v17M15 4v17"/></svg>', IC_L='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M8 12h12M6 18h9"/></svg>';
-  const capHtml=()=>`<div class="cl-cap">`+[["vac","Vacaciones","#2fb68a"],["aca","Académico","#a98bf0"],["fer","Feriados","#d64a3c"],["lim","Fechas límite de obras","#2f6fc4"]].map(([k,t,c])=>`<label class="${capas[k]?"":"off"}"><input type="checkbox" data-capa="${k}" ${capas[k]?"checked":""}><i style="background:${c}"></i>${t}</label>`).join("")+`<select id="cl-pf" aria-label="Persona"><option value="">Vacaciones de todos</option>${personas().map(p=>`<option ${p===persona?"selected":""}>${esc(p)}</option>`).join("")}</select></div>`;
+  const capHtml=()=>`<div class="cl-cap">`+[["vac","Vacaciones","#2fb68a"],["aca","Académico","#a98bf0"],["fer","Feriados","#d64a3c"],["lim","Fechas límite de obras","#2f6fc4"]].map(([k,t,c])=>`<label class="${capas[k]?"":"off"}"><input type="checkbox" data-capa="${k}" ${capas[k]?"checked":""}><i style="background:${c}"></i>${t}</label>`).join("")+`</div>`;
   function vTl(){
     const ini=tlIni, fin=new Date(ini.getFullYear(),ini.getMonth()+tlSpan,0), total=Math.round((fin-ini)/864e5)+1, s0=ymd(ini), s1=ymd(fin), hoy=ymd(new Date());
     const pos=(a,b)=>{const A=a<s0?s0:a, B=b>s1?s1:b; if(B<s0||A>s1) return null; const i=Math.round((parse(A)-ini)/864e5), l=Math.round((parse(B)-parse(A))/864e5)+1; return {l:i/total*100,w:Math.max(l/total*100,.6)};};
@@ -2345,7 +2371,7 @@ window.initCalendario=function(db){
       filas.push(`<div class="tl-r" style="height:28px"><b class="g">Fechas límite</b>${lm.map(o=>`<button type="button" class="tl-pin" data-tl="${esc("Fecha límite: "+nom(o)+" · "+largo(asg(o).limite))}" style="left:${pos(asg(o).limite,asg(o).limite).l}%"></button>`).join("")}</div>`);}
     const lineas=fer.map(x=>`<span class="tl-line" style="left:${pos(x.d1,x.d1).l}%"></span>`).join("")+(hoy>=s0&&hoy<=s1?`<span class="tl-hoy" style="left:${pos(hoy,hoy).l}%"></span>`:"");
     const nm=ini.toLocaleDateString("es-AR",{month:"short",year:"numeric"}).replace(".","")+" a "+fin.toLocaleDateString("es-AR",{month:"short",year:"numeric"}).replace(".","");
-    return `<div class="cl-nav"><button data-tlnav="-1" aria-label="Antes">‹</button><h3>${cap1(nm)}</h3><button data-tlnav="1" aria-label="Después">›</button><button data-tlnav="0">Hoy</button><select id="cl-span" aria-label="Meses a ver">${[3,4,6,12].map(n=>`<option value="${n}" ${n===tlSpan?"selected":""}>${n} meses</option>`).join("")}</select><span class="cl-vsw" role="group" aria-label="Forma de ver el calendario"><button type="button" data-vv="mes" aria-pressed="${vista==='mes'}">${IC_G}Mes</button><button type="button" data-vv="tl" aria-pressed="${vista==='tl'}">${IC_L}Línea de tiempo</button></span></div>${capHtml()}
+    return `<div class="cl-nav"><button data-tlnav="-1" aria-label="Antes">‹</button><button data-tlnav="1" aria-label="Después">›</button><h3>${cap1(nm)}</h3><select id="cl-span" aria-label="Meses a ver">${[3,4,6,12].map(n=>`<option value="${n}" ${n===tlSpan?"selected":""}>${n} meses</option>`).join("")}</select><span class="cl-vsw" role="group" aria-label="Forma de ver el calendario"><button type="button" data-vv="mes" aria-pressed="${vista==='mes'}">${IC_G}Mes</button><button type="button" data-vv="tl" aria-pressed="${vista==='tl'}">${IC_L}Línea de tiempo</button></span></div>${capHtml()}
       <div class="tl"><div class="tl-m">${meses.join("")}</div>${filas.join("")}<div class="tl-lz">${lineas}</div></div>
       <div class="cl-det"><small>${tlInfo?esc(tlInfo):"Tocá una barra, una raya o un rombo para ver el detalle."}</small></div>
       <p class="cl-leg">Línea azul: hoy · Rayas rojas: feriados · Rombos azules: fechas límite de las obras.</p>`;
@@ -2375,32 +2401,33 @@ window.initCalendario=function(db){
     if(sel){const e=eventos(sel), hay=e.fer.length+e.aca.length+e.vac.length+e.lim.length, x_=id=>`<button type="button" class="cl-dx" data-del="${esc(id)}" aria-label="Sacar" title="Sacar">×</button>`;
       det=`<div class="cl-det"><h4>${cap1(parse(sel).toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long",year:"numeric"}))}</h4>`
        +(hay?e.fer.map(x=>`<p class="t-fer"><b>Feriado</b><span>${esc(x.t)}</span>${x_(x.id)}</p>`).join("")+e.aca.map(x=>`<p class="t-aca"><b>Académico</b><span>${esc(x.t)} <small>${rango(x.d1,x.d2)}</small></span>${x_(x.id)}</p>`).join("")+e.vac.map(x=>`<p class="t-vac"><b>Vacaciones</b><span>${esc(x.t)} <small>${rango(x.d1,x.d2)}</small></span><button type="button" class="cl-dx txt" data-vedit="${esc(x.t)}">Editar</button></p>`).join("")+e.lim.map(x=>`<p class="t-lim"><b>Límite</b><span>${esc(x.t)} <small>${esc(x.sede)}</small></span></p>`).join(""):`<small>No hay nada marcado este día.</small>`)+`</div>`;}
-    return `<div class="cl-nav"><button data-nav="-1" aria-label="Mes anterior">‹</button><h3>${nm}</h3><button data-nav="1" aria-label="Mes siguiente">›</button><button data-nav="0">Hoy</button><span class="cl-vsw" role="group" aria-label="Forma de ver el calendario"><button type="button" data-vv="mes" aria-pressed="${vista==='mes'}">${IC_G}Mes</button><button type="button" data-vv="tl" aria-pressed="${vista==='tl'}">${IC_L}Línea de tiempo</button></span></div>
+    return `<div class="cl-nav"><button data-nav="-1" aria-label="Mes anterior">‹</button><button data-nav="1" aria-label="Mes siguiente">›</button><h3>${nm}</h3><span class="cl-vsw" role="group" aria-label="Forma de ver el calendario"><button type="button" data-vv="mes" aria-pressed="${vista==='mes'}">${IC_G}Mes</button><button type="button" data-vv="tl" aria-pressed="${vista==='tl'}">${IC_L}Línea de tiempo</button></span></div>
       ${cap}
       <div><div class="cl-wd">${["L","M","M","J","V","S","D"].map(x=>`<span>${x}</span>`).join("")}</div><div class="cl-grid">${semanas}</div></div>${det}`;
   }
-  let vpers="", vanio=new Date().getFullYear(), agregar=false, tipoAdd="fer";
+  // El período de vacaciones va de noviembre a octubre: vanio es el año en que empieza (en noviembre ya corre el período nuevo)
+  let vpers="", vanio=(h=>h.getMonth()>=10?h.getFullYear():h.getFullYear()-1)(new Date()), agregar=false, tipoAdd="fer";
+  const perI0=()=>vanio+"-11-01", perI1=()=>(vanio+1)+"-10-31", perTxt=()=>`${vanio+1}`; // el período nov–oct se nombra por el año en que termina: "Vacaciones 2027" = nov 2026 a oct 2027
   const MESL=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   const sem=n=>{const w=Math.floor(n/5), d=n%5; return (w?w+(w===1?" semana":" semanas"):"")+(w&&d?" y ":"")+(d?d+(d===1?" día":" días"):"")||"0 días";};
   function vVac(){
-    const fs=feriadoSet(), hoy=ymd(new Date()), pc=vpers?PCOL[hash(vpers)%PCOL.length]:"#2f7fd1", mios=vpers?diasPersona(vpers,vanio):new Set(), n=mios.size;
-    const otros={}; vacRangos().filter(x=>x.t!==vpers).forEach(x=>{for(let d=x.d1<vanio+"-01-01"?vanio+"-01-01":x.d1; d<=x.d2&&d<=vanio+"-12-31"; d=sumaDia(d,1)) if(esHabil(d,fs)) (otros[d]=otros[d]||[]).push(nombre1(x.t));});
-    const meses=MESL.map((nm,m)=>{const off=(new Date(vanio,m,1).getDay()+6)%7, dias=new Date(vanio,m+1,0).getDate(); let h='<i class="o"></i>'.repeat(off);
-      for(let d=1;d<=dias;d++){const k=vanio+"-"+pad(m+1)+"-"+pad(d), hab=esHabil(k,fs), esf=fs.has(k)&&parse(k).getDay()!==0&&parse(k).getDay()!==6, ot=otros[k], sel=mios.has(k);
+    const fs=feriadoSet(), hoy=ymd(new Date()), pc=vpers?PCOL[hash(vpers)%PCOL.length]:"#2f7fd1", mios=vpers?diasPersona(vpers,perI0(),perI1()):new Set(), n=mios.size;
+    const otros={}; vacRangos().filter(x=>x.t!==vpers).forEach(x=>{for(let d=x.d1<perI0()?perI0():x.d1; d<=x.d2&&d<=perI1(); d=sumaDia(d,1)) if(esHabil(d,fs)) (otros[d]=otros[d]||[]).push(nombre1(x.t));});
+    const meses=Array.from({length:12},(_,i)=>(10+i)%12).map(m=>{const nm=MESL[m], y=m>=10?vanio:vanio+1, off=(new Date(y,m,1).getDay()+6)%7, dias=new Date(y,m+1,0).getDate(); let h='<i class="o"></i>'.repeat(off);
+      for(let d=1;d<=dias;d++){const k=y+"-"+pad(m+1)+"-"+pad(d), hab=esHabil(k,fs), esf=fs.has(k)&&parse(k).getDay()!==0&&parse(k).getDay()!==6, ot=otros[k], sel=mios.has(k);
         const cls="vy-c"+(sel?" sel":"")+(!hab?(esf?" f":" w"):"")+(k===hoy?" hoy":"");
         h+= hab&&vpers?`<button type="button" class="${cls}" data-vd="${k}" aria-pressed="${sel}" aria-label="${largo(k)}"${ot?` title="También de vacaciones: ${esc(ot.join(", "))}"`:""}>${d}${ot?'<u></u>':""}</button>`
           :`<span class="${cls}"${esf&&!hab?` title="${esc((feriados().find(x=>x.d1<=k&&k<=x.d2)||{}).t||"Feriado")}"`:""}>${d}</span>`;}
-      return `<div class="vy-m"><h6>${nm}</h6><div class="vy-w"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class="vy-d">${h}</div></div>`;}).join("");
+      return `<div class="vy-m"><h6>${nm} ${y}</h6><div class="vy-w"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class="vy-d">${h}</div></div>`;}).join("");
     const pct=Math.min(100,Math.round(n/LIM*100)), resto=LIM-n;
-    const resumen=vpers?`<div class="vy-res${n>LIM?" pasa":""}" style="--pc:${pc}"><div class="vy-n"><b>${n}</b> de ${LIM} días hábiles <small>(${sem(n)})</small></div><div class="vy-bar"><i style="width:${pct}%"></i></div><div class="vy-s">${n>LIM?`Se pasa por ${n-LIM} ${n-LIM===1?"día":"días"}.`:resto===0?"Ya están los 25 días.":`Quedan ${resto} ${resto===1?"día":"días"} (${sem(resto)}).`}</div></div>`
-      :`<div class="cl-vacio">Elegí una persona para marcar los días que va a tomar.</div>`;
-    const todos={}; lista("vac").forEach(x=>{todos[x.t]=1;}); const filas=Object.keys(todos).sort((a,b)=>a.localeCompare(b,"es")).map(t=>({t,n:diasPersona(t,vanio).size})).filter(x=>x.n);
-    return `<p class="cl-note">Tocá los días que va a tomar. Son ${LIM} días hábiles por año (5 semanas). Los fines de semana y los feriados no se cuentan ni se marcan.</p>
-      <div class="vy-top"><label class="p">Persona<input type="text" id="cl-vp" list="cl-personas" maxlength="60" placeholder="Elegí o escribí un nombre" autocomplete="off" value="${esc(vpers)}"></label>
-        <div class="vy-yr"><button type="button" data-vy="-1" aria-label="Año anterior">‹</button><b>${vanio}</b><button type="button" data-vy="1" aria-label="Año siguiente">›</button></div></div>
-      ${resumen}<div class="vy-g">${meses}</div>
-      <p class="cl-leg"><span class="vy-k" style="background:${pc}"></span> día de vacaciones · <span class="vy-k f"></span> feriado · <span class="vy-k w"></span> fin de semana · <u class="vy-dot"></u> otra persona también está de vacaciones</p>
-      ${filas.length?`<h5 class="cl-gt">Vacaciones de todos en ${vanio}</h5>`+filas.map(x=>`<button type="button" class="vy-p${x.t===vpers?" on":""}" data-vp="${esc(x.t)}"><span class="vy-k" style="background:${PCOL[hash(x.t)%PCOL.length]}"></span><b>${esc(x.t)}</b><span class="vy-b"><i style="width:${Math.min(100,Math.round(x.n/LIM*100))}%;background:${x.n>LIM?"var(--martin)":PCOL[hash(x.t)%PCOL.length]}"></i></span><small>${x.n} de ${LIM}</small></button>`).join(""):""}`;}
+    const selector=`<div class="vy-per"><div class="vy-lbl">Período</div><div class="vy-yr"><button type="button" data-vy="-1" aria-label="Período anterior">‹</button><b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>${perTxt()}</b><button type="button" data-vy="1" aria-label="Período siguiente">›</button></div></div>`;
+    const izq=vpers?`<div class="vy-l"><div class="vy-n"><b>${n}</b> de ${LIM} días hábiles <small>(${sem(n)})</small></div><div class="vy-bar"><i style="width:${pct}%"></i></div><div class="vy-s">${n>LIM?`Se pasa por ${n-LIM} ${n-LIM===1?"día":"días"}.`:resto===0?"Ya están los 25 días.":`Quedan ${resto} ${resto===1?"día":"días"} (${sem(resto)}).`}</div></div>`
+      :`<div class="vy-l"><div class="vy-s">Elegí una persona arriba para marcar los días que va a tomar.</div></div>`;
+    const resumen=`<div class="vy-res vy-card${vpers&&n>LIM?" pasa":""}" style="--pc:${pc}">${izq}${selector}</div>`;
+    const todos={}; lista("vac").forEach(x=>{todos[x.t]=1;}); const filas=Object.keys(todos).sort((a,b)=>a.localeCompare(b,"es")).map(t=>({t,n:diasPersona(t,perI0(),perI1()).size})).filter(x=>x.n);
+    return `${resumen}<div class="vy-g" style="--pc:${pc}">${meses}</div>
+      <p class="cl-leg"><span class="vy-k" style="background:${pc}"></span> día de vacaciones · <span class="vy-k f"></span> feriado · <u class="vy-dot"></u> otra persona también está de vacaciones</p>
+      ${filas.length?`<h5 class="cl-gt">Vacaciones de todos · ${perTxt()}</h5>`+filas.map(x=>`<button type="button" class="vy-p${x.t===vpers?" on":""}" data-vp="${esc(x.t)}"><span class="vy-k" style="background:${PCOL[hash(x.t)%PCOL.length]}"></span><b>${esc(x.t)}</b><span class="vy-b"><i style="width:${Math.min(100,Math.round(x.n/LIM*100))}%;background:${x.n>LIM?"var(--martin)":PCOL[hash(x.t)%PCOL.length]}"></i></span><small>${x.n} de ${LIM}</small></button>`).join(""):""}`;}
   function vAjustes(){
     const hoy=ymd(new Date()), oc=ocultos().size, fer=feriados(), aca=lista("aca").sort((a,b)=>a.d1<b.d1?-1:1), ref=sel||hoy, XB=id=>`<button type="button" class="cl-dx" data-del="${esc(id)}" aria-label="Sacar" title="Sacar">×</button>`;
     const top=`<div class="aj-h"><b>Feriados y calendario académico</b><button type="button" class="cl-dx" data-ajtog="1" aria-label="Cerrar">×</button></div>`;
@@ -2415,10 +2442,15 @@ window.initCalendario=function(db){
       <h6>Calendario académico · ${aca.length}</h6>${aca.map(x=>`<div class="aj-r${x.d2<hoy?" pas":""}"><i class="aj-k" style="background:${COL[hash(x.t)%COL.length]}"></i><span class="aj-n">${esc(x.t)}</span><small>${rango(x.d1,x.d2)}</small>${XB(x.id)}</div>`).join("")||'<p class="cl-vacio">Todavía no hay períodos. Cargá el inicio y fin de clases, los recesos y las mesas de examen.</p>'}<button type="button" class="cl-g" data-addt="aca">+ Agregar período</button>
       <p class="cl-note">Los feriados son de referencia: verificalos con el calendario oficial.</p></div>`;}
   function pintar(){ if(!pan.classList.contains("open")) return;
-    const b=$("cl-b"), y=b.scrollTop; $("cl-personas").innerHTML=personas().map(p=>`<option value="${esc(p)}">`).join("");
-    b.innerHTML=vista==="mes"?vMes():vista==="tl"?vTl():vVac(); b.scrollTop=y;
+    const b=$("cl-b"), y=b.scrollTop; const pe=$("cl-pers"); pe.hidden=vista!=="vac"; pe.innerHTML=vista==="vac"?PERSONAS_VAC.map(p=>`<button type="button" data-vp="${esc(p)}" style="--pc:${PCOL[hash(p)%PCOL.length]}" aria-pressed="${p===vpers}"><i></i>${esc(p)}</button>`).join(""):"";
+    b.innerHTML=vista==="mes"?vMes():vista==="tl"?vTl():vVac(); b.scrollTop=y; pan.style.setProperty("--sbw",(b.offsetWidth-b.clientWidth)+"px"); alinCard();
     document.querySelectorAll("#cl-seg button").forEach(x=>x.classList.toggle("on",x.dataset.v===(vista==="vac"?"vac":"cal")));
     const aj=$("cl-aj"); aj.hidden=!ajustes; if(ajustes){const st=aj.querySelector(".aj-b")?aj.querySelector(".aj-b").scrollTop:0; aj.innerHTML=vAjustes(); if(aj.querySelector(".aj-b")) aj.querySelector(".aj-b").scrollTop=st;} $("cl-aj-btn").setAttribute("aria-expanded",ajustes); $("cl-aj-btn").classList.toggle("on",ajustes); }
+  // La línea divisoria del resumen (donde empieza el bloque del período) cae justo en el borde izquierdo del botón "Feriados y académico"
+  function alinCard(){const c=document.querySelector("#cl-b .vy-card"); if(!c) return; c.classList.remove("al"); c.style.gridTemplateColumns="";
+    const g=$("cl-aj-btn").getBoundingClientRect(); if(g.width<150) return;
+    const cs=getComputedStyle(c), w=c.getBoundingClientRect().right-parseFloat(cs.borderRightWidth)-parseFloat(cs.paddingRight)-g.left;
+    if(w<120) return; c.classList.add("al"); c.style.gridTemplateColumns="minmax(0,1fr) "+w+"px";}
   $("cl-seg").onclick=e=>{const b=e.target.closest("button[data-v]"); if(!b) return; vista=b.dataset.v==="vac"?"vac":vcal; msg=""; pintar();};
   $("cl-aj-btn").onclick=()=>{ajustes=!ajustes; agregar=false; msg=""; pintar();};
   pan.addEventListener("click",async e=>{
@@ -2430,9 +2462,9 @@ window.initCalendario=function(db){
     const ak=e.target.closest("[data-addt]"); if(ak){tipoAdd=ak.dataset.addt; agregar=true; ajustes=true; msg=""; pintar(); if($("cl-t")) $("cl-t").focus(); return;}
     if(ajustes&&!e.target.closest("#cl-aj")&&!e.target.closest("#cl-aj-btn")){ajustes=false; agregar=false; pintar();}
     const ve=e.target.closest("[data-vedit]"); if(ve){vpers=ve.dataset.vedit; vista="vac"; pintar(); return;}
-    const vd=e.target.closest("[data-vd]"); if(vd&&vpers){const st=diasPersona(vpers,vanio), k=vd.dataset.vd; st.has(k)?st.delete(k):st.add(k); guardarDias(vpers,vanio,st); return;}
+    const vd=e.target.closest("[data-vd]"); if(vd&&vpers){const k=vd.dataset.vd, ya=+k.slice(0,4), st=diasPersona(vpers,ya+"-01-01",ya+"-12-31"); st.has(k)?st.delete(k):st.add(k); guardarDias(vpers,ya,st); return;}
     const vy=e.target.closest("[data-vy]"); if(vy){vanio+=+vy.dataset.vy; pintar(); return;}
-    const vp=e.target.closest("[data-vp]"); if(vp){vpers=vp.dataset.vp; pintar(); return;}
+    const vp=e.target.closest("[data-vp]"); if(vp){vpers=vpers===vp.dataset.vp?"":vp.dataset.vp; pintar(); return;}
     const tn=e.target.closest("[data-tlnav]"); if(tn){const k=+tn.dataset.tlnav; tlIni=k?new Date(tlIni.getFullYear(),tlIni.getMonth()+k,1):new Date(new Date().getFullYear(),new Date().getMonth(),1); pintar(); return;}
     const ti=e.target.closest("[data-tl]"); if(ti){tlInfo=ti.dataset.tl; pintar(); return;}
     const d=e.target.closest("[data-dia]"); if(d){sel=sel===d.dataset.dia?null:d.dataset.dia; pintar(); return;}
@@ -2443,7 +2475,6 @@ window.initCalendario=function(db){
   });
   pan.addEventListener("change",e=>{
     const c=e.target.closest("[data-capa]"); if(c){capas[c.dataset.capa]=c.checked; pintar(); return;}
-    if(e.target.id==="cl-vp"){vpers=e.target.value.trim().slice(0,60); pintar(); return;}
     if(e.target.id==="cl-span"){tlSpan=+e.target.value; pintar(); return;}
     if(e.target.id==="cl-pf"){persona=e.target.value; pintar();}});
   pan.addEventListener("submit",async e=>{e.preventDefault(); const f=$("cl-form"); if(!f||e.target!==f) return; msg="";
@@ -2457,6 +2488,7 @@ window.initCalendario=function(db){
       if(v.tipo==="vac"&&Array.isArray(v.dias)) docs[d.id].dias=v.dias.filter(ok).sort();}); pintar();},()=>{});
   // si cambian las fechas límite de las obras, se actualiza la capa de fechas límite
   window.calendarioRefrescar=pintar;
+  addEventListener("resize",()=>{const b=$("cl-b"); pan.style.setProperty("--sbw",(b.offsetWidth-b.clientWidth)+"px"); alinCard();});
 };
 </script>
 </body></html>
