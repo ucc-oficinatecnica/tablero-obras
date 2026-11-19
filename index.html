@@ -2053,15 +2053,18 @@ window.alinearPestanas=function(){
   const st=document.getElementById("stats"); if(!st) return; const r=st.getBoundingClientRect(); if(!r.height) return;
   const todas=["mj-tab","mn-tab","cl-tab"].map(id=>document.getElementById(id)).filter(Boolean), vis=todas.filter(t=>!t.hidden), h=Math.min(r.height,innerWidth<=760?150:1e9);
   if(innerWidth>=1340){
-    let right=0;
-    vis.forEach((t,i)=>{const ultima=i===vis.length-1; t.style.top=(r.top+scrollY)+"px"; t.style.height=h+"px"; t.style.right=right+"px"; right+=t.offsetWidth;
+    // Minutas y Mejoras van pegadas al borde; Calendario va a la izquierda de ellas, separada por un espacio (GAP)
+    const GAP=18, grupo=vis.filter(t=>t.id!=="cl-tab"), cal=vis.find(t=>t.id==="cl-tab"); let right=0;
+    grupo.forEach((t,i)=>{const ultima=i===grupo.length-1; t.style.top=(r.top+scrollY)+"px"; t.style.height=h+"px"; t.style.right=right+"px"; right+=t.offsetWidth;
       t.style.borderRadius=ultima?"10px 0 0 10px":"0"; t.style.borderLeft=ultima?"":"1px solid rgba(255,255,255,.3)";});
+    if(cal){cal.style.top=(r.top+scrollY)+"px"; cal.style.height=h+"px"; cal.style.right=(right+(grupo.length?GAP:0))+"px"; cal.style.borderRadius=grupo.length?"10px":"10px 0 0 10px"; cal.style.borderLeft="";}
   } else {
     let y=r.top+scrollY;
     todas.forEach((t,i)=>{ t.style.right="0"; t.style.borderRadius="10px 0 0 10px"; t.style.borderLeft=""; t.style.top=y+"px";
       if(i===0){t.style.height=h+"px"; y+=h+8;} else {t.style.height=""; if(!t.hidden){t.dataset.h=t.offsetHeight;} y+=(+t.dataset.h||113)+8;} });
   }
 };
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>window.alinearPestanas());
 </script>
 <style>
 #cl-tab{position:absolute;right:0;top:620px;z-index:100;writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;gap:8px;min-height:110px;box-sizing:border-box;background:var(--total-bg);color:#fff;border:0;border-radius:10px 0 0 10px;padding:14px 8px;font:700 12px var(--f-body);letter-spacing:.06em;cursor:pointer;box-shadow:-2px 2px 8px rgba(0,0,0,.2)}
