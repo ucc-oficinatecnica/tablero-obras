@@ -1144,7 +1144,7 @@ function row(o,showSede){
   const sel=(cls,f,opts,v,ph,lbl)=>`<select class="${cls} ${v?"":"empty"}" id="${f}-${o.id}" data-id="${o.id}" data-f="${f}" data-v="${esc(v)}" aria-label="${lbl} de ${esc(nom(o))}" ${canWrite?"":"disabled"}><option value="">${ph}</option>${opts.map(x=>`<option ${x===v?"selected":""}>${x}</option>`).join("")}</select>`;
   const sgOpen=planOpen&&openSg.has(o.id);
   return `<div class="item ${done?"done":""} ${isOpen?"open":""} ${sgOpen?"sgopen":""} ${a.estado==="Suspendida"?"no":FUERA.includes(a.estado)?"fu":""}" id="o-${o.id}">
-    <div class="row" ${(canWrite&&!ORD[state.orden])?`draggable="true" data-drag="${o.id}"`:""}>
+    <div class="row">
       <div class="main-cell">
         <div class="nm"><button class="ed" type="button" data-ed="${o.id}" data-v="${a.envergadura}" title="Envergadura: ${a.envergadura||"sin definir"} (tocá para cambiar)" aria-label="Envergadura de ${esc(nom(o))}: ${a.envergadura||"sin definir"}" ${canWrite?"":"disabled"}>${a.envergadura?a.envergadura[0]:""}</button><button class="st${a.destacada?" on":""}" type="button" data-star="${o.id}" aria-pressed="${!!a.destacada}" title="${a.destacada?"Quitar de obras destacadas":"Marcar como obra destacada"}" aria-label="${a.destacada?"Quitar de obras destacadas":"Marcar como obra destacada"}: ${esc(nom(o))}" ${canWrite?"":"disabled"}>${a.destacada?"★":"☆"}</button><button class="rx${a.gestionar?" on":""}" type="button" data-rayo="${o.id}" aria-pressed="${!!a.gestionar}" title="${a.gestionar?"Quitar de obras importantes":"Marcar como obra importante"}" aria-label="${a.gestionar?"Quitar de obras importantes":"Marcar como obra importante"}: ${esc(nom(o))}" ${canWrite?"":"disabled"}>${a.gestionar?"◆":"◇"}</button><input class="nmin" id="nm-${o.id}" data-id="${o.id}" data-f="nombre" value="${esc(nom(o))}" aria-label="Nombre de la obra" title="Tocá para editar el nombre" ${canWrite?"":"readonly"}>${showSede?`<span class="sd">${SEDE_LABEL[o.sede]}</span>`:""}${planOpen?`<button class="chev sgt" type="button" data-sgtoggle="${o.id}" aria-expanded="${sgOpen}" title="Ver seguimiento de etapas" aria-label="Seguimiento de etapas de ${esc(nom(o))}">▸</button>`:""}</div>
       </div>
@@ -1172,6 +1172,8 @@ const hdr=()=>`<div class="hdr"><span class="h-obra">Obra <button type="button" 
 const isFuera=o=>FUERA.includes(asg(o).estado);
 // Orden manual de las obras dentro de cada sede: cada obra puede tener un número "orden"; si no lo tiene, vale su posición original x 1000
 const ordOf=o=>{const v=asg(o).orden; return typeof v==="number"?v:OBRAS.indexOf(o)*1000;};
+// Las obras se muestran en orden alfabético por nombre (A–Z). El número "orden" guardado en la base ya no se usa para mostrar, pero se conserva sin tocar.
+const porNombre=(x,y)=>nom(x).trim().localeCompare(nom(y).trim(),"es",{sensitivity:"base",numeric:true})||ordOf(x)-ordOf(y);
 // Mueve una obra a continuación (after) o antes de otra, tomando un número entre las dos vecinas: se guarda solo esa obra
 function moverObra(id,refId,after){
   const sec=document.getElementById("o-"+refId); if(!sec||id===refId) return;
@@ -1202,13 +1204,13 @@ function renderList(){
   const act=vis.filter(o=>!isFuera(o));
   document.getElementById("count").textContent=`${vis.filter(o=>!isFuera(o)).length} de ${LIVE().filter(o=>!isFuera(o)).length} obras`;
   const noFilter=!state.q&&!state.resp&&!state.lleva&&!state.env&&!state.est&&!state.pr&&!state.plazo;
-  const dest=sortItems(act.filter(o=>asg(o).destacada&&(!state.sede||o.sede===state.sede)).sort((x,y)=>ordOf(x)-ordOf(y)));
+  const dest=sortItems(act.filter(o=>asg(o).destacada&&(!state.sede||o.sede===state.sede)).sort(porNombre));
   let html=dest.length?`<section class="sede dst"><h2>★ Obras destacadas <small>${dest.length} ${dest.length===1?"obra":"obras"}</small></h2><div class="tbl">${hdr()}${dest.map(o=>row(o,true)).join("")}</div></section>`:"";
-  const ges=sortItems(act.filter(o=>asg(o).gestionar&&!asg(o).destacada&&(!state.sede||o.sede===state.sede)).sort((x,y)=>ordOf(x)-ordOf(y)));
+  const ges=sortItems(act.filter(o=>asg(o).gestionar&&!asg(o).destacada&&(!state.sede||o.sede===state.sede)).sort(porNombre));
   if(ges.length) html+=`<section class="sede gst"><h2>◆ Obras importantes <small>${ges.length} ${ges.length===1?"obra":"obras"}</small></h2><div class="tbl">${hdr()}${ges.map(o=>row(o,true)).join("")}</div></section>`;
   html+=SEDES.map(s=>{
     if(state.sede&&state.sede!==s) return "";
-    const items=sortItems(act.filter(o=>o.sede===s&&!asg(o).destacada&&!(asg(o).gestionar)).sort((x,y)=>ordOf(x)-ordOf(y))); if(!items.length&&!noFilter) return "";
+    const items=sortItems(act.filter(o=>o.sede===s&&!asg(o).destacada&&!(asg(o).gestionar)).sort(porNombre)); if(!items.length&&!noFilter) return "";
     const base=LIVE().filter(o=>o.sede===s&&!isFuera(o));
     const asignadas=base.filter(o=>asg(o).responsable).length, nd=base.filter(o=>asg(o).destacada).length, ng=base.filter(o=>asg(o).gestionar&&!asg(o).destacada).length;
     const addF=canWrite?`<form class="addf" data-sede="${s}"><input id="add-${s.replace(/\W/g,"")}" data-id="add" placeholder="+ Agregar obra en ${SEDE_LABEL[s]}…" aria-label="Nombre de la obra nueva en ${SEDE_LABEL[s]}" autocomplete="off"><button type="submit" class="act pri">Agregar</button></form>`:"";
@@ -1217,7 +1219,7 @@ function renderList(){
   }).join("");
   GRUPOS_FUERA.forEach(([est,titulo])=>{
     const sus=vis.filter(o=>asg(o).estado===est); if(!sus.length) return;
-    const items=sortItems(sus.slice().sort((a,b)=>SEDES.indexOf(a.sede)-SEDES.indexOf(b.sede))), ab=fueraOpen[est]!==false;
+    const items=sortItems(sus.slice().sort((a,b)=>SEDES.indexOf(a.sede)-SEDES.indexOf(b.sede)||porNombre(a,b))), ab=fueraOpen[est]!==false;
     html+=`<section class="sede susp"><h2><button type="button" class="susp-t" data-e="${esc(est)}" aria-expanded="${ab}">${ab?"▾":"▸"} ${titulo}</button> <small>${sus.length} ${sus.length===1?"obra":"obras"}</small></h2>
       <div class="tbl" ${ab?"":"hidden"}>${hdr()}${items.map(o=>row(o,true)).join("")}</div></section>`;
   });
@@ -2251,6 +2253,32 @@ button.vy-c:hover{background:var(--accent-soft)}
 .aj-r .cl-dx{margin-left:0}
 .aj-k{flex:none;width:8px;height:8px;border-radius:50%}
 .aj-f{margin:4px 8px 6px;border:0;padding:6px 0 0;background:none}
+/* Panel Feriados y académico: solapas, agrupado por mes, fecha en chip y borrar solo al pasar el mouse */
+.cl-aj{width:min(430px,calc(100% - 28px))}
+.cl-aj .aj-b{flex:1;min-height:0;gap:0}
+.aj-tabs{display:flex;gap:4px;margin:2px 8px 8px;padding:3px;background:var(--surface-2);border-radius:10px}
+.aj-tabs button{flex:1;border:0;border-radius:8px;padding:7px 10px;background:none;color:var(--muted);font:600 11.5px var(--f-body);cursor:pointer;white-space:nowrap}
+.aj-tabs button small{margin-left:4px;font-weight:700;opacity:.7}
+.aj-tabs button.on{background:var(--total-bg);color:#fff}
+.aj-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 8px 4px}
+.aj-add{border:0;border-radius:8px;background:var(--total-bg);color:#fff;padding:7px 12px;font:700 11.5px var(--f-body);cursor:pointer;white-space:nowrap}
+.aj-add:hover{filter:brightness(1.15)}
+.aj-b h6.aj-mes{position:sticky;top:0;z-index:1;margin:0;padding:10px 6px 5px;background:var(--surface)}
+.aj-r2{display:flex;align-items:center;gap:10px;padding:6px;border-radius:10px}
+.aj-r2:hover{background:var(--surface-2)}
+.aj-r2.pas{opacity:.55}
+.aj-d{flex:none;width:42px;padding:4px 0 3px;border-radius:9px;text-align:center;background:var(--cv-fers);color:var(--cv-fer)}
+.aj-d b{display:block;font:800 16px/1.1 var(--f-display)}
+.aj-d small{display:block;font:700 9.5px var(--f-body);text-transform:uppercase;letter-spacing:.06em}
+.aj-d.aca{background:var(--cv-acas);color:var(--cv-acaf);box-shadow:inset 3px 0 0 var(--ac,#a98bf0)}
+.aj-r2 .aj-n{flex:1;min-width:0;font:600 12.5px var(--f-body);overflow-wrap:anywhere}
+.aj-r2 .aj-n small{display:block;margin-top:1px;color:var(--muted);font:500 11px var(--f-body)}
+.aj-nx{flex:none;font:700 10px var(--f-body);font-style:normal;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:2px 8px}
+.aj-r2 .cl-dx{margin-left:0;font-size:18px;opacity:0;transition:opacity .15s}
+.aj-r2:hover .cl-dx,.aj-r2:focus-within .cl-dx{opacity:1}
+@media (hover:none){.aj-r2 .cl-dx{opacity:.7}}
+.aj-ft{padding:8px 14px 4px;border-top:1px solid var(--line);font:500 10.5px var(--f-body);color:var(--muted)}
+.aj-rs{white-space:nowrap}
 .aj-t{flex-basis:100%;font:700 13px var(--f-body)}
 /* línea de tiempo */
 .tl{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:8px 10px 10px 110px;overflow:hidden}
@@ -2406,7 +2434,7 @@ window.initCalendario=function(db){
       <div><div class="cl-wd">${["L","M","M","J","V","S","D"].map(x=>`<span>${x}</span>`).join("")}</div><div class="cl-grid">${semanas}</div></div>${det}`;
   }
   // El período de vacaciones va de noviembre a octubre: vanio es el año en que empieza (en noviembre ya corre el período nuevo)
-  let vpers="", vanio=(h=>h.getMonth()>=10?h.getFullYear():h.getFullYear()-1)(new Date()), agregar=false, tipoAdd="fer";
+  let vpers="", vanio=(h=>h.getMonth()>=10?h.getFullYear():h.getFullYear()-1)(new Date()), agregar=false, tipoAdd="fer", ajTab="fer";
   const perI0=()=>vanio+"-11-01", perI1=()=>(vanio+1)+"-10-31", perTxt=()=>`${vanio+1}`; // el período nov–oct se nombra por el año en que termina: "Vacaciones 2027" = nov 2026 a oct 2027
   const MESL=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   const sem=n=>{const w=Math.floor(n/5), d=n%5; return (w?w+(w===1?" semana":" semanas"):"")+(w&&d?" y ":"")+(d?d+(d===1?" día":" días"):"")||"0 días";};
@@ -2428,19 +2456,28 @@ window.initCalendario=function(db){
     return `${resumen}<div class="vy-g" style="--pc:${pc}">${meses}</div>
       <p class="cl-leg"><span class="vy-k" style="background:${pc}"></span> día de vacaciones · <span class="vy-k f"></span> feriado · <u class="vy-dot"></u> otra persona también está de vacaciones</p>
       ${filas.length?`<h5 class="cl-gt">Vacaciones de todos · ${perTxt()}</h5>`+filas.map(x=>`<button type="button" class="vy-p${x.t===vpers?" on":""}" data-vp="${esc(x.t)}"><span class="vy-k" style="background:${PCOL[hash(x.t)%PCOL.length]}"></span><b>${esc(x.t)}</b><span class="vy-b"><i style="width:${Math.min(100,Math.round(x.n/LIM*100))}%;background:${x.n>LIM?"var(--martin)":PCOL[hash(x.t)%PCOL.length]}"></i></span><small>${x.n} de ${LIM}</small></button>`).join(""):""}`;}
+  const DSEM=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
   function vAjustes(){
-    const hoy=ymd(new Date()), oc=ocultos().size, fer=feriados(), aca=lista("aca").sort((a,b)=>a.d1<b.d1?-1:1), ref=sel||hoy, XB=id=>`<button type="button" class="cl-dx" data-del="${esc(id)}" aria-label="Sacar" title="Sacar">×</button>`;
+    const hoy=ymd(new Date()), oc=ocultos().size, fer=feriados(), aca=lista("aca").sort((a,b)=>a.d1<b.d1?-1:1), ref=sel||hoy, XB=(id,t)=>`<button type="button" class="cl-dx" data-del="${esc(id)}" aria-label="Sacar ${esc(t)}" title="Sacar">×</button>`;
     const top=`<div class="aj-h"><b>Feriados y calendario académico</b><button type="button" class="cl-dx" data-ajtog="1" aria-label="Cerrar">×</button></div>`;
     if(agregar) return top+`<form class="cl-form aj-f" id="cl-form"><b class="aj-t">${tipoAdd==="fer"?"Nuevo feriado":"Nuevo período académico"}</b>
         <label class="p">${tipoAdd==="fer"?"Nombre":"Nombre del período"}<input type="text" id="cl-t" maxlength="80" placeholder="${tipoAdd==="fer"?"Ej: Día no laborable":"Ej: Receso invernal, Mesas de examen…"}" autocomplete="off"></label>
         <label>Desde<input type="date" id="cl-d1" value="${ref}"></label><label>Hasta${tipoAdd==="fer"?" (si dura más de un día)":""}<input type="date" id="cl-d2" value="${tipoAdd==="fer"?"":ref}"></label>
         <button class="go" type="submit">Agregar</button><button type="button" class="cl-g" data-addtog="1">Cancelar</button><div class="cl-err" id="cl-err" role="alert">${esc(msg)}</div></form>`;
-    const proxF=fer.filter(x=>x.d2>=hoy), pasF=fer.filter(x=>x.d2<hoy);
-    const fila=x=>`<div class="aj-r${x.d2<hoy?" pas":""}"><span class="aj-n">${esc(x.t)}</span><small>${rango(x.d1,x.d2)}</small>${XB(x.id)}</div>`;
-    return top+`<div class="aj-b"><h6>Feriados · ${fer.length}</h6>${pasF.length?`<button type="button" class="cl-link aj-pas" data-ajpas="1">${verPas?"Ocultar los anteriores":"Ver los anteriores ("+pasF.length+")"}</button>`:""}${(verPas?pasF:[]).concat(proxF).map(fila).join("")||'<p class="cl-vacio">No hay feriados próximos.</p>'}<button type="button" class="cl-g" data-addt="fer">+ Agregar feriado</button>
-      ${oc?`<p class="cl-note">${oc} ${oc===1?"feriado sacado":"feriados sacados"}. <button class="cl-link" data-restaurar="1">Restaurar</button></p>`:""}
-      <h6>Calendario académico · ${aca.length}</h6>${aca.map(x=>`<div class="aj-r${x.d2<hoy?" pas":""}"><i class="aj-k" style="background:${COL[hash(x.t)%COL.length]}"></i><span class="aj-n">${esc(x.t)}</span><small>${rango(x.d1,x.d2)}</small>${XB(x.id)}</div>`).join("")||'<p class="cl-vacio">Todavía no hay períodos. Cargá el inicio y fin de clases, los recesos y las mesas de examen.</p>'}<button type="button" class="cl-g" data-addt="aca">+ Agregar período</button>
-      <p class="cl-note">Los feriados son de referencia: verificalos con el calendario oficial.</p></div>`;}
+    const dias=(a,b)=>Math.round((parse(b)-parse(a))/864e5), proxF=fer.filter(x=>x.d2>=hoy), pasF=fer.filter(x=>x.d2<hoy), primero=proxF[0], esF=ajTab==="fer";
+    const chip=(x,cls,st)=>`<span class="aj-d${cls}"${st}><b>${+x.d1.slice(8)}</b><small>${MESL[+x.d1.slice(5,7)-1].slice(0,3)}</small></span>`;
+    const conMeses=(arr,fn)=>{let k="",h=""; arr.forEach(x=>{const ym=x.d1.slice(0,7); if(ym!==k){k=ym; h+=`<h6 class="aj-mes">${MESL[+ym.slice(5)-1]} ${ym.slice(0,4)}</h6>`;} h+=fn(x);}); return h;};
+    const filaF=x=>{const n=dias(hoy,x.d1), cuando=x.d2<hoy?"":(n<=0?"Hoy":n===1?"Mañana":n<=30?`En ${n} días`:"");
+      return `<div class="aj-r2${x.d2<hoy?" pas":""}">${chip(x,"","")}<span class="aj-n">${esc(x.t)}<small>${x.d2!==x.d1?rango(x.d1,x.d2):DSEM[parse(x.d1).getDay()]}${cuando?` · ${cuando}`:""}</small></span>${x===primero?'<em class="aj-nx">Próximo</em>':""}${XB(x.id,x.t)}</div>`;};
+    const filaA=x=>{const col=COL[hash(x.t)%COL.length], n=dias(x.d1,x.d2)+1;
+      return `<div class="aj-r2${x.d2<hoy?" pas":""}">${chip(x," aca",` style="--ac:${col}"`)}<span class="aj-n">${esc(x.t)}<small>${rango(x.d1,x.d2)} · ${n} ${n===1?"día":"días"}</small></span>${XB(x.id,x.t)}</div>`;};
+    const lstF=verPas?pasF.concat(proxF):proxF;
+    const cuerpo=esF?(lstF.length?conMeses(lstF,filaF):'<p class="cl-vacio">No hay feriados próximos.</p>')
+      :(aca.length?conMeses(aca,filaA):'<p class="cl-vacio">Todavía no hay períodos. Cargá el inicio y fin de clases, los recesos y las mesas de examen.</p>');
+    const tabs=`<div class="aj-tabs" role="tablist"><button type="button" role="tab" data-ajtab="fer" class="${esF?"on":""}" aria-selected="${esF}">Feriados <small>${proxF.length}</small></button><button type="button" role="tab" data-ajtab="aca" class="${esF?"":"on"}" aria-selected="${!esF}">Calendario académico <small>${aca.length}</small></button></div>`;
+    const bar=`<div class="aj-bar">${esF&&pasF.length?`<button type="button" class="cl-link" data-ajpas="1">${verPas?"Ocultar los anteriores":"Ver los anteriores ("+pasF.length+")"}</button>`:"<span></span>"}<button type="button" class="aj-add" data-addt="${ajTab}">+ Agregar ${esF?"feriado":"período"}</button></div>`;
+    const pie=`<div class="aj-ft">${esF?"Los feriados son de referencia: verificalos con el calendario oficial."+(oc?` <span class="aj-rs">${oc} ${oc===1?"sacado":"sacados"} · <button type="button" class="cl-link" data-restaurar="1">Restaurar</button></span>`:""):"Los períodos aparecen en el calendario como barras de color suave."}</div>`;
+    return top+tabs+bar+`<div class="aj-b">${cuerpo}</div>`+pie;}
   function pintar(){ if(!pan.classList.contains("open")) return;
     const b=$("cl-b"), y=b.scrollTop; const pe=$("cl-pers"); pe.hidden=vista!=="vac"; pe.innerHTML=vista==="vac"?PERSONAS_VAC.map(p=>`<button type="button" data-vp="${esc(p)}" style="--pc:${PCOL[hash(p)%PCOL.length]}" aria-pressed="${p===vpers}"><i></i>${esc(p)}</button>`).join(""):"";
     b.innerHTML=vista==="mes"?vMes():vista==="tl"?vTl():vVac(); b.scrollTop=y; pan.style.setProperty("--sbw",(b.offsetWidth-b.clientWidth)+"px"); alinCard();
@@ -2459,7 +2496,8 @@ window.initCalendario=function(db){
     const jp=e.target.closest("[data-ajpas]"); if(jp){verPas=!verPas; pintar(); return;}
     const jt=e.target.closest("[data-ajtog]"); if(jt){ajustes=false; agregar=false; pintar(); return;}
     const at=e.target.closest("[data-addtog]"); if(at){agregar=false; msg=""; pintar(); return;}
-    const ak=e.target.closest("[data-addt]"); if(ak){tipoAdd=ak.dataset.addt; agregar=true; ajustes=true; msg=""; pintar(); if($("cl-t")) $("cl-t").focus(); return;}
+    const tb=e.target.closest("[data-ajtab]"); if(tb){ajTab=tb.dataset.ajtab; msg=""; pintar(); const ab=$("cl-aj").querySelector(".aj-b"); if(ab) ab.scrollTop=0; return;}
+    const ak=e.target.closest("[data-addt]"); if(ak){tipoAdd=ak.dataset.addt; ajTab=tipoAdd; agregar=true; ajustes=true; msg=""; pintar(); if($("cl-t")) $("cl-t").focus(); return;}
     if(ajustes&&!e.target.closest("#cl-aj")&&!e.target.closest("#cl-aj-btn")){ajustes=false; agregar=false; pintar();}
     const ve=e.target.closest("[data-vedit]"); if(ve){vpers=ve.dataset.vedit; vista="vac"; pintar(); return;}
     const vd=e.target.closest("[data-vd]"); if(vd&&vpers){const k=vd.dataset.vd, ya=+k.slice(0,4), st=diasPersona(vpers,ya+"-01-01",ya+"-12-31"); st.has(k)?st.delete(k):st.add(k); guardarDias(vpers,ya,st); return;}
