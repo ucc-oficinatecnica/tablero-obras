@@ -2240,7 +2240,7 @@ button.vy-c:hover{background:var(--accent-soft)}
 .cl-aj{position:absolute;right:14px;top:56px;z-index:5;width:min(390px,calc(100% - 28px));max-height:calc(100% - 76px);display:flex;flex-direction:column;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 36px rgba(0,30,70,.28);padding:6px 6px 8px}
 .cl-aj[hidden]{display:none}
 .aj-h{display:flex;align-items:center;padding:6px 8px;font:700 12.5px var(--f-body);color:var(--accent)}
-.aj-h b{flex:1}
+.aj-h b{flex:1;font-weight:600;font-size:14px}
 .aj-b{overflow:auto;padding:0 8px 4px;display:grid;gap:2px;align-content:start}
 .aj-b h6{margin:10px 0 4px;font:700 10px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .aj-b .cl-g{justify-self:start;margin-top:6px}
@@ -2261,8 +2261,9 @@ button.vy-c:hover{background:var(--accent-soft)}
 .aj-tabs button small{margin-left:4px;font-weight:700;opacity:.7}
 .aj-tabs button.on{background:var(--total-bg);color:#fff}
 .aj-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 8px 4px}
-.aj-add{border:0;border-radius:8px;background:var(--total-bg);color:#fff;padding:7px 12px;font:700 11.5px var(--f-body);cursor:pointer;white-space:nowrap}
-.aj-add:hover{filter:brightness(1.15)}
+.aj-add{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent);border-radius:8px;background:transparent;color:var(--accent);padding:6px 12px;font:600 11.5px var(--f-body);cursor:pointer;white-space:nowrap}
+.aj-add svg{width:12px;height:12px;flex:none}
+.aj-add:hover{background:var(--accent-soft)}
 .aj-b h6.aj-mes{position:sticky;top:0;z-index:1;margin:0;padding:10px 6px 5px;background:var(--surface)}
 .aj-r2{display:flex;align-items:center;gap:10px;padding:6px;border-radius:10px}
 .aj-r2:hover{background:var(--surface-2)}
@@ -2475,7 +2476,7 @@ window.initCalendario=function(db){
     const cuerpo=esF?(lstF.length?conMeses(lstF,filaF):'<p class="cl-vacio">No hay feriados próximos.</p>')
       :(aca.length?conMeses(aca,filaA):'<p class="cl-vacio">Todavía no hay períodos. Cargá el inicio y fin de clases, los recesos y las mesas de examen.</p>');
     const tabs=`<div class="aj-tabs" role="tablist"><button type="button" role="tab" data-ajtab="fer" class="${esF?"on":""}" aria-selected="${esF}">Feriados <small>${proxF.length}</small></button><button type="button" role="tab" data-ajtab="aca" class="${esF?"":"on"}" aria-selected="${!esF}">Calendario académico <small>${aca.length}</small></button></div>`;
-    const bar=`<div class="aj-bar">${esF&&pasF.length?`<button type="button" class="cl-link" data-ajpas="1">${verPas?"Ocultar los anteriores":"Ver los anteriores ("+pasF.length+")"}</button>`:"<span></span>"}<button type="button" class="aj-add" data-addt="${ajTab}">+ Agregar ${esF?"feriado":"período"}</button></div>`;
+    const bar=`<div class="aj-bar">${esF&&pasF.length?`<button type="button" class="cl-link" data-ajpas="1">${verPas?"Ocultar los anteriores":"Ver los anteriores ("+pasF.length+")"}</button>`:"<span></span>"}<button type="button" class="aj-add" data-addt="${ajTab}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Agregar ${esF?"feriado":"período"}</button></div>`;
     const pie=`<div class="aj-ft">${esF?"Los feriados son de referencia: verificalos con el calendario oficial."+(oc?` <span class="aj-rs">${oc} ${oc===1?"sacado":"sacados"} · <button type="button" class="cl-link" data-restaurar="1">Restaurar</button></span>`:""):"Los períodos aparecen en el calendario como barras de color suave."}</div>`;
     return top+tabs+bar+`<div class="aj-b">${cuerpo}</div>`+pie;}
   function pintar(){ if(!pan.classList.contains("open")) return;
