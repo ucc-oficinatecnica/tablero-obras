@@ -2223,6 +2223,19 @@ button.vy-c:hover{background:var(--accent-soft)}
 .vy-card{grid-template-columns:minmax(0,1fr) auto;align-items:stretch;gap:6px 16px;padding:12px 14px}
 .vy-l{display:grid;gap:6px;min-width:0}
 .vy-card.al{column-gap:0}
+/* Capas del calendario: cada una es un interruptor (prendido con su color, apagado en gris) */
+.cl-cap{gap:8px}
+.cl-cap label{position:relative;gap:9px;padding:5px 7px 5px 12px;border:1px solid var(--line);font:500 11.5px var(--f-body);background:var(--surface);color:var(--muted);transition:background .15s,border-color .15s}
+.cl-cap label.on{background:color-mix(in srgb,var(--lc) 13%,transparent);border-color:color-mix(in srgb,var(--lc) 38%,transparent);color:var(--fg);font-weight:600}
+.cl-cap label.off{opacity:1;text-decoration:none}
+.cl-cap input{display:block;position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.cl-cap label:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.cl-cap .sw{flex:none;position:relative;width:26px;height:15px;border-radius:999px;background:var(--line);transition:background .15s}
+.cl-cap .sw:after{content:"";position:absolute;left:2px;top:2px;width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+.cl-cap label.on .sw{background:var(--lc)}
+.cl-cap label.on .sw:after{transform:translateX(11px)}
+.cl-vsw.al{display:flex}
+.cl-vsw.al button{flex:1 1 auto;justify-content:center;white-space:nowrap}
 .vy-card.al .vy-l{padding-right:16px}
 .vy-card.al .vy-per{padding-left:0}
 .vy-per{display:grid;gap:6px;justify-items:center;align-content:center;padding-left:16px;border-left:1px solid var(--line)}
@@ -2316,11 +2329,43 @@ body:has(#mj.open) #cl-tab,body:has(#mn-p.open) #cl-tab{display:none}
 //   y "oculto" (un feriado de la lista base que se sacó). Fechas d1 y d2 como aaaa-mm-dd.
 // Los feriados de la lista base (FER_BASE) son de referencia: hay que verificarlos con el calendario oficial.
 window.initCalendario=function(db){
-  const col=db.collection("calendario"), $=id=>document.getElementById(id), tab=$("cl-tab"), pan=$("cl-p"); let docs={}, vista="mes", vcal="mes", ajustes=false, verPas=false, ver=new Date(), sel=null, capas={vac:true,aca:true,fer:true,lim:true}, persona="", msg="";
+  const col=db.collection("calendario"), $=id=>document.getElementById(id), tab=$("cl-tab"), pan=$("cl-p"); let docs={}, vista="mes", vcal="mes", ajustes=false, verPas=false, ver=new Date(), sel=null, capas={vac:true,aca:false,fer:true,lim:true}, persona="", msg="";
   ver=new Date(ver.getFullYear(),ver.getMonth(),1);
   let tlIni=new Date(ver.getFullYear(),ver.getMonth(),1), tlSpan=4, tlInfo="";
   const FER_BASE=[["2026-01-01","Año Nuevo"],["2026-02-16","Carnaval"],["2026-02-17","Carnaval"],["2026-03-23","Puente turístico"],["2026-03-24","Día de la Memoria"],["2026-04-02","Día del Veterano y de los Caídos en Malvinas"],["2026-04-03","Viernes Santo"],["2026-05-01","Día del Trabajador"],["2026-05-25","Revolución de Mayo"],["2026-06-15","Paso a la Inmortalidad del Gral. Güemes (trasladado)"],["2026-06-20","Paso a la Inmortalidad del Gral. Belgrano"],["2026-07-09","Día de la Independencia"],["2026-07-10","Puente turístico"],["2026-08-17","Paso a la Inmortalidad del Gral. San Martín"],["2026-10-12","Día del Respeto a la Diversidad Cultural"],["2026-11-23","Día de la Soberanía Nacional (trasladado)"],["2026-12-07","Puente turístico"],["2026-12-08","Inmaculada Concepción de María"],["2026-12-25","Navidad"],
    ["2027-01-01","Año Nuevo"],["2027-02-08","Carnaval"],["2027-02-09","Carnaval"],["2027-03-24","Día de la Memoria"],["2027-03-26","Viernes Santo"],["2027-04-02","Día del Veterano y de los Caídos en Malvinas"],["2027-05-01","Día del Trabajador"],["2027-05-25","Revolución de Mayo"],["2027-06-20","Paso a la Inmortalidad del Gral. Belgrano"],["2027-06-21","Paso a la Inmortalidad del Gral. Güemes (trasladado)"],["2027-07-09","Día de la Independencia"],["2027-08-16","Paso a la Inmortalidad del Gral. San Martín (trasladado)"],["2027-10-11","Día del Respeto a la Diversidad Cultural (trasladado)"],["2027-11-22","Día de la Soberanía Nacional (trasladado)"],["2027-12-08","Inmaculada Concepción de María"],["2027-12-25","Navidad"]];
+  // Calendario académico UCC 2026 (aprobado por el Consejo Académico el 03/12/2025; fuente: issuu.com/uccoficial/docs/calendario_academico_2_).
+  // [inicio, fin, nombre]. Están los períodos y las actividades que mueven gente en los campus; los feriados van en FER_BASE.
+  const ACA_BASE=[
+    ["2026-02-02","2026-02-28","Exámenes finales (febrero)"],
+    ["2026-02-02","2026-02-02","Inicio de cursos de ingreso PRIUCC 2026"],
+    ["2026-03-02","2026-03-06","Semana de ambientación de 1.er año"],
+    ["2026-03-06","2026-03-06","Acto de inicio del año académico"],
+    ["2026-03-09","2026-06-20","Clases del 1.er semestre"],
+    ["2026-03-10","2026-03-10","Inicio de clases y bendición del edificio en Río Cuarto"],
+    ["2026-04-02","2026-04-02","Asueto: Jueves Santo"],
+    ["2026-05-13","2026-05-13","Feria de trabajo y desarrollo profesional"],
+    ["2026-05-26","2026-05-29","Actos de colación de grado y posgrado"],
+    ["2026-06-01","2026-06-05","Jornadas de Puertas Abiertas"],
+    ["2026-06-08","2026-06-08","70.º aniversario de la Universidad"],
+    ["2026-06-18","2026-06-18","Jornada de Puertas Abiertas en Río Cuarto"],
+    ["2026-06-22","2026-07-31","Exámenes finales (junio y julio)"],
+    ["2026-07-06","2026-07-06","Asueto en Córdoba: aniversario de la fundación de la ciudad"],
+    ["2026-07-06","2026-07-12","Receso invernal"],
+    ["2026-08-03","2026-11-14","Clases del 2.º semestre"],
+    ["2026-08-26","2026-08-26","Tech Camp"],
+    ["2026-09-21","2026-09-21","Día del estudiante"],
+    ["2026-09-24","2026-09-24","Festejo del día del estudiante (UCCFEST)"],
+    ["2026-09-28","2026-10-24","Cursos de ingreso PRIUCC 2027"],
+    ["2026-09-30","2026-09-30","Asueto en Córdoba: San Jerónimo"],
+    ["2026-10-06","2026-10-09","Expo UCC"],
+    ["2026-10-22","2026-10-22","Expo Río Cuarto"],
+    ["2026-11-11","2026-11-11","Asueto en Campus Río Cuarto: Día de la Ciudad"],
+    ["2026-11-24","2026-12-19","Exámenes finales (noviembre y diciembre)"],
+    ["2026-12-19","2027-01-17","Receso estival"],
+    ["2027-02-01","2027-02-01","Inicio de cursos de ingreso PRIUCC 2027 (febrero)"],
+    ["2027-02-01","2027-02-27","Exámenes finales (febrero 2027)"]
+  ];
   const COL=["#a98bf0","#f2b84b","#6fb7dc","#c99cdb","#e59e6d"];
   const PCOL=["#2f9e6f","#2f7fd1","#8e44ad","#e67e22","#16a0a0","#c0457a","#6b8e23","#5c6bc0"]; // un color por persona, como en Google Calendar
   const PERSONAS_VAC=["Agus","Fla","Vico","Vicky","Gabi"]; // filtros de la solapa Vacaciones, en este orden
@@ -2335,7 +2380,7 @@ window.initCalendario=function(db){
   const nid=()=>"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
   const firma=()=>{try{return (localStorage.getItem("obras-firma")||"").slice(0,60)}catch(e){return ""}};
   const abrir=v=>{ if(v){ for(const id of ["mj","mn-p"]){const e=$(id); if(e&&e.classList.contains("open")){const c=$(id==="mj"?"mj-cerrar":"mn-cerrar"); if(c) c.click();}} }
-    if(!v){ajustes=false; agregar=false;} pan.classList.toggle("open",v); tab.setAttribute("aria-expanded",v); tab.hidden=v; alinear(); if(v) pintar(); };
+    if(!v){ajustes=false; agregar=false;} else capas.aca=false; pan.classList.toggle("open",v); tab.setAttribute("aria-expanded",v); tab.hidden=v; alinear(); if(v) pintar(); };
   // Las tres pestañas laterales se acomodan juntas (ver alinearPestanas)
   const st=document.getElementById("stats"), mnt=$("mn-tab"), mjt=$("mj-tab");
   function alinear(){if(window.alinearPestanas) window.alinearPestanas();}
@@ -2346,7 +2391,10 @@ window.initCalendario=function(db){
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&pan.classList.contains("open")){ if(ajustes){ajustes=false; agregar=false; pintar();} else abrir(false);}});
   // ---- datos ----
   const lista=tipo=>Object.entries(docs).filter(([i,x])=>x.tipo===tipo).map(([i,x])=>({id:i,...x}));
-  const ocultos=()=>new Set(lista("oculto").map(x=>x.d1));
+  const ocultos=()=>new Set(lista("oculto").filter(x=>!(x.t||"").startsWith("a:")).map(x=>x.d1));
+  // Períodos de ACA_BASE que se sacaron: se guardan como "oculto" con t = "a:" + nombre
+  const ocultosA=()=>new Set(lista("oculto").filter(x=>(x.t||"").startsWith("a:")).map(x=>x.d1+"|"+x.t.slice(2)));
+  const acaLista=()=>{const oc=ocultosA(); return ACA_BASE.filter(([a,b,t])=>!oc.has(a+"|"+t)).map(([a,b,t])=>({id:"abase:"+a+"|"+t,d1:a,d2:b,t,base:true})).concat(lista("aca"));};
   // Vacaciones: cada persona marca días sueltos (25 días hábiles por período, de noviembre a octubre). Se guardan en un documento por persona y año calendario
   // (campo "dias"); para mostrarlas se unen en rangos continuos: si entre dos días marcados solo hay fines de semana o feriados, es una sola barra.
   const LIM=25, slug=t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"x";
@@ -2377,21 +2425,21 @@ window.initCalendario=function(db){
   function eventos(d){ // todo lo que pasa el día d (aaaa-mm-dd)
     const e={fer:[],aca:[],vac:[],lim:[]};
     if(capas.fer) feriados().forEach(x=>{if(x.d1<=d&&d<=x.d2) e.fer.push(x)});
-    if(capas.aca) lista("aca").forEach(x=>{if(x.d1<=d&&d<=x.d2) e.aca.push(x)});
+    if(capas.aca) acaLista().forEach(x=>{if(x.d1<=d&&d<=x.d2) e.aca.push(x)});
     if(capas.vac) vacRangos().forEach(x=>{if(x.d1<=d&&d<=x.d2&&(!persona||x.t===persona)) e.vac.push(x)});
     if(capas.lim) LIVE().forEach(o=>{const l=asg(o).limite; if(l===d&&!isFuera(o)) e.lim.push({t:nom(o),sede:SEDE_LABEL[o.sede]})});
     return e;
   }
   // ---- vistas ----
   const IC_G='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 10h18M9 4v17M15 4v17"/></svg>', IC_L='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M8 12h12M6 18h9"/></svg>';
-  const capHtml=()=>`<div class="cl-cap">`+[["vac","Vacaciones","#2fb68a"],["aca","Académico","#a98bf0"],["fer","Feriados","#d64a3c"],["lim","Fechas límite de obras","#2f6fc4"]].map(([k,t,c])=>`<label class="${capas[k]?"":"off"}"><input type="checkbox" data-capa="${k}" ${capas[k]?"checked":""}><i style="background:${c}"></i>${t}</label>`).join("")+`</div>`;
+  const capHtml=()=>`<div class="cl-cap">`+[["vac","Vacaciones","#2fb68a"],["aca","Académico","#a98bf0"],["fer","Feriados","#d64a3c"],["lim","Fechas límite de obras","#2f6fc4"]].map(([k,t,c])=>`<label class="${capas[k]?"on":"off"}" style="--lc:${c}"><input type="checkbox" role="switch" data-capa="${k}" ${capas[k]?"checked":""}>${t}<span class="sw" aria-hidden="true"></span></label>`).join("")+`</div>`;
   function vTl(){
     const ini=tlIni, fin=new Date(ini.getFullYear(),ini.getMonth()+tlSpan,0), total=Math.round((fin-ini)/864e5)+1, s0=ymd(ini), s1=ymd(fin), hoy=ymd(new Date());
     const pos=(a,b)=>{const A=a<s0?s0:a, B=b>s1?s1:b; if(B<s0||A>s1) return null; const i=Math.round((parse(A)-ini)/864e5), l=Math.round((parse(B)-parse(A))/864e5)+1; return {l:i/total*100,w:Math.max(l/total*100,.6)};};
     const meses=[]; for(let k=0;k<tlSpan;k++){const d=new Date(ini.getFullYear(),ini.getMonth()+k,1), n=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(); meses.push(`<span style="flex:${n}">${d.toLocaleDateString("es-AR",{month:"short",year:tlSpan>6?"2-digit":undefined}).replace(".","")}</span>`);}
     const stl=p=>`left:${p.l}%;width:${p.w}%`, dato=(tipo,t,a,b)=>esc(tipo+": "+t+" · "+rango(a,b));
     // calendario académico: cada período en su carril para que no se pisen
-    let carriles=[]; const ac=capas.aca?lista("aca").filter(x=>pos(x.d1,x.d2)).sort((a,b)=>a.d1<b.d1?-1:1):[];
+    let carriles=[]; const ac=capas.aca?acaLista().filter(x=>pos(x.d1,x.d2)).sort((a,b)=>a.d1<b.d1?-1:1):[];
     const barrasAc=ac.map(x=>{let k=carriles.findIndex(f=>f<x.d1); if(k<0){k=carriles.length; carriles.push("");} carriles[k]=x.d2; const p=pos(x.d1,x.d2); return `<button type="button" class="tl-bar" data-tl="${dato("Académico",x.t,x.d1,x.d2)}" style="${stl(p)};top:${4+k*24}px;background:${COL[hash(x.t)%COL.length]}">${esc(x.t)}</button>`;}).join("");
     const filas=[]; 
     if(capas.aca) filas.push(`<div class="tl-r" style="height:${Math.max(1,carriles.length)*24+8}px"><b class="g">Académico</b>${barrasAc}</div>`);
@@ -2414,7 +2462,7 @@ window.initCalendario=function(db){
     const nm=cap1(ver.toLocaleDateString("es-AR",{month:"long",year:"numeric"}).replace(" de "," "));
     const cap=capHtml();
     let semanas="";
-    const vacs=capas.vac?vacRangos().filter(x=>!persona||x.t===persona):[], acs=capas.aca?lista("aca"):[];
+    const vacs=capas.vac?vacRangos().filter(x=>!persona||x.t===persona):[], acs=capas.aca?acaLista():[];
     for(let w=0;w<6;w++){
       const ws=new Date(ini.getFullYear(),ini.getMonth(),ini.getDate()+w*7), wsS=ymd(ws), weS=ymd(new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+6));
       // barras de vacaciones de esta semana (como en Google Calendar): cada una ocupa un carril para que no se pisen
@@ -2463,13 +2511,13 @@ window.initCalendario=function(db){
       ${filas.length?`<h5 class="cl-gt">Vacaciones de todos · ${perTxt()}</h5>`+filas.map(x=>`<button type="button" class="vy-p${x.t===vpers?" on":""}" data-vp="${esc(x.t)}"><span class="vy-k" style="background:${PCOL[hash(x.t)%PCOL.length]}"></span><b>${esc(x.t)}</b><span class="vy-b"><i style="width:${Math.min(100,Math.round(x.n/LIM*100))}%;background:${x.n>LIM?"var(--martin)":PCOL[hash(x.t)%PCOL.length]}"></i></span><small>${x.n} de ${LIM}</small></button>`).join(""):""}`;}
   const DSEM=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
   function vAjustes(){
-    const hoy=ymd(new Date()), oc=ocultos().size, fer=feriados(), aca=lista("aca").sort((a,b)=>a.d1<b.d1?-1:1), ref=sel||hoy, XB=(id,t)=>`<button type="button" class="cl-dx" data-del="${esc(id)}" aria-label="Sacar ${esc(t)}" title="Sacar">×</button>`;
+    const hoy=ymd(new Date()), oc=ocultos().size, fer=feriados(), aca=acaLista().sort((a,b)=>a.d1<b.d1?-1:1), ref=sel||hoy, XB=(id,t)=>`<button type="button" class="cl-dx" data-del="${esc(id)}" aria-label="Sacar ${esc(t)}" title="Sacar">×</button>`;
     const top=`<div class="aj-h"><b>Feriados y calendario académico</b><button type="button" class="cl-dx" data-ajtog="1" aria-label="Cerrar">×</button></div>`;
     if(agregar) return top+`<form class="cl-form aj-f" id="cl-form"><b class="aj-t">${tipoAdd==="fer"?"Nuevo feriado":"Nuevo período académico"}</b>
         <label class="p">${tipoAdd==="fer"?"Nombre":"Nombre del período"}<input type="text" id="cl-t" maxlength="80" placeholder="${tipoAdd==="fer"?"Ej: Día no laborable":"Ej: Receso invernal, Mesas de examen…"}" autocomplete="off"></label>
         <label>Desde<input type="date" id="cl-d1" value="${ref}"></label><label>Hasta${tipoAdd==="fer"?" (si dura más de un día)":""}<input type="date" id="cl-d2" value="${tipoAdd==="fer"?"":ref}"></label>
         <button class="go" type="submit">Agregar</button><button type="button" class="cl-g" data-addtog="1">Cancelar</button><div class="cl-err" id="cl-err" role="alert">${esc(msg)}</div></form>`;
-    const dias=(a,b)=>Math.round((parse(b)-parse(a))/864e5), proxF=fer.filter(x=>x.d2>=hoy), pasF=fer.filter(x=>x.d2<hoy), primero=proxF[0], esF=ajTab==="fer";
+    const dias=(a,b)=>Math.round((parse(b)-parse(a))/864e5), proxF=fer.filter(x=>x.d2>=hoy), pasF=fer.filter(x=>x.d2<hoy), primero=proxF[0], esF=ajTab==="fer", proxA=aca.filter(x=>x.d2>=hoy), pasA=aca.filter(x=>x.d2<hoy), pasX=esF?pasF:pasA;
     const chip=(x,cls,st)=>`<span class="aj-d${cls}"${st}><b>${+x.d1.slice(8)}</b><small>${MESL[+x.d1.slice(5,7)-1].slice(0,3)}</small></span>`;
     const conMeses=(arr,fn)=>{let k="",h=""; arr.forEach(x=>{const ym=x.d1.slice(0,7); if(ym!==k){k=ym; h+=`<h6 class="aj-mes">${MESL[+ym.slice(5)-1]} ${ym.slice(0,4)}</h6>`;} h+=fn(x);}); return h;};
     const filaF=x=>{const n=dias(hoy,x.d1), cuando=x.d2<hoy?"":(n<=0?"Hoy":n===1?"Mañana":n<=30?`En ${n} días`:"");
@@ -2478,17 +2526,21 @@ window.initCalendario=function(db){
       return `<div class="aj-r2${x.d2<hoy?" pas":""}">${chip(x," aca",` style="--ac:${col}"`)}<span class="aj-n">${esc(x.t)}<small>${rango(x.d1,x.d2)} · ${n} ${n===1?"día":"días"}</small></span>${XB(x.id,x.t)}</div>`;};
     const lstF=verPas?pasF.concat(proxF):proxF;
     const cuerpo=esF?(lstF.length?conMeses(lstF,filaF):'<p class="cl-vacio">No hay feriados próximos.</p>')
-      :(aca.length?conMeses(aca,filaA):'<p class="cl-vacio">Todavía no hay períodos. Cargá el inicio y fin de clases, los recesos y las mesas de examen.</p>');
-    const tabs=`<div class="aj-tabs" role="tablist"><button type="button" role="tab" data-ajtab="fer" class="${esF?"on":""}" aria-selected="${esF}">Feriados <small>${proxF.length}</small></button><button type="button" role="tab" data-ajtab="aca" class="${esF?"":"on"}" aria-selected="${!esF}">Calendario académico <small>${aca.length}</small></button></div>`;
-    const bar=`<div class="aj-bar">${esF&&pasF.length?`<button type="button" class="cl-link" data-ajpas="1">${verPas?"Ocultar los anteriores":"Ver los anteriores ("+pasF.length+")"}</button>`:"<span></span>"}<button type="button" class="aj-add" data-addt="${ajTab}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Agregar ${esF?"feriado":"período"}</button></div>`;
-    const pie=`<div class="aj-ft">${esF?"Los feriados son de referencia: verificalos con el calendario oficial."+(oc?` <span class="aj-rs">${oc} ${oc===1?"sacado":"sacados"} · <button type="button" class="cl-link" data-restaurar="1">Restaurar</button></span>`:""):"Los períodos aparecen en el calendario como barras de color suave."}</div>`;
+      :((verPas?aca:proxA).length?conMeses(verPas?aca:proxA,filaA):`<p class="cl-vacio">${aca.length?"No hay períodos próximos.":"Todavía no hay períodos. Cargá el inicio y fin de clases, los recesos y las mesas de examen."}</p>`);
+    const tabs=`<div class="aj-tabs" role="tablist"><button type="button" role="tab" data-ajtab="fer" class="${esF?"on":""}" aria-selected="${esF}">Feriados <small>${proxF.length}</small></button><button type="button" role="tab" data-ajtab="aca" class="${esF?"":"on"}" aria-selected="${!esF}">Calendario académico <small>${proxA.length}</small></button></div>`;
+    const bar=`<div class="aj-bar">${pasX.length?`<button type="button" class="cl-link" data-ajpas="1">${verPas?"Ocultar los anteriores":"Ver los anteriores ("+pasX.length+")"}</button>`:"<span></span>"}<button type="button" class="aj-add" data-addt="${ajTab}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Agregar ${esF?"feriado":"período"}</button></div>`;
+    const ocA=ocultosA().size, pie=esF?(oc?`<div class="aj-ft"><span class="aj-rs">${oc} ${oc===1?"feriado sacado":"feriados sacados"} · <button type="button" class="cl-link" data-restaurar="fer">Restaurar</button></span></div>`:""):(ocA?`<div class="aj-ft"><span class="aj-rs">${ocA} ${ocA===1?"período sacado":"períodos sacados"} · <button type="button" class="cl-link" data-restaurar="aca">Restaurar</button></span></div>`:"");
     return top+tabs+bar+`<div class="aj-b">${cuerpo}</div>`+pie;}
   function pintar(){ if(!pan.classList.contains("open")) return;
     const b=$("cl-b"), y=b.scrollTop; const pe=$("cl-pers"); pe.hidden=vista!=="vac"; pe.innerHTML=vista==="vac"?PERSONAS_VAC.map(p=>`<button type="button" data-vp="${esc(p)}" style="--pc:${PCOL[hash(p)%PCOL.length]}" aria-pressed="${p===vpers}"><i></i>${esc(p)}</button>`).join(""):"";
-    b.innerHTML=vista==="mes"?vMes():vista==="tl"?vTl():vVac(); b.scrollTop=y; pan.style.setProperty("--sbw",(b.offsetWidth-b.clientWidth)+"px"); alinCard();
+    b.innerHTML=vista==="mes"?vMes():vista==="tl"?vTl():vVac(); b.scrollTop=y; pan.style.setProperty("--sbw",(b.offsetWidth-b.clientWidth)+"px"); alinCard(); alinSw();
     document.querySelectorAll("#cl-seg button").forEach(x=>x.classList.toggle("on",x.dataset.v===(vista==="vac"?"vac":"cal")));
     const aj=$("cl-aj"); aj.hidden=!ajustes; if(ajustes){const st=aj.querySelector(".aj-b")?aj.querySelector(".aj-b").scrollTop:0; aj.innerHTML=vAjustes(); if(aj.querySelector(".aj-b")) aj.querySelector(".aj-b").scrollTop=st;} $("cl-aj-btn").setAttribute("aria-expanded",ajustes); $("cl-aj-btn").classList.toggle("on",ajustes); }
   // La línea divisoria del resumen (donde empieza el bloque del período) cae justo en el borde izquierdo del botón "Feriados y académico"
+  // El selector Mes | Línea de tiempo empieza en el borde izquierdo del botón "Feriados y académico" y termina en el borde derecho del contenido
+  function alinSw(){const v=document.querySelector("#cl-b .cl-vsw"); if(!v) return; v.classList.remove("al"); v.style.width="";
+    const g=$("cl-aj-btn").getBoundingClientRect(), n=v.closest(".cl-nav"); if(!n||g.width<150) return;
+    const w=n.getBoundingClientRect().right-g.left, nat=v.offsetWidth; if(w<nat-4||w>nat+80) return; v.classList.add("al"); v.style.width=w+"px";}
   function alinCard(){const c=document.querySelector("#cl-b .vy-card"); if(!c) return; c.classList.remove("al"); c.style.gridTemplateColumns="";
     const g=$("cl-aj-btn").getBoundingClientRect(); if(g.width<150) return;
     const cs=getComputedStyle(c), w=c.getBoundingClientRect().right-parseFloat(cs.borderRightWidth)-parseFloat(cs.paddingRight)-g.left;
@@ -2512,9 +2564,10 @@ window.initCalendario=function(db){
     const ti=e.target.closest("[data-tl]"); if(ti){tlInfo=ti.dataset.tl; pintar(); return;}
     const d=e.target.closest("[data-dia]"); if(d){sel=sel===d.dataset.dia?null:d.dataset.dia; pintar(); return;}
     const x=e.target.closest("[data-del]"); if(x){const id=x.dataset.del;
-      try{ if(id.startsWith("base:")){ if(confirm("¿Sacar este feriado de la lista?")) await col.doc(nid()).set({tipo:"oculto",d1:id.slice(5),d2:id.slice(5),t:"",n:firma(),f:Date.now()}); }
+      try{ if(id.startsWith("abase:")){ const k=id.slice(6), d=k.slice(0,10); if(confirm("¿Sacar este período de la lista?")) await col.doc(nid()).set({tipo:"oculto",d1:d,d2:d,t:"a:"+k.slice(11),n:firma(),f:Date.now()}); }
+           else if(id.startsWith("base:")){ if(confirm("¿Sacar este feriado de la lista?")) await col.doc(nid()).set({tipo:"oculto",d1:id.slice(5),d2:id.slice(5),t:"",n:firma(),f:Date.now()}); }
            else if(confirm("¿Borrar?")) await col.doc(id).delete(); }catch(err){showNotice("No se pudo completar la acción. Probá de nuevo.");} return;}
-    if(e.target.closest("[data-restaurar]")){ try{ await Promise.all(lista("oculto").map(o=>col.doc(o.id).delete())); }catch(err){showNotice("No se pudo restaurar. Probá de nuevo.");} }
+    const rs=e.target.closest("[data-restaurar]"); if(rs){ const deAca=rs.dataset.restaurar==="aca"; try{ await Promise.all(lista("oculto").filter(o=>((o.t||"").startsWith("a:"))===deAca).map(o=>col.doc(o.id).delete())); }catch(err){showNotice("No se pudo restaurar. Probá de nuevo.");} }
   });
   pan.addEventListener("change",e=>{
     const c=e.target.closest("[data-capa]"); if(c){capas[c.dataset.capa]=c.checked; pintar(); return;}
@@ -2531,7 +2584,7 @@ window.initCalendario=function(db){
       if(v.tipo==="vac"&&Array.isArray(v.dias)) docs[d.id].dias=v.dias.filter(ok).sort();}); pintar();},()=>{});
   // si cambian las fechas límite de las obras, se actualiza la capa de fechas límite
   window.calendarioRefrescar=pintar;
-  addEventListener("resize",()=>{const b=$("cl-b"); pan.style.setProperty("--sbw",(b.offsetWidth-b.clientWidth)+"px"); alinCard();});
+  addEventListener("resize",()=>{const b=$("cl-b"); pan.style.setProperty("--sbw",(b.offsetWidth-b.clientWidth)+"px"); alinCard(); alinSw();});
 };
 </script>
 </body></html>
